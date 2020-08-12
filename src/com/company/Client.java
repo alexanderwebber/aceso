@@ -309,8 +309,8 @@ class FillSettingsViz extends SimulationSettings {
                 gelRadiusLowerBoundLabel.setFont(new Font("", Font.BOLD, 14));
                 gelRadiusLowerBoundLabel.setForeground(Color.white);
                 //dt spinner
-                gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rLowerBound, 0, 100, 0.1));
-                gelRadiusLowerBoundSpinner.addChangeListener(ChangeEvent -> panel.S.rLowerBound = (double) gelRadiusLowerBoundSpinner.getValue());
+                gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rAverageRadius, 0, 100, 0.1));
+                gelRadiusLowerBoundSpinner.addChangeListener(ChangeEvent -> panel.S.rAverageRadius = (double) gelRadiusLowerBoundSpinner.getValue());
                 //dt_panel
 
                 JPanel gelLowerPanel = new JPanel();
@@ -323,15 +323,15 @@ class FillSettingsViz extends SimulationSettings {
                 JPanel gelUpperPanel = new JPanel();
                 gelUpperPanel.setBackground(new Color(0, 0, 0, 0));
                 //time_limit label
-                gelRadiusRangeLabel = new JLabel("Gel Radius Variance: ");
+                gelRadiusRangeLabel = new JLabel("Gel Radius StdDev: ");
                 gelRadiusRangeLabel.setFont(new Font("", Font.BOLD, 14));
                 gelRadiusRangeLabel.setForeground(Color.white);
                 gelUpperPanel.add(gelRadiusRangeLabel);
 
 
                 //time_limit spinner
-                gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rRange, 0, 100, 0.1));
-                gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> panel.S.rRange = ((double)gelRadiusRangeSpinner.getValue()));
+                gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rStandardDeviation, 0, 100, 0.1));
+                gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> panel.S.rStandardDeviation = ((double)gelRadiusRangeSpinner.getValue()));
                 gelRadiusRangeSpinner.setPreferredSize(new Dimension(100, 20));
                 gelUpperPanel.add(gelRadiusRangeSpinner);
 
@@ -781,8 +781,8 @@ class FillSettingsNonViz extends JPanel {
             gelRadiusLowerBoundLabel.setFont(new Font("", Font.BOLD, 14));
             gelRadiusLowerBoundLabel.setForeground(Color.white);
             //dt spinner
-            gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(S.rLowerBound, 0, 100, 0.1));
-            gelRadiusLowerBoundSpinner.addChangeListener(ChangeEvent -> S.rLowerBound = (double) gelRadiusLowerBoundSpinner.getValue());
+            gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(S.rAverageRadius, 0, 100, 0.1));
+            gelRadiusLowerBoundSpinner.addChangeListener(ChangeEvent -> S.rAverageRadius = (double) gelRadiusLowerBoundSpinner.getValue());
             //dt_panel
 
             JPanel gelLowerPanel = new JPanel();
@@ -799,8 +799,8 @@ class FillSettingsNonViz extends JPanel {
             gelRadiusRangeLabel.setForeground(Color.white);
             gelUpperPanel.add(gelRadiusRangeLabel);
             //time_limit spinner
-            gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(S.rRange, 0, 100, 0.1));
-            gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> S.rRange = ((double)gelRadiusRangeSpinner.getValue()));
+            gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(S.rStandardDeviation, 0, 100, 0.1));
+            gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> S.rStandardDeviation = ((double)gelRadiusRangeSpinner.getValue()));
             gelRadiusRangeSpinner.setPreferredSize(new Dimension(100, 20));
             gelUpperPanel.add(gelRadiusRangeSpinner);
 

@@ -1,9 +1,7 @@
 package com.company;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
@@ -78,8 +76,8 @@ public class Simulation extends Box {
     private Path savePath;
 
     // To be changed by panel settings
-    double rLowerBound = 30;
-    double rRange = 40;
+    double rAverageRadius = 30;
+    double rStandardDeviation = 40;
 
     void settle() {
         settleThread = new Thread(() -> {
@@ -236,7 +234,7 @@ public class Simulation extends Box {
                 //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
                 FileWriter avgWriter = new FileWriter(getSavePath().toString());
 
-                FileWriter cellWriter = new FileWriter("output_cell_displacements.csv");
+                FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
 
                 double average_displacement;
 
@@ -476,7 +474,7 @@ public class Simulation extends Box {
     }
     void addGel() {
         //spawn new gel in the box
-        double R = rLowerBound + rand.nextInt((int)rRange);
+        double R = rand.nextGaussian() * rStandardDeviation + rAverageRadius;
 
         double x = R + rand.nextDouble()*(side_length - 2*R);
         double y = R + rand.nextDouble()*(side_length - 2*R);
