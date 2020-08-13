@@ -1379,6 +1379,8 @@ public class Particle {
         return R;
     }
 
+    public void setR(double R) { this.R = R; }
+
     public double getxPrime() {
         return xPrime;
     }

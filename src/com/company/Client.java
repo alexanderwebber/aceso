@@ -99,8 +99,6 @@ class FillSettingsViz extends SimulationSettings {
         add(new RunTCellsButton());
         add(new SettingsPanel());
 
-        add(new TimeLabel());
-
         panel.S.setSavePath(getOutputPath());
 
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -109,20 +107,19 @@ class FillSettingsViz extends SimulationSettings {
 
     public static Path getOutputPath() {
 
-        JFileChooser jd = new JFileChooser();
+        JFileChooser folderChooser = new JFileChooser();
 
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV", "csv");
-        jd.setFileFilter(filter);
+        folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        jd.setDialogTitle("Choose output file");
+        folderChooser.setDialogTitle("Choose output folder location");
 
-        int returnVal = jd.showSaveDialog(null);
+        int returnVal = folderChooser.showOpenDialog(null);
 
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return null;
         }
 
-        return jd.getSelectedFile().toPath();
+        return folderChooser.getSelectedFile().toPath();
 
     }
 
@@ -357,11 +354,15 @@ class FillSettingsViz extends SimulationSettings {
             setOpaque(false);
             setPreferredSize(new Dimension(140, 90));
             setLayout(new FlowLayout(FlowLayout.LEFT));
-            setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Volume Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
+            setBorder(BorderFactory.createTitledBorder(this.getBorder(), "SimState Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
             setBackground(new Color(0x6A2D2D2D, true));
+
             add(new Numgelslabel());
             add(new Volumelabel());
             add(new Volumepercentage());
+            add(new TimeStepPanel());
+            add(new GelAvgSizeLabel());
+            add(new GelStdDevLabel());
         }
         class Numgelslabel extends  JLabel {
             Numgelslabel() {
@@ -402,24 +403,53 @@ class FillSettingsViz extends SimulationSettings {
                 setText("Volume: " + (int) panel.S.sum_sphere_volume);
             }
         }
-    }
 
-    class TimeLabel extends JLabel {
-        TimeLabel() {
-            super();
-            setOpaque(false);
-            setLayout(new FlowLayout(FlowLayout.RIGHT));
-            //setPreferredSize(new Dimension(300,300));
+        class TimeStepPanel extends JLabel {
+            TimeStepPanel() {
+                super();
+                setOpaque(false);
+                setForeground(Color.white);
+                setText("Time Step: " + panel.S.fallTimeIterator);
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setText("Time Step: " + panel.S.fallTimeIterator);
+            }
         }
 
-        @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.setColor(Color.red);
-            g.setFont(new Font("",Font.BOLD,36));
-            g.drawString("Time: " + panel.S.t,50,50);
+        class GelAvgSizeLabel extends JLabel {
+            GelAvgSizeLabel() {
+                super();
+                setOpaque(false);
+                setForeground(Color.white);
+                setText("Gel Avg Radius: " + panel.S.outputMeanRadius());
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setText("Gel Avg Radius: " + panel.S.outputMeanRadius());
+            }
+        }
+
+        class GelStdDevLabel extends JLabel {
+            GelStdDevLabel() {
+                super();
+                setOpaque(false);
+                setForeground(Color.white);
+                setText("Gel Std Dev: " + panel.S.outputStandardDeviation());
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setText("Gel Std Dev: " + panel.S.outputStandardDeviation());
+            }
         }
     }
+
 
     class FillButton extends JButton {
         FillButton() {
@@ -523,7 +553,6 @@ class FillSettingsNonViz extends JPanel {
         add(new RunTCellsButton());
         add(new GelSizePanel());
         add(new TimeSettingsPanel());
-        add(new TimeLabel());
     }
 
     public static Path getOutputPath() {
@@ -626,23 +655,6 @@ class FillSettingsNonViz extends JPanel {
                 super.paintComponent(g);
                 setText("Volume: " + (int) S.sum_sphere_volume);
             }
-        }
-    }
-
-    class TimeLabel extends JLabel {
-        TimeLabel() {
-            super();
-            setOpaque(false);
-            setLayout(new FlowLayout(FlowLayout.RIGHT));
-            //setPreferredSize(new Dimension(300,300));
-        }
-
-        @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.setColor(Color.red);
-            g.setFont(new Font("",Font.BOLD,36));
-            g.drawString("Time: " + S.t,50,50);
         }
     }
 
@@ -915,21 +927,6 @@ class SimulationSettings extends JPanel {
             //add to panel
             add(gel_visibility);
             add(edge_visibility);
-        }
-    }
-    class TimeLabel extends JPanel {
-        TimeLabel() {
-            super();
-            setOpaque(false);
-            setPreferredSize(new Dimension(300,50));
-        }
-
-        @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.setColor(Color.white);
-            g.setFont(new Font("",Font.BOLD,36));
-            g.drawString("Time: " + panel.S.t,10,40);
         }
     }
 

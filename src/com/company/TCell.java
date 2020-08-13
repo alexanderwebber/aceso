@@ -150,10 +150,12 @@ public class TCell extends Particle implements Drawable {
     }
 
     void cellMove() {
-        if(checkCollision() == false) {
-            this.v = Vector.random2();
-            updateCollision();
-        }
+        /*if(checkCollision() == false) {
+
+        }*/
+
+        this.v = Vector.random2();
+        updateCollision();
 
         if(numKills < 20) {
             if(this.lastTimeKilled >= 360) {
