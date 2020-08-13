@@ -382,12 +382,12 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Percent Filled: " + (int)(panel.S.sum_sphere_volume*100/panel.S.volume) + " %");
+                setText("Percent Filled: " + (int)(panel.S.sumSphereVolumes() * 100 / panel.S.volume) + " %");
             }
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Percent Filled: " + (int)(panel.S.sum_sphere_volume*100/panel.S.volume) + " %");
+                setText("Percent Filled: " + (int)(panel.S.sumSphereVolumes() * 100 / panel.S.volume) + " %");
             }
         }
         class Volumelabel extends JLabel {
@@ -395,12 +395,12 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Volume: " + (int) panel.S.sum_sphere_volume);
+                setText("Volume: " + (int) panel.S.sumSphereVolumes());
             }
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Volume: " + (int) panel.S.sum_sphere_volume);
+                setText("Volume: " + (int) panel.S.sumSphereVolumes());
             }
         }
 

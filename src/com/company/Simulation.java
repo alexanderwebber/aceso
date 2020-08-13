@@ -108,6 +108,7 @@ public class Simulation extends Box {
 
             for (int i = 0; i < 1000; i++)
                 addGel();
+
             while (sumSphereVolumes() / volume < volume_ratio) {
                 scaleSpheres(1.01);
             }
