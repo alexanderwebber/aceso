@@ -1,7 +1,6 @@
 package com.company;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -163,7 +162,7 @@ class FillSettingsViz extends SimulationSettings {
         SettingsPanel() {
             super();
             setOpaque(false);
-            setPreferredSize(new Dimension(300, 300));
+            setPreferredSize(new Dimension(300, 350));
             setLayout(new FlowLayout(FlowLayout.LEFT));
             setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Settings Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
             setBackground(new Color(0x6A2D2D2D, true));
@@ -171,8 +170,42 @@ class FillSettingsViz extends SimulationSettings {
             add(new NumberOfGelsPanel());
             add(new GelSizePanel());
             add(new TimeSettingsPanel());
+            add(new BoxSideLengthPanel());
 
-            this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            //this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        }
+
+        class BoxSideLengthPanel extends JPanel {
+            JSpinner boxSideLengthSpinner;
+            JLabel boxSideLengthLabel;
+
+            BoxSideLengthPanel() {
+                setOpaque(false);
+
+                //dt label
+                boxSideLengthLabel = new JLabel("Box Side Length: ");
+                boxSideLengthLabel.setFont(new Font("", Font.BOLD, 11));
+                boxSideLengthLabel.setForeground(Color.white);
+                //dt spinner
+                boxSideLengthSpinner = new JSpinner(new SpinnerNumberModel(panel.S.side_length, 0, 10000, 1));
+                boxSideLengthSpinner.addChangeListener(ChangeEvent -> panel.S.setSide((double) boxSideLengthSpinner.getValue()));
+                //dt_panel
+
+                JPanel boxSideLengthPanel = new JPanel();
+                boxSideLengthPanel.setOpaque(false);
+                boxSideLengthPanel.add(boxSideLengthLabel);
+                boxSideLengthPanel.add(boxSideLengthSpinner);
+                boxSideLengthPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+                // made a sub-panel for formatting called "time_settings"
+                JPanel boxSideLengthSettings = new JPanel();
+                //boxSideLengthSettings.setLayout(new FlowLayout(FlowLayout.RIGHT));
+                boxSideLengthSettings.setBackground(new Color(0, 0, 0, 0));
+                boxSideLengthSettings.setPreferredSize(new Dimension(200, 40));
+                boxSideLengthSettings.add(boxSideLengthPanel);
+                add(boxSideLengthSettings);
+                this.setLayout(new FlowLayout(FlowLayout.LEFT));
+            }
         }
 
         class TimeSettingsPanel extends JPanel {
@@ -186,7 +219,7 @@ class FillSettingsViz extends SimulationSettings {
 
                 //dt label
                 dt_label = new JLabel("dt: ");
-                dt_label.setFont(new Font("", Font.BOLD, 14));
+                dt_label.setFont(new Font("", Font.BOLD, 11));
                 dt_label.setForeground(Color.white);
                 //dt spinner
                 dt_spinner = new JSpinner(new SpinnerNumberModel(panel.S.dt, 0, 100, .01));
@@ -202,13 +235,13 @@ class FillSettingsViz extends SimulationSettings {
 
                 //time_limit label
                 limit_label = new JLabel("Time Steps (20 Seconds): ");
-                limit_label.setFont(new Font("", Font.BOLD, 14));
+                limit_label.setFont(new Font("", Font.BOLD, 11));
                 limit_label.setForeground(Color.white);
                 time_panel.add(limit_label);
 
 
                 //time_limit spinner
-                limit_spinner = new JSpinner(new SpinnerNumberModel(10000, 0, 10000000, 10000));
+                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.time_limit, 0, 10000000, 1000));
                 limit_spinner.addChangeListener(ChangeEvent -> panel.S.time_limit = ((double) (int) limit_spinner.getValue()));
                 limit_spinner.setPreferredSize(new Dimension(100, 20));
                 time_panel.add(limit_spinner);
@@ -216,8 +249,8 @@ class FillSettingsViz extends SimulationSettings {
                 // made a sub-panel for formatting called "time_settings"
                 JPanel time_settings = new JPanel();
                 time_settings.setBackground(new Color(0, 0, 0, 0));
-                time_settings.setPreferredSize(new Dimension(300, 100));
-                time_settings.add(dt_panel);
+                time_settings.setPreferredSize(new Dimension(300, 40));
+                //time_settings.add(dt_panel);
                 time_settings.add(time_panel);
                 add(time_settings);
                 this.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -237,7 +270,7 @@ class FillSettingsViz extends SimulationSettings {
 
                 //dt label
                 numTCellsLabel = new JLabel("# of T Cells: ");
-                numTCellsLabel.setFont(new Font("", Font.BOLD, 14));
+                numTCellsLabel.setFont(new Font("", Font.BOLD, 11));
                 numTCellsLabel.setForeground(Color.white);
                 //dt spinner
                 numTCellsSpinner = new JSpinner(new SpinnerNumberModel(panel.S.getNumTCells(), 0, 10000, 1));
@@ -270,7 +303,7 @@ class FillSettingsViz extends SimulationSettings {
 
                 //dt label
                 numGelsLabel = new JLabel("# of Gels: ");
-                numGelsLabel.setFont(new Font("", Font.BOLD, 14));
+                numGelsLabel.setFont(new Font("", Font.BOLD, 11));
                 numGelsLabel.setForeground(Color.white);
                 //dt spinner
                 numGelsSpinner = new JSpinner(new SpinnerNumberModel(panel.S.numGelsToSet, 0, 10000, 1));
@@ -305,7 +338,7 @@ class FillSettingsViz extends SimulationSettings {
 
                 //dt label
                 gelRadiusLowerBoundLabel = new JLabel("Gel Average Radius (microns): ");
-                gelRadiusLowerBoundLabel.setFont(new Font("", Font.BOLD, 14));
+                gelRadiusLowerBoundLabel.setFont(new Font("", Font.BOLD, 11));
                 gelRadiusLowerBoundLabel.setForeground(Color.white);
                 //dt spinner
                 gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rAverageRadius, 0, 100, 0.1));
@@ -323,7 +356,7 @@ class FillSettingsViz extends SimulationSettings {
                 gelUpperPanel.setBackground(new Color(0, 0, 0, 0));
                 //time_limit label
                 gelRadiusRangeLabel = new JLabel("Gel Radius StdDev: ");
-                gelRadiusRangeLabel.setFont(new Font("", Font.BOLD, 14));
+                gelRadiusRangeLabel.setFont(new Font("", Font.BOLD, 11));
                 gelRadiusRangeLabel.setForeground(Color.white);
                 gelUpperPanel.add(gelRadiusRangeLabel);
 
@@ -337,7 +370,7 @@ class FillSettingsViz extends SimulationSettings {
                 // made a sub-panel for formatting called "time_settings"
                 JPanel gel_settings = new JPanel();
                 gel_settings.setBackground(new Color(0, 0, 0, 0));
-                gel_settings.setPreferredSize(new Dimension(300, 100));
+                gel_settings.setPreferredSize(new Dimension(300, 80));
                 gel_settings.add(gelLowerPanel);
                 gel_settings.add(gelUpperPanel);
                 add(gel_settings);
@@ -354,7 +387,7 @@ class FillSettingsViz extends SimulationSettings {
         Volumepanel() {
             super();
             setOpaque(false);
-            setPreferredSize(new Dimension(140, 90));
+            setPreferredSize(new Dimension(150, 90));
             setLayout(new FlowLayout(FlowLayout.LEFT));
             setBorder(BorderFactory.createTitledBorder(this.getBorder(), "SimState Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
             setBackground(new Color(0x6A2D2D2D, true));

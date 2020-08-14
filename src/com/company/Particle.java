@@ -1518,8 +1518,6 @@ public class Particle {
         return false;
     }
 
-
-    //TODO Flip MSD boundary conditions
     public void updateCollision() {
         /*for(int i = 0; i < B.getNumTumor(); i++) {
             double radius_sum = B.getTumoroids().get(i).getR() + R;
@@ -1541,7 +1539,7 @@ public class Particle {
 
         for (Particle other : nearby) {
             try {
-                if (other != null && other.imImage == false) {
+                if (other != null && other.imImage == false && !other.type.equals("TCell")) {
                     double radiusSum = R + other.R;
                     double dx, dy, dz;
                     dx = x + v.x() - other.x;
