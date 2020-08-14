@@ -99,7 +99,7 @@ class FillSettingsViz extends SimulationSettings {
         add(new RunTCellsButton());
         add(new SettingsPanel());
 
-        panel.S.setSavePath(getOutputPath());
+        //panel.S.setSavePath(getOutputPath());
 
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
@@ -108,6 +108,8 @@ class FillSettingsViz extends SimulationSettings {
     public static Path getOutputPath() {
 
         JFileChooser folderChooser = new JFileChooser();
+
+        folderChooser.setSelectedFile(new java.io.File("."));
 
         folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -424,13 +426,13 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Gel Avg Radius: " + panel.S.outputMeanRadius());
+                setText("Gel Avg Radius: " + String.format("%.1f", panel.S.outputMeanRadius()));
             }
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Gel Avg Radius: " + panel.S.outputMeanRadius());
+                setText("Gel Avg Radius: " + String.format("%.1f", panel.S.outputMeanRadius()));
             }
         }
 
@@ -439,13 +441,13 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Gel Std Dev: " + panel.S.outputStandardDeviation());
+                setText("Gel Std Dev: " + String.format("%.1f", panel.S.outputStandardDeviation()));
             }
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Gel Std Dev: " + panel.S.outputStandardDeviation());
+                setText("Gel Std Dev: " + String.format("%.1f", panel.S.outputStandardDeviation()));
             }
         }
     }

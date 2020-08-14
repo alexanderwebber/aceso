@@ -214,9 +214,11 @@ public class Simulation extends Box {
                     gels.get(j).fall();
                 }
 
-                densityValues.add(sdc.calculateAreaFractionDensityXY());
-                densityValues.add(sdc.calculateAreaFractionDensityXZ());
-                densityValues.add(sdc.calculateAreaFractionDensityYZ());
+                if(fallTimeIterator % 1000 == 0) {
+                    densityValues.add(sdc.calculateAreaFractionDensityXY());
+                    densityValues.add(sdc.calculateAreaFractionDensityXZ());
+                    densityValues.add(sdc.calculateAreaFractionDensityYZ());
+                }
 
                 fallTimeIterator++;
             }
