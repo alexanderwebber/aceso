@@ -95,7 +95,7 @@ public class Simulation extends Box {
     //TODO: UPDATE TO SMALL TO INCREASE SIZE MODEL
     void fill() {
         fillThread = new Thread(() -> {
-            setSide(1000);
+            setSide(side_length);
             volume_ratio = .66;
             if (settleThread.isAlive()) {
                 settleThread.interrupt();
@@ -106,7 +106,7 @@ public class Simulation extends Box {
 
             rStandardDeviation = rStandardDeviation * 0.01;
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < numGelsToSet; i++)
                 addGel();
 
             while (sumSphereVolumes() / volume < volume_ratio) {
@@ -255,7 +255,7 @@ public class Simulation extends Box {
     void writeDensityToCSV() {
         try {
             //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
-            FileWriter avgWriter = new FileWriter(getSavePath().toString() +  "density_vs_time.csv");
+            FileWriter avgWriter = new FileWriter(getSavePath().toString() +  "/density_vs_time.csv");
 
             int position = 0;
 
@@ -301,9 +301,9 @@ public class Simulation extends Box {
 
             try {
                 //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
-                FileWriter avgWriter = new FileWriter(getSavePath().toString() + "msd_vs_time.csv");
+                FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
 
-                FileWriter cellWriter = new FileWriter(getSavePath().toString() + "cell_displacements_individual.csv");
+                FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
 
                 double average_displacement;
 
@@ -351,7 +351,7 @@ public class Simulation extends Box {
             }
 
             //new Breadcrumbs(t, dt, 10, this);
-            new Graph2(getSavePath().toString() + "msd_vs_time.csv", t, dt);
+            new Graph2(getSavePath().toString() + "/msd_vs_time.csv", t, dt);
             //new Graph("output.csv", t, dt);
         });
 
@@ -457,8 +457,8 @@ public class Simulation extends Box {
         }
     }
 
-    void addGel(double x, double y, double z) {
-        Gel g = new Gel(x, y, z, 50.0, this);
+    void addGel(double x, double y, double z, double R) {
+        Gel g = new Gel(x, y, z, R, this);
         vox.add(g);
         gels.add(numGels++, g);
         sum_sphere_volume += g.volume();

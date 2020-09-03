@@ -242,7 +242,7 @@ class FillSettingsViz extends SimulationSettings {
 
                 //time_limit spinner
                 limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.time_limit, 0, 10000000, 1000));
-                limit_spinner.addChangeListener(ChangeEvent -> panel.S.time_limit = ((double) (int) limit_spinner.getValue()));
+                limit_spinner.addChangeListener(ChangeEvent -> panel.S.time_limit = ((Double)limit_spinner.getValue()));
                 limit_spinner.setPreferredSize(new Dimension(100, 20));
                 time_panel.add(limit_spinner);
 

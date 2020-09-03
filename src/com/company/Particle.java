@@ -1438,6 +1438,7 @@ public class Particle {
         }
         return arr;
     }
+
     Voxel getVoxel() {
         double vox_length = (S.side_length / S.vox.voxels_per_side);
         int i = (int) (x / vox_length);
@@ -1448,6 +1449,7 @@ public class Particle {
         k = k >= 0 ? k < S.vox.voxels_per_side ? k : k - S.vox.voxels_per_side : k + S.vox.voxels_per_side;
         return S.vox.voxels[i][j][k];
     }
+
     Voxel getVoxel(double x, double y, double z) {
         double vox_length = (S.side_length / S.vox.voxels_per_side);
         int i = (int) (x / vox_length);
@@ -1539,7 +1541,7 @@ public class Particle {
 
         for (Particle other : nearby) {
             try {
-                if (other != null && other.imImage == false && !other.type.equals("TCell")) {
+                if (other != null && other.imImage == false && other.type.equals("Gel")) {
                     double radiusSum = R + other.R;
                     double dx, dy, dz;
                     dx = x + v.x() - other.x;
