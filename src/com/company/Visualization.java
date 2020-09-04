@@ -11,6 +11,7 @@ class Visualization extends JPanel {
     boolean see_box = true;
     boolean see_gels = true;
     boolean see_tcell = true;
+    boolean see_tumor = false;
     //SimulationSettings settings;
     static Drawable[] drawthis = new Drawable[1000000];
     static int drawObjects;
@@ -145,6 +146,29 @@ class Visualization extends JPanel {
                     }
                 }
             }
+
+            /*if (see_tumor) {
+                for (int i = 0; i < S.getNumTumor(); ++i) {
+                    Tumoroid temp = new Tumoroid();
+                    double d = Math.abs(sl.getZ() - S.getTumoroids().get(i).getZ());
+                    if (d < S.getTumoroids().get(i).R) {
+                        temp.R = (Math.sqrt(S.getTumoroids().get(i).getR() * S.getTumoroids().get(i).getR() - d * d));
+                        temp.x = (S.getTumoroids().get(i).getX() - temp.R - S.side_length / 2);
+                        temp.y = (S.getTumoroids().get(i).getY() - temp.R - S.side_length / 2);
+                        //scaaaaale
+                        temp.x *= scale;
+                        temp.y *= scale;
+                        temp.R *= scale;
+
+                        temp.x += getWidth() / 2.0;
+                        temp.y += getHeight() / 2.0;
+
+                        temp.draw(g);
+                    }
+                }
+
+                drawTumoroids();
+            }*/
         }
 
     }
@@ -193,7 +217,7 @@ class Visualization extends JPanel {
         drawthis[drawObjects++] = new LineSegment(corners[6][0], corners[6][1], corners[6][2], corners[7][0], corners[7][1], corners[7][2]);
     }
     private void addGels() {
-        for (int i = 0; i < S.numGels; i++) {
+        for (int i = 0; i < S.numGels - 1; i++) {
             Gel temp = new Gel();
             temp.R = S.gels.get(i).R;
             double x = S.gels.get(i).x - S.side_length / 2;
@@ -242,6 +266,44 @@ class Visualization extends JPanel {
             drawthis[drawObjects++] = temp;
         }
     }
+
+   /* private void drawTumoroids() {
+        for (int i = 0; i < S.getTumoroids().size(); ++i) {
+            Tumoroid temp = new Tumoroid();
+            temp.setR(S.getTumoroids().get(i).getR());
+
+            // Add status
+            if(S.getTumoroids().get(i).getStatus().equals("alive")) {
+                temp.setStatus("alive");
+            } else if (S.getTumoroids().get(i).getStatus().equals("being_attacked")) {
+                temp.setStatus("being_attacked");
+            } else if (S.getTumoroids().get(i).getStatus().equals("dead")) {
+                temp.setStatus("dead");
+            }
+
+            double x = S.getTumoroids().get(i).getX() - S.side_length / 2;
+            double y = S.getTumoroids().get(i).getY() - S.side_length / 2;
+            double z = S.getTumoroids().get(i).getZ() - S.side_length / 2;
+
+            //transfooooooooorm
+            temp.x = x * cos_theta - y * sin_theta;
+            temp.y = z * cos_phi + (x * sin_theta + y * cos_theta) * sin_phi;
+            temp.z = z * sin_phi - (x * sin_theta + y * cos_theta) * cos_phi;
+
+            //scaaaaaale
+            temp.x *= o.r / 2000;
+            temp.y *= o.r / 2000;
+            temp.z *= o.r / 2000;
+            temp.R *= o.r / 2000;
+
+            //centeeeeer
+            temp.x = ((int) temp.x + k.offset_x - (int) temp.R) + (double) this.getWidth() / 2;
+            temp.y = ((int) temp.y + k.offset_y - (int) temp.R) + (double) this.getHeight() / 2;
+
+            drawthis[drawObjects++] = temp;
+        }
+    }*/
+
     class SlicerShifter extends MouseAdapter {
         double z = 500;
         double scroll_amount = 5;

@@ -399,6 +399,12 @@ public class Tumoroid extends Particle implements Drawable {
 
     @Override
     public void draw(Graphics g) {
+        g.setColor(new Color(0, 255, 0, 192)); //outline
+        g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+
+        g.setColor(new Color(0, 255, 0, 90)); //fill
+        g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+
         if(this.getStatus().equals("alive")) {
             g.setColor(new Color(0, 255, 0, 192)); //outline
             g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));

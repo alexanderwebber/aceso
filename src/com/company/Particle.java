@@ -14,6 +14,8 @@ public class Particle {
     Simulation S;
     double dt = 0.01;
 
+    String tag = "Tumor_Remove";
+
     private int numPBCJumpsX = 0;
     private int numPBCJumpsY = 0;
     private int numPBCJumpsZ = 0;
@@ -76,6 +78,36 @@ public class Particle {
     //Particles are assumed to be spheres
     double volume() {
         return 4 * PI * Math.pow(R, 3) / 3;
+    }
+
+    Particle[] getImageParticles() {
+        Particle[] imageParticleArray = new Particle[19];
+
+        imageParticleArray[0] = imageX;
+        imageParticleArray[1] = imageY;
+        imageParticleArray[2] = imageZ;
+
+        imageParticleArray[3] = imageXY1;
+        imageParticleArray[4] = imageXY2;
+        imageParticleArray[5] = imageXY3;
+
+        imageParticleArray[6] = imageXZ1;
+        imageParticleArray[7] = imageXZ2;
+        imageParticleArray[8] = imageXZ3;
+
+        imageParticleArray[9] = imageYZ1;
+        imageParticleArray[10] = imageYZ2;
+        imageParticleArray[11] = imageYZ3;
+
+        imageParticleArray[12] = imageXYZ1;
+        imageParticleArray[13] = imageXYZ2;
+        imageParticleArray[14] = imageXYZ3;
+        imageParticleArray[15] = imageXYZ4;
+        imageParticleArray[16] = imageXYZ5;
+        imageParticleArray[17] = imageXYZ6;
+        imageParticleArray[18] = imageXYZ7;
+
+        return imageParticleArray;
     }
 
     synchronized void setXYZ(double newx, double newy, double newz) {
@@ -1053,7 +1085,7 @@ public class Particle {
             S.imageParticles.add(this.imageXYZ1);
 
             S.vox.remove(this.imageXYZ2);
-            S.imageParticles.remove(this.imageXYZ1);
+            S.imageParticles.remove(this.imageXYZ2);
             this.imageXYZ2.voxel = this.imageXYZ2.getVoxel();
             this.imageXYZ2.in_voxels = this.imageXYZ2.getVoxels();
             this.imageXYZ2.nearby = this.imageXYZ2.getNearby();
@@ -1093,7 +1125,7 @@ public class Particle {
             S.imageParticles.add(this.imageXYZ6);
 
             S.vox.remove(this.imageXYZ7);
-            S.imageParticles.remove(this.imageXYZ1);
+            S.imageParticles.remove(this.imageXYZ7);
             this.imageXYZ7.voxel = this.imageXYZ7.getVoxel();
             this.imageXYZ7.in_voxels = this.imageXYZ7.getVoxels();
             this.imageXYZ7.nearby = this.imageXYZ7.getNearby();

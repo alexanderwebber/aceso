@@ -89,6 +89,7 @@ public class Simulation extends Box {
                 }
             }
         });
+
         settleThread.start();
     }
 
@@ -100,6 +101,8 @@ public class Simulation extends Box {
             if (settleThread.isAlive()) {
                 settleThread.interrupt();
             }
+
+            addGel(side_length/2, side_length/2, side_length/2, 1);
 
             // Scale down average radius and std dev
             rAverageRadius = rAverageRadius * 0.01;
@@ -113,6 +116,12 @@ public class Simulation extends Box {
                 scaleSpheres(1.01);
             }
 
+            /*gels.remove(0);
+
+            numGels--;
+
+            initFromCSVTumor("tumor.csv");*/
+
             settle();
 
         });
@@ -123,7 +132,7 @@ public class Simulation extends Box {
     double outputMeanRadius() {
         double sum = 0.0;
 
-        for(int i = 0; i < numGels; i++) {
+        for(int i = 0; i < numGels - 1; i++) {
 
             sum += gels.get(i).getR();
 
@@ -169,6 +178,35 @@ public class Simulation extends Box {
         }
 
         return sumVolume;
+    }
+
+    void initFromCSVTumor(String filename2) {
+        try {
+            int numTumor = 559;
+            Random r = new Random();
+            //Tumors from csv
+
+            System.out.println("test");
+
+            BufferedReader builder2 = new BufferedReader(new FileReader(filename2));
+
+            String thisline = builder2.readLine();
+
+            for (int i = 0; i < numTumor; i++) {
+                double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
+
+                int comma = thisline.indexOf(',');
+                double x = Double.parseDouble(thisline.substring(0, comma));
+                int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
+                double y = Double.parseDouble(thisline.substring(comma + 1, comma2));
+                comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
+                double z = Double.parseDouble(thisline.substring(comma2 + 1, comma));
+                double R = randomRadius;
+                this.addTumor(x, y, z, R, i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     void fillFromCSV() {
@@ -218,6 +256,12 @@ public class Simulation extends Box {
                     densityValues.add(sdc.calculateAreaFractionDensityXY());
                     densityValues.add(sdc.calculateAreaFractionDensityXZ());
                     densityValues.add(sdc.calculateAreaFractionDensityYZ());
+
+                    /*writeDensityToCSV();
+
+                    System.out.println("Done writing density slices to CSV. Running python script for graph output:");
+
+                    runPython("python density_graph.py");*/
                 }
 
                 fallTimeIterator++;
@@ -229,8 +273,6 @@ public class Simulation extends Box {
             System.out.println("Done running gels. Settling time: " + finishTime / 1e9 + " seconds");
 
             System.out.println("Writing density slices to CSV");
-
-            writeDensityToCSV();
 
             System.out.println("Done writing density slices to CSV. Running python script for graph output:");
 

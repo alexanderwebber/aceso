@@ -41,7 +41,6 @@ public class DensityTester {
                         double dy = y - p.y;
 
                         //TODO: WRITE COMMENTS WITH SPENCER
-
                         //distance calculation
                         double rSquaredMinusDist = p.R * p.R - (Math.pow(dx, 2) + Math.pow(dy, 2));
 
@@ -76,6 +75,7 @@ public class DensityTester {
 
     Voxel[] inVoxels(double x, double y) {
         double vox_length = (s.side_length / s.vox.voxels_per_side);
+
         int i = (int) (x / vox_length);
         i = i >= 0 ? i < s.vox.voxels_per_side ? i : i - s.vox.voxels_per_side : i + s.vox.voxels_per_side;
         int j = (int) (y / vox_length);
