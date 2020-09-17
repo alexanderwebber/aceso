@@ -11,7 +11,7 @@ class Visualization extends JPanel {
     boolean see_box = true;
     boolean see_gels = true;
     boolean see_tcell = true;
-    boolean see_tumor = false;
+    boolean see_tumor = true;
     //SimulationSettings settings;
     static Drawable[] drawthis = new Drawable[1000000];
     static int drawObjects;
@@ -49,6 +49,10 @@ class Visualization extends JPanel {
                 addGels();
             if (see_tcell)
                 addParticles();
+            if (see_tumor) {
+                drawTumoroids();
+            }
+
             try {
                 new QuickSort(drawthis, 0, drawObjects);
             } catch (Exception e) {
@@ -147,7 +151,7 @@ class Visualization extends JPanel {
                 }
             }
 
-            /*if (see_tumor) {
+            if (see_tumor) {
                 for (int i = 0; i < S.getNumTumor(); ++i) {
                     Tumoroid temp = new Tumoroid();
                     double d = Math.abs(sl.getZ() - S.getTumoroids().get(i).getZ());
@@ -166,9 +170,7 @@ class Visualization extends JPanel {
                         temp.draw(g);
                     }
                 }
-
-                drawTumoroids();
-            }*/
+            }
         }
 
     }
@@ -184,6 +186,7 @@ class Visualization extends JPanel {
                 {s, s, -s},
                 {s, s, s}
         };
+
         for (double[] corner : corners) {
             double x = corner[0];
             double y = corner[1];
@@ -216,6 +219,7 @@ class Visualization extends JPanel {
         drawthis[drawObjects++] = new LineSegment(corners[5][0], corners[5][1], corners[5][2], corners[7][0], corners[7][1], corners[7][2]);
         drawthis[drawObjects++] = new LineSegment(corners[6][0], corners[6][1], corners[6][2], corners[7][0], corners[7][1], corners[7][2]);
     }
+
     private void addGels() {
         for (int i = 0; i < S.numGels - 1; i++) {
             Gel temp = new Gel();
@@ -241,6 +245,7 @@ class Visualization extends JPanel {
             drawthis[drawObjects++] = temp;
         }
     }
+
     private void addParticles() {
         for (int i = 0; i < S.numParticles; ++i) {
             TCell temp = new TCell();
@@ -267,8 +272,10 @@ class Visualization extends JPanel {
         }
     }
 
-   /* private void drawTumoroids() {
-        for (int i = 0; i < S.getTumoroids().size(); ++i) {
+   private void drawTumoroids() {
+       System.out.println(S.getNumTumor());
+
+        for (int i = 0; i < S.getNumTumor(); i++) {
             Tumoroid temp = new Tumoroid();
             temp.setR(S.getTumoroids().get(i).getR());
 
@@ -302,7 +309,7 @@ class Visualization extends JPanel {
 
             drawthis[drawObjects++] = temp;
         }
-    }*/
+    }
 
     class SlicerShifter extends MouseAdapter {
         double z = 500;

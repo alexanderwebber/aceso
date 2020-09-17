@@ -93,7 +93,6 @@ public class Simulation extends Box {
         settleThread.start();
     }
 
-    //TODO: UPDATE TO SMALL TO INCREASE SIZE MODEL
     void fill() {
         fillThread = new Thread(() -> {
             setSide(side_length);
@@ -118,9 +117,9 @@ public class Simulation extends Box {
 
             /*gels.remove(0);
 
-            numGels--;
+            numGels--;*/
 
-            initFromCSVTumor("tumor.csv");*/
+            //initFromCSVTumor("tumor.csv");
 
             settle();
 
@@ -203,7 +202,10 @@ public class Simulation extends Box {
                 double z = Double.parseDouble(thisline.substring(comma2 + 1, comma));
                 double R = randomRadius;
                 this.addTumor(x, y, z, R, i);
+
             }
+
+            System.out.println(getNumTumor());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -252,23 +254,23 @@ public class Simulation extends Box {
                     gels.get(j).fall();
                 }
 
-                if(fallTimeIterator % 1000 == 0) {
+                /*if(fallTimeIterator % 1000 == 0) {
                     densityValues.add(sdc.calculateAreaFractionDensityXY());
                     densityValues.add(sdc.calculateAreaFractionDensityXZ());
                     densityValues.add(sdc.calculateAreaFractionDensityYZ());
 
-                    /*writeDensityToCSV();
+                    *//*writeDensityToCSV();
 
                     System.out.println("Done writing density slices to CSV. Running python script for graph output:");
 
-                    runPython("python density_graph.py");*/
-                }
+                    runPython("python density_graph.py");*//*
+                }*/
 
                 fallTimeIterator++;
             }
 
             //this.outputGelPositions("gelPositions.csv");
-            long finishTime = System.nanoTime() - startTime;
+            /*long finishTime = System.nanoTime() - startTime;
 
             System.out.println("Done running gels. Settling time: " + finishTime / 1e9 + " seconds");
 
@@ -278,7 +280,7 @@ public class Simulation extends Box {
 
             runPython("python density_graph.py");
 
-            System.out.println("Done running python script");
+            System.out.println("Done running python script");*/
         });
 
         fallThread.start();
