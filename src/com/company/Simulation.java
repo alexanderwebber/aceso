@@ -60,7 +60,7 @@ public class Simulation extends Box {
     ArrayList<Particle> imageParticles = new ArrayList<>();
     ArrayList<Double> densityValues = new ArrayList<>();
     int numParticles = 0;
-    double numTCells = 0;
+    double numTCells = 100;
     double numGelsToSet = 1000;
     //Threads of control
     Thread settleThread = new Thread();
@@ -95,6 +95,8 @@ public class Simulation extends Box {
 
     void fill() {
         fillThread = new Thread(() -> {
+            double startTime = System.nanoTime();
+
             setSide(side_length);
             volume_ratio = .66;
             if (settleThread.isAlive()) {
@@ -123,6 +125,11 @@ public class Simulation extends Box {
 
             settle();
 
+            double endTime = System.nanoTime();
+
+            double timeDiff = endTime - startTime;
+
+            System.out.println("Time to fill: " + timeDiff / 1e9);
         });
         fillThread.start();
     }
@@ -281,6 +288,13 @@ public class Simulation extends Box {
             runPython("python density_graph.py");
 
             System.out.println("Done running python script");*/
+
+            double endTime = System.nanoTime();
+
+            double timeDiff = endTime - startTime;
+
+            System.out.println("Time to fall: " + timeDiff / 1e9);
+
         });
 
         fallThread.start();
@@ -345,9 +359,14 @@ public class Simulation extends Box {
 
             try {
                 //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
-                FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
 
-                FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
+
+
+                //FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
+                FileWriter avgWriter = new FileWriter("msd_vs_time.csv");
+
+                //FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
+                FileWriter cellWriter = new FileWriter("cell_displacements_individual.csv");
 
                 double average_displacement;
 
@@ -395,7 +414,7 @@ public class Simulation extends Box {
             }
 
             //new Breadcrumbs(t, dt, 10, this);
-            new Graph2(getSavePath().toString() + "/msd_vs_time.csv", t, dt);
+            //new Graph2(getSavePath().toString() + "/msd_vs_time.csv", t, dt);
             //new Graph("output.csv", t, dt);
         });
 

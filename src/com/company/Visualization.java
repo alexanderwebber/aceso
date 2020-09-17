@@ -273,7 +273,6 @@ class Visualization extends JPanel {
     }
 
    private void drawTumoroids() {
-       System.out.println(S.getNumTumor());
 
         for (int i = 0; i < S.getNumTumor(); i++) {
             Tumoroid temp = new Tumoroid();
