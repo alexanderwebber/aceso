@@ -1,8 +1,13 @@
 package com.company;
 
+import sun.tools.tree.ArrayAccessExpression;
+
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -17,11 +22,12 @@ class Box {
     BoxVoxels vox;       //Voxel memory for the particles
     private ArrayList<Tumoroid> tumoroids = new ArrayList<>();
 
+
     Box() {
         side_length = 1000;
         volume = side_length * side_length * side_length;
         volume_ratio = .70;
-        vox = new BoxVoxels(this);
+
     }
 
     Box(double side_length, double volume_ratio) {
@@ -61,24 +67,27 @@ public class Simulation extends Box {
     ArrayList<Double> densityValues = new ArrayList<>();
     int numParticles = 0;
     double numTCells = 100;
-    double numGelsToSet = 1000;
+    //double numGelsToSet = 1000;
     //Threads of control
     Thread settleThread = new Thread();
     Thread fillThread = new Thread();
     Thread fallThread = new Thread();
     Thread tCellThread = new Thread();
 
+    boolean gui = true;
+
     SliceDensityCalculator sdc = new SliceDensityCalculator(this);
     double t = 0;
     int fallTimeIterator = 0;
-    double time_limit = 10000;
+    double time_limit = 1000;
     double dt = 1;
     boolean simulating = false;
     private Path savePath;
 
+
     // To be changed by panel settings
     double rAverageRadius = 50;
-    double rStandardDeviation = 1;
+    double rangeOverAverageR = 0.0;
 
     void settle() {
         settleThread = new Thread(() -> {
@@ -93,6 +102,16 @@ public class Simulation extends Box {
         settleThread.start();
     }
 
+    int countOverlaps() {
+        int totalOverlapCount = 0;
+
+        for(int i = 0; i < numGels; i++) {
+            totalOverlapCount +=  gels.get(i).getNumOverlaps();
+        }
+
+        return totalOverlapCount;
+    }
+
     void fill() {
         fillThread = new Thread(() -> {
             double startTime = System.nanoTime();
@@ -103,18 +122,30 @@ public class Simulation extends Box {
                 settleThread.interrupt();
             }
 
-            addGel(side_length/2, side_length/2, side_length/2, 1);
+            //addGel(side_length/2, side_length/2, side_length/2, 1);
 
             // Scale down average radius and std dev
+            int numGelsToSet = (int)((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
+
+
             rAverageRadius = rAverageRadius * 0.01;
 
-            rStandardDeviation = rStandardDeviation * 0.01;
+            rangeOverAverageR = rangeOverAverageR * 0.01;
+
+            vox = new BoxVoxels(this);
 
             for (int i = 0; i < numGelsToSet; i++)
                 addGel();
 
             while (sumSphereVolumes() / volume < volume_ratio) {
                 scaleSpheres(1.01);
+
+                /*if(sumSphereVolumes() / volume > 0.24 && sumSphereVolumes() / volume < 0.26) {
+                    for(int i = 0; i < 100; i++) {
+                        settle();
+                    }
+                }*/
+
             }
 
             /*gels.remove(0);
@@ -133,6 +164,84 @@ public class Simulation extends Box {
         });
         fillThread.start();
     }
+
+    void fillUnthreaded() {
+        System.out.println("reached fill start");
+        double startTime = System.nanoTime();
+
+        setSide(side_length);
+        volume_ratio = .66;
+        if (settleThread.isAlive()) {
+            settleThread.interrupt();
+        }
+
+        //addGel(side_length/2, side_length/2, side_length/2, 1);
+
+        // Scale down average radius and std dev
+        int numGelsToSet = (int)((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
+
+
+        rAverageRadius = rAverageRadius * 0.01;
+
+        rangeOverAverageR = rangeOverAverageR * 0.01;
+
+        vox = new BoxVoxels(this);
+
+        for (int i = 0; i < numGelsToSet; i++)
+            addGel();
+
+        while (sumSphereVolumes() / volume < volume_ratio) {
+            scaleSpheres(1.01);
+
+            /*if(sumSphereVolumes() / volume > 0.24 && sumSphereVolumes() / volume < 0.26) {
+                for(int i = 0; i < 100; i++) {
+                    settle();
+                }
+            }*/
+
+        }
+
+        /*gels.remove(0);
+
+        numGels--;*/
+
+        //initFromCSVTumor("tumor.csv");
+
+        settle();
+
+        double endTime = System.nanoTime();
+
+        double timeDiff = endTime - startTime;
+
+        System.out.println("Time to fill: " + timeDiff / 1e9);
+
+        System.out.println("reached fill end");
+
+    }
+
+    public double returnGelRange() {
+        double min = 0.0;
+        double max = 0.0;
+
+        if(numGels != 0) {
+            min = gels.get(0).getR();
+            max = gels.get(0).getR();
+
+
+            for(int i = 0; i < numGels; i++) {
+                if(gels.get(i).getR() < min) {
+                    min = gels.get(i).getR();
+                }
+                else if(gels.get(i).getR() > max) {
+                    max = gels.get(i).getR();
+                }
+            }
+        }
+
+        return max - min;
+    }
+
+
 
     // Output average radius
     double outputMeanRadius() {
@@ -164,6 +273,15 @@ public class Simulation extends Box {
 
         return stddev;
 
+    }
+
+    double outputRangeOverAverageR() {
+        double rangeOverAverageR = 0.0;
+
+        rangeOverAverageR = returnGelRange() / outputMeanRadius();
+
+
+        return rangeOverAverageR;
     }
 
     // Scales size of spheres by input percentage
@@ -261,6 +379,8 @@ public class Simulation extends Box {
                     gels.get(j).fall();
                 }
 
+                //System.out.println(countOverlaps());
+
                 /*if(fallTimeIterator % 1000 == 0) {
                     densityValues.add(sdc.calculateAreaFractionDensityXY());
                     densityValues.add(sdc.calculateAreaFractionDensityXZ());
@@ -289,6 +409,10 @@ public class Simulation extends Box {
 
             System.out.println("Done running python script");*/
 
+            writeDistributionToCSV();
+
+            runPython("python overlap_dist.py");
+
             double endTime = System.nanoTime();
 
             double timeDiff = endTime - startTime;
@@ -298,6 +422,59 @@ public class Simulation extends Box {
         });
 
         fallThread.start();
+    }
+
+    void fallUnthreaded() {
+        System.out.println("reached fall start");
+        System.out.println(numGels);
+        long startTime = System.nanoTime();
+
+        while(fallTimeIterator < time_limit) {
+            for (int j = 0; j < numGels; j++) {
+                gels.get(j).fall();
+            }
+
+            //System.out.println(countOverlaps());
+
+            /*if(fallTimeIterator % 1000 == 0) {
+                densityValues.add(sdc.calculateAreaFractionDensityXY());
+                densityValues.add(sdc.calculateAreaFractionDensityXZ());
+                densityValues.add(sdc.calculateAreaFractionDensityYZ());
+
+                *//*writeDensityToCSV();
+
+                System.out.println("Done writing density slices to CSV. Running python script for graph output:");
+
+                runPython("python density_graph.py");*//*
+            }*/
+
+            fallTimeIterator++;
+        }
+
+        //this.outputGelPositions("gelPositions.csv");
+        /*long finishTime = System.nanoTime() - startTime;
+
+        System.out.println("Done running gels. Settling time: " + finishTime / 1e9 + " seconds");
+
+        System.out.println("Writing density slices to CSV");
+
+        System.out.println("Done writing density slices to CSV. Running python script for graph output:");
+
+        runPython("python density_graph.py");
+
+        System.out.println("Done running python script");*/
+
+        //writeDistributionToCSV();
+
+        //runPython("python overlap_dist.py");
+
+        double endTime = System.nanoTime();
+
+        double timeDiff = endTime - startTime;
+
+        System.out.println("Time to fall: " + timeDiff / 1e9);
+
+        System.out.println("reached fall end");
     }
 
     void runPython(String fileName) {
@@ -337,6 +514,57 @@ public class Simulation extends Box {
         }
     }
 
+    public double calculateAvgRadius() {
+        double avgRadius;
+        double sumRadius = 0;
+
+        for(int i = 0; i < numGels; i++) {
+            sumRadius += gels.get(i).getR();
+        }
+
+        avgRadius = sumRadius / numGels;
+
+        return avgRadius;
+    }
+
+    public ArrayList<Double> calculateOverlapDistribution() {
+        ArrayList<Double> overlapDistribution = new ArrayList<>();
+
+        for(int i = 0; i < numGels; i++) {
+            for(int j = 0; j < gels.get(i).getOverlapDistribution().size(); j++) {
+                overlapDistribution.add(gels.get(i).getOverlapDistribution().get(j));
+                System.out.println(gels.get(i).getOverlapDistribution().size());
+            }
+        }
+
+        return overlapDistribution;
+    }
+
+    public void writeDistributionToCSV() {
+        try {
+            ArrayList<Double> overlaps = calculateOverlapDistribution();
+            Collections.sort(overlaps);
+
+            FileWriter distWriter = new FileWriter("./overlap_distribution.csv");
+
+            distWriter.append(String.format("%s, %s, \n", "Overlap", "Ratio"));
+
+            for(int i = 0; i < overlaps.size(); i++) {
+
+                //Write-out the average_displacement for this step
+                distWriter.append(String.format("%d,%.5f,\n", i, overlaps.get(i)));
+            }
+
+            distWriter.flush();
+
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     public double getNumTCells() {
         return numTCells;
     }
@@ -365,6 +593,7 @@ public class Simulation extends Box {
                 //FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
                 FileWriter avgWriter = new FileWriter("msd_vs_time.csv");
 
+
                 //FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
                 FileWriter cellWriter = new FileWriter("cell_displacements_individual.csv");
 
@@ -372,7 +601,8 @@ public class Simulation extends Box {
 
                 long startTime = System.nanoTime();
 
-                while(sim_time++ < time_limit) {
+                while(sim_time++ < 10000) {
+                    System.out.println(sim_time);
                     average_displacement = 0.0;
 
                     //TODO Change back to cellMove once fixed PBC MSD
@@ -407,6 +637,11 @@ public class Simulation extends Box {
 
                 long finishTime = System.nanoTime() - startTime;
                 System.out.println("T Cell Running Time: " + finishTime / 1e9 + " seconds");
+                System.out.println(returnGelRange());
+                System.out.println(calculateAvgRadius());
+                System.out.println("range / mu(r) = " + (returnGelRange() / calculateAvgRadius()));
+                System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
+
 
             }
             catch(Exception e) {
@@ -414,19 +649,96 @@ public class Simulation extends Box {
             }
 
             //new Breadcrumbs(t, dt, 10, this);
-            //new Graph2(getSavePath().toString() + "/msd_vs_time.csv", t, dt);
+            if(gui) {
+                new Graph2(getSavePath().toString() + "/msd_vs_time.csv", t, dt);
+            }
+            else {
+                new Graph2("./msd_vs_time.csv", t, dt);
+            }
+
+
             //new Graph("output.csv", t, dt);
         });
 
         tCellThread.start();
     }
 
-    //Constructors
-    Simulation(String filename) {
-        super();
-        //initFromCSV(filename); // BOX
+    void runTCellsUnthreaded() {
+        addTCells();
+
+        try {
+            //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
+
+
+
+            //FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
+            FileWriter avgWriter = new FileWriter("msd_vs_time.csv");
+
+
+            //FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
+            FileWriter cellWriter = new FileWriter("cell_displacements_individual.csv");
+
+            double average_displacement;
+
+            long startTime = System.nanoTime();
+
+            System.out.println("running tcells");
+
+            while(sim_time++ < 10000) {
+                System.out.println(sim_time);
+                average_displacement = 0.0;
+
+                //TODO Change back to cellMove once fixed PBC MSD
+
+                //this.tcells[j].cellMoveTest();
+
+
+                cellWriter.append(String.format("%.3f,", sim_time));
+                for(int i = 0; i < numTCells; i++) {
+                    this.tcells[i].cellMove();
+
+                    cellWriter.append(String.format("%.5f,", tcells[i].displacement()));
+
+                    average_displacement += this.tcells[i].displacement() * this.tcells[i].displacement();
+                }
+                cellWriter.append(String.format("\n"));
+
+
+
+                //xyzWriter.append(String.format("%f,%f,%f,", this.tcells[j].x, this.tcells[j].y, this.tcells[j].z));
+
+                t += dt;
+
+                //Write-out the average_displacement for this step
+                avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, average_displacement, average_displacement / this.numParticles));
+
+                //xyzWriter.append("\n"); //formatting
+            }
+
+            avgWriter.flush();
+            //avgWriter.close();
+
+            long finishTime = System.nanoTime() - startTime;
+            System.out.println("T Cell Running Time: " + finishTime / 1e9 + " seconds");
+            System.out.println(returnGelRange());
+            System.out.println(calculateAvgRadius());
+            System.out.println("range / mu(r) = " + (returnGelRange() / calculateAvgRadius()));
+            System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
+
+
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        new Graph2("./msd_vs_time.csv", t, dt);
+
+        System.out.println("reached end of tcells");
+
+        //new Graph("output.csv", t, dt);
     }
 
+    //Constructors
     Simulation() {
         super();
         //initFromCSVTumor("tumor.csv"); // BOX
@@ -471,23 +783,6 @@ public class Simulation extends Box {
         }
     }
 
-    void outputGelPositions(String output_filename) {
-
-        try {
-
-            FileWriter gelWriter = new FileWriter(output_filename);
-            for (int i = 0; i < this.numGels; i++) {
-                //Write-out xyz-positions of gels
-                gelWriter.append(String.format("%f, %f, %f, %f", this.gels.get(i).x, this.gels.get(i).y, this.gels.get(i).z, this.gels.get(i).getR()));
-                gelWriter.append("\n");
-            }
-        }
-
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     void reset() {
         numGels = 0;
         sum_sphere_volume = 0;
@@ -504,7 +799,7 @@ public class Simulation extends Box {
     //TODO: Check for negatives, delete zero (truncate)
     void addGel() {
         //spawn new gel in the box
-        double R = rand.nextGaussian() * rStandardDeviation + rAverageRadius;
+        double R = (rand.nextDouble() * rangeOverAverageR * rAverageRadius) + rAverageRadius;
 
         double x = R + rand.nextDouble() * (side_length - 2 * R);
         double y = R + rand.nextDouble() * (side_length - 2 * R);

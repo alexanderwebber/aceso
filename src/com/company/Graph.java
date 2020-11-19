@@ -89,7 +89,8 @@ class Graph extends JFrame {
             g.drawString("0", a - 3, b + 15);
 
             //plot data
-            g.setColor(Color.ORANGE);
+            g.setColor(Color.BLACK);
+
             for (int i = 0; i < points - 2; ++i) {
                 int i0 = a + (int) (w * (i / maxx));
                 int i1 = b - (int) (l * (data[i] / maxy));
@@ -197,7 +198,7 @@ class Graph2 extends JFrame {
             g.drawString("0", a - 3, b + 15);
 
             //plot data
-            g.setColor(Color.ORANGE);
+            g.setColor(Color.BLACK);
             for (int i = 0; i < points - 1; i++) {
                 int i0 = a + (int) (w * (i * 1.0 / points));
                 int i1 = b - (int) (l * (data[i] / maxy));

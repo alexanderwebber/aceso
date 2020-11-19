@@ -13,9 +13,11 @@ class Client extends JFrame implements Runnable {
     Simulation S = new Simulation();
     Client() throws IOException {
         super("A  C  E  S  O");
+
         getContentPane().add(new FillVisualization());
         //getContentPane().add(new FillSettingsNonViz(S));
         getContentPane().add(new ACESO_label());
+
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
@@ -35,6 +37,7 @@ class Client extends JFrame implements Runnable {
                 }
             }
         });
+
         drawThread.start();
     }
     static class ACESO_label extends JLabel {
@@ -147,7 +150,6 @@ class FillSettingsViz extends SimulationSettings {
             super("Density ");
             addActionListener(actionEvent -> {
                 t.run();
-
             });
         }
     }
@@ -167,7 +169,7 @@ class FillSettingsViz extends SimulationSettings {
             setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Settings Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
             setBackground(new Color(0x6A2D2D2D, true));
             add(new NumberOfTCellsPanel());
-            add(new NumberOfGelsPanel());
+            //add(new NumberOfGelsPanel());
             add(new GelSizePanel());
             add(new TimeSettingsPanel());
             add(new BoxSideLengthPanel());
@@ -298,7 +300,7 @@ class FillSettingsViz extends SimulationSettings {
             JSpinner numGelsSpinner;
             JLabel numGelsLabel;
 
-            NumberOfGelsPanel() {
+            /*NumberOfGelsPanel() {
                 setOpaque(false);
 
                 //dt label
@@ -307,7 +309,7 @@ class FillSettingsViz extends SimulationSettings {
                 numGelsLabel.setForeground(Color.white);
                 //dt spinner
                 numGelsSpinner = new JSpinner(new SpinnerNumberModel(panel.S.numGelsToSet, 0, 10000, 1));
-                numGelsSpinner.addChangeListener(ChangeEvent -> panel.S.numGelsToSet = (double) numGelsSpinner.getValue());
+                //numGelsSpinner.addChangeListener(ChangeEvent -> panel.S.numGelsToSet = (double) numGelsSpinner.getValue());
                 //dt_panel
 
                 JPanel numGelsPanel = new JPanel();
@@ -324,7 +326,7 @@ class FillSettingsViz extends SimulationSettings {
                 numGelsSettings.add(numGelsPanel);
                 add(numGelsSettings);
                 this.setLayout(new FlowLayout(FlowLayout.LEFT));
-            }
+            }*/
         }
 
         class GelSizePanel extends JPanel {
@@ -351,23 +353,23 @@ class FillSettingsViz extends SimulationSettings {
                 gelLowerPanel.add(gelRadiusLowerBoundSpinner);
                 gelLowerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-                //timepanel
+                //gel range /mu(r) panel
                 JPanel gelUpperPanel = new JPanel();
                 gelUpperPanel.setBackground(new Color(0, 0, 0, 0));
                 //time_limit label
-                gelRadiusRangeLabel = new JLabel("Gel Radius StdDev: ");
+                gelRadiusRangeLabel = new JLabel("Gel Range / mu(r): ");
                 gelRadiusRangeLabel.setFont(new Font("", Font.BOLD, 11));
                 gelRadiusRangeLabel.setForeground(Color.white);
                 gelUpperPanel.add(gelRadiusRangeLabel);
 
 
-                //time_limit spinner
-                gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rStandardDeviation, 0, 100, 0.1));
-                gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> panel.S.rStandardDeviation = ((double)gelRadiusRangeSpinner.getValue()));
+                //gel range / mu(r) spinner
+                gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rangeOverAverageR, 0, 100, 0.1));
+                gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> panel.S.rangeOverAverageR = ((double)gelRadiusRangeSpinner.getValue()));
                 gelRadiusRangeSpinner.setPreferredSize(new Dimension(100, 20));
                 gelUpperPanel.add(gelRadiusRangeSpinner);
 
-                // made a sub-panel for formatting called "time_settings"
+                // made a sub-panel for formatting called "gel range / mu(r)"
                 JPanel gel_settings = new JPanel();
                 gel_settings.setBackground(new Color(0, 0, 0, 0));
                 gel_settings.setPreferredSize(new Dimension(300, 80));
@@ -474,13 +476,13 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Gel Std Dev: " + String.format("%.1f", panel.S.outputStandardDeviation()));
+                setText("Range / mu(r): " + String.format("%.1f", panel.S.outputRangeOverAverageR()));
             }
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Gel Std Dev: " + String.format("%.1f", panel.S.outputStandardDeviation()));
+                setText("Range / mu(r): " + String.format("%.1f", panel.S.outputRangeOverAverageR()));
             }
         }
     }
@@ -718,6 +720,9 @@ class FillSettingsNonViz extends JPanel {
             });
         }
     }
+
+
+
     class RunTCellsButton extends JButton {
         RunTCellsButton() {
             super("Run T Cells");
@@ -846,8 +851,8 @@ class FillSettingsNonViz extends JPanel {
             gelRadiusRangeLabel.setForeground(Color.white);
             gelUpperPanel.add(gelRadiusRangeLabel);
             //time_limit spinner
-            gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(S.rStandardDeviation, 0, 100, 0.1));
-            gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> S.rStandardDeviation = ((double)gelRadiusRangeSpinner.getValue()));
+            gelRadiusRangeSpinner = new JSpinner(new SpinnerNumberModel(S.rangeOverAverageR, 0, 100, 0.1));
+            gelRadiusRangeSpinner.addChangeListener(ChangeEvent -> S.rangeOverAverageR = ((double)gelRadiusRangeSpinner.getValue()));
             gelRadiusRangeSpinner.setPreferredSize(new Dimension(100, 20));
             gelUpperPanel.add(gelRadiusRangeSpinner);
 

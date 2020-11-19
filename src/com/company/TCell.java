@@ -16,9 +16,6 @@ public class TCell extends Particle implements Drawable {
 
     private int numKills;
 
-    // type (for now only CD8+
-    private String type;
-
     // Killing, not killing
     private int status;
 
@@ -142,11 +139,6 @@ public class TCell extends Particle implements Drawable {
 
     public double getR() {
         return R;
-    }
-
-    void cellMoveTest() {
-        updateCollision();
-        this.move();
     }
 
     void cellMove() {

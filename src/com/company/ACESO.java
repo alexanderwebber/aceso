@@ -3,17 +3,21 @@ package com.company;
 import java.io.IOException;
 
 public class ACESO {
-    static Simulation S = new Simulation();
+
 
     public static void main(String[] args) throws IOException {
         //javax.swing.SwingUtilities.invokeLater(new Client());
 
         // no gui
-        S.fill();
+        Simulation S = new Simulation();
 
-        S.fall();
+        S.gui = false;
 
-        //S.runTCells();
+        S.fillUnthreaded();
+
+        S.fallUnthreaded();
+
+        S.runTCellsUnthreaded();
 
     }
 }

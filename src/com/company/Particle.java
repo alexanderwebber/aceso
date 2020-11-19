@@ -1,5 +1,6 @@
 package com.company;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Particle {
@@ -13,6 +14,10 @@ public class Particle {
     Voxel voxel;
     Simulation S;
     double dt = 0.01;
+
+    ArrayList<Double> overlaps = new ArrayList<>();
+
+    int overlappedCounter;
 
     String tag = "Tumor_Remove";
 
@@ -109,6 +114,12 @@ public class Particle {
 
         return imageParticleArray;
     }
+
+    int getNumOverlaps() {
+        return overlappedCounter;
+    }
+
+    ArrayList<Double> getOverlapDistribution() { return overlaps; }
 
     synchronized void setXYZ(double newx, double newy, double newz) {
         S.vox.remove(this);
@@ -1571,6 +1582,11 @@ public class Particle {
             }
         }*/
 
+        // Reset overlappedCounter before every loop
+        overlappedCounter = 0;
+        overlaps.clear();
+
+
         for (Particle other : nearby) {
             try {
                 if (other != null && other.imImage == false && other.type.equals("Gel")) {
@@ -1613,7 +1629,11 @@ public class Particle {
                         if (d < 0) { //overlap
                             v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
                             other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
+                            overlappedCounter++;
+                            overlaps.add(diff.magnitude() / radiusSum);
+
                         }
+
                     }
 
                 }
