@@ -409,9 +409,9 @@ public class Simulation extends Box {
 
             System.out.println("Done running python script");*/
 
-            writeDistributionToCSV();
+            //writeDistributionToCSV();
 
-            runPython("python overlap_dist.py");
+            //runPython("python overlap_dist.py");
 
             double endTime = System.nanoTime();
 
@@ -533,7 +533,6 @@ public class Simulation extends Box {
         for(int i = 0; i < numGels; i++) {
             for(int j = 0; j < gels.get(i).getOverlapDistribution().size(); j++) {
                 overlapDistribution.add(gels.get(i).getOverlapDistribution().get(j));
-                System.out.println(gels.get(i).getOverlapDistribution().size());
             }
         }
 
@@ -581,18 +580,21 @@ public class Simulation extends Box {
         return savePath;
     }
 
+
     void runTCells() {
         tCellThread = new Thread(() -> {
+            vox = new BoxVoxels(this);
             addTCells();
+
+            // Arrays for calculating linear regression
+            double[] y = new double[10000];
+            double[] x = new double[10000];
 
             try {
                 //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
 
-
-
                 //FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
                 FileWriter avgWriter = new FileWriter("msd_vs_time.csv");
-
 
                 //FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
                 FileWriter cellWriter = new FileWriter("cell_displacements_individual.csv");
@@ -601,14 +603,12 @@ public class Simulation extends Box {
 
                 long startTime = System.nanoTime();
 
-                while(sim_time++ < 10000) {
+                // Keeping track of time steps for linear regression
+                int timeLinearRegression = 0;
+
+                while(sim_time < 10000) {
                     System.out.println(sim_time);
                     average_displacement = 0.0;
-
-                    //TODO Change back to cellMove once fixed PBC MSD
-
-                    //this.tcells[j].cellMoveTest();
-
 
                     cellWriter.append(String.format("%.3f,", sim_time));
                     for(int i = 0; i < numTCells; i++) {
@@ -626,10 +626,16 @@ public class Simulation extends Box {
 
                     t += dt;
 
+                    y[timeLinearRegression] = average_displacement;
+                    x[timeLinearRegression] = timeLinearRegression;
+
                     //Write-out the average_displacement for this step
                     avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, average_displacement, average_displacement / this.numParticles));
 
                     //xyzWriter.append("\n"); //formatting
+
+                    sim_time++;
+                    timeLinearRegression++;
                 }
 
                 avgWriter.flush();
@@ -646,7 +652,13 @@ public class Simulation extends Box {
             }
             catch(Exception e) {
                 e.printStackTrace();
+                e.printStackTrace();
             }
+
+            LinearRegression linReg = new LinearRegression(x, y);
+
+            System.out.println("Intercept: " + linReg.intercept());
+
 
             //new Breadcrumbs(t, dt, 10, this);
             if(gui) {

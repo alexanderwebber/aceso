@@ -28,12 +28,14 @@ public class TCell extends Particle implements Drawable {
     int[] randArray = new int[3];
 
     // Assign random velocity value
-    double velocityX = ThreadLocalRandom.current().nextDouble(3.1);
-    double velocityY = ThreadLocalRandom.current().nextDouble(3.1 - velocityX);
-    double velocityZ = (3.1 - velocityX - velocityY);
+    double velocityX = ThreadLocalRandom.current().nextDouble(1.1);
+    double velocityY = ThreadLocalRandom.current().nextDouble(1.1 - velocityX);
+    double velocityZ = (1.1 - velocityX - velocityY);
 
-    double velocity = 3.0;
+    double velocity = 1.0;
+
     TCell(){}
+
     TCell(double x, double y, double z, double R, Simulation S, Vector v){
         super(x, y, z, R, S);
         type = "TCell";
@@ -58,7 +60,7 @@ public class TCell extends Particle implements Drawable {
         velocityY *= randArray[random.nextInt(3)];
         velocityZ *= randArray[random.nextInt(3)];
 
-        v = new Vector(velocityX, velocityY, velocityZ);
+        //v = new Vector(velocityX, velocityY, velocityZ);
 
     }
 
@@ -143,6 +145,17 @@ public class TCell extends Particle implements Drawable {
 
     void cellMove() {
         this.v = Vector.random2();
+
+        while(checkCollision(mod(this.x + v.x(), S.side_length), mod(this.y + v.y(), S.side_length), mod(this.z + v.z(), S.side_length), this.R)) {
+            this.v = Vector.random2();
+            
+        }
+
+        while(checkCollision(this.x + this.v.x(), this.y + this.v.y(), this.z + this.v.z(), this.R)) {
+            this.v = Vector.random2();
+
+        }
+
         updateCollision();
 
         if(numKills < 20) {

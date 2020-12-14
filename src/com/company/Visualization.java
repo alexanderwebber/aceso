@@ -12,6 +12,8 @@ class Visualization extends JPanel {
     boolean see_gels = true;
     boolean see_tcell = true;
     boolean see_tumor = true;
+    boolean see_images = true;
+
     //SimulationSettings settings;
     static Drawable[] drawthis = new Drawable[1000000];
     static int drawObjects;
@@ -64,6 +66,7 @@ class Visualization extends JPanel {
                 }
             }
         }
+
         else if (slicer_view) {
             g.setColor(Color.white);
             g.drawString(String.format("z = %f", sl.getZ()), getWidth() - 100, getHeight() - 25);
@@ -129,6 +132,8 @@ class Visualization extends JPanel {
                     }
                 }
             }
+
+
 
             if (see_tcell) {
                 for (int i = 0; i < S.numParticles; ++i) {

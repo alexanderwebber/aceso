@@ -133,7 +133,8 @@ public class Particle {
         S.vox.add(this);
 
         //Creation of the image at border
-        // at the case of colliding with one of the borders:
+        // at the case of
+        // colliding with one of the borders:
         // We identify which border is under collision
         // According to the axis that collides, we mirror
 
@@ -1519,14 +1520,15 @@ public class Particle {
             }
         }*/
 
+        nearby = getNearby();
 
-        for (Particle other : nearby) {
-            if (other != null && other.imImage == false) {
-                double radiusSum = R + other.R;
+        for (Particle other : S.gels) {
+            if (other != null && other.imImage == false && other.type.equals("Gel")) {
+                double radiusSum = this.R + other.R;
                 double dx, dy, dz;
-                dx = x - other.x;
-                dy = y - other.y;
-                dz = z - other.z;
+                dx = this.x - other.x;
+                dy = this.y - other.y;
+                dz = this.z - other.z;
 
                 //x bound
                 //if other particle big x you small x bring their x here
@@ -1563,6 +1565,56 @@ public class Particle {
         return false;
     }
 
+    boolean checkCollision(double x, double y, double z, double R) {
+        nearby = getNearby();
+
+        for (Particle other : S.gels) {
+            if (other != null && other.imImage == false) {
+                double radiusSum = R + other.R;
+
+                double dx, dy, dz;
+
+                dx = x - other.x;
+                dy = y - other.y;
+                dz = z - other.z;
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void updateCollision() {
         /*for(int i = 0; i < B.getNumTumor(); i++) {
             double radius_sum = B.getTumoroids().get(i).getR() + R;
@@ -1581,6 +1633,8 @@ public class Particle {
                 }
             }
         }*/
+
+        nearby = getNearby();
 
         // Reset overlappedCounter before every loop
         overlappedCounter = 0;

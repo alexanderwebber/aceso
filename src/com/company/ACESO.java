@@ -6,10 +6,10 @@ public class ACESO {
 
 
     public static void main(String[] args) throws IOException {
-        //javax.swing.SwingUtilities.invokeLater(new Client());
+        javax.swing.SwingUtilities.invokeLater(new Client());
 
         // no gui
-        Simulation S = new Simulation();
+        /*Simulation S = new Simulation();
 
         S.gui = false;
 
@@ -17,7 +17,7 @@ public class ACESO {
 
         S.fallUnthreaded();
 
-        S.runTCellsUnthreaded();
+        S.runTCellsUnthreaded();*/
 
     }
 }

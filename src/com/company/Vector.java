@@ -69,9 +69,9 @@ class Vector {
         randArray[2] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
 
         // Assign random velocity value
-        double velocityX = ThreadLocalRandom.current().nextDouble(3.1);
-        double velocityY = ThreadLocalRandom.current().nextDouble(3.1 - velocityX);
-        double velocityZ = (3.1 - velocityX - velocityY);
+        double velocityX = ThreadLocalRandom.current().nextDouble(1.1);
+        double velocityY = ThreadLocalRandom.current().nextDouble(1.1 - velocityX);
+        double velocityZ = (1.1 - velocityX - velocityY);
 
         // Randomize the polarity
         velocityX *= randArray[random.nextInt(3)];
