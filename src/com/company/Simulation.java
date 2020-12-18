@@ -1,7 +1,5 @@
 package com.company;
 
-import sun.tools.tree.ArrayAccessExpression;
-
 import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.file.Path;
@@ -586,6 +584,8 @@ public class Simulation extends Box {
             vox = new BoxVoxels(this);
             addTCells();
 
+            int timeLimitTCells = 100000;
+
             // Arrays for calculating linear regression
             double[] y = new double[10000];
             double[] x = new double[10000];
@@ -594,7 +594,7 @@ public class Simulation extends Box {
                 //FileWriter xyzWriter = new FileWriter("breadcrumbs.csv");
 
                 //FileWriter avgWriter = new FileWriter(getSavePath().toString() + "/msd_vs_time.csv");
-                FileWriter avgWriter = new FileWriter("msd_vs_time.csv");
+                FileWriter avgWriter = new FileWriter("csv/msd_vs_time_" + calculateAvgRadius() +  "_" + timeLimitTCells + ".csv");
 
                 //FileWriter cellWriter = new FileWriter(getSavePath().toString() + "/cell_displacements_individual.csv");
                 FileWriter cellWriter = new FileWriter("cell_displacements_individual.csv");
@@ -606,7 +606,7 @@ public class Simulation extends Box {
                 // Keeping track of time steps for linear regression
                 int timeLinearRegression = 0;
 
-                while(sim_time < 10000) {
+                while(sim_time < timeLimitTCells) {
                     System.out.println(sim_time);
                     average_displacement = 0.0;
 
@@ -626,8 +626,8 @@ public class Simulation extends Box {
 
                     t += dt;
 
-                    y[timeLinearRegression] = average_displacement;
-                    x[timeLinearRegression] = timeLinearRegression;
+                    /*y[timeLinearRegression] = average_displacement;
+                    x[timeLinearRegression] = timeLinearRegression;*/
 
                     //Write-out the average_displacement for this step
                     avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, average_displacement, average_displacement / this.numParticles));
@@ -662,7 +662,7 @@ public class Simulation extends Box {
 
             //new Breadcrumbs(t, dt, 10, this);
             if(gui) {
-                new Graph2(getSavePath().toString() + "/msd_vs_time.csv", t, dt);
+                new Graph2("csv/msd_vs_time_" + calculateAvgRadius() +  "_" + timeLimitTCells + ".csv", t, dt);
             }
             else {
                 new Graph2("./msd_vs_time.csv", t, dt);
