@@ -63,7 +63,7 @@ public class Simulation extends Box {
     Thread tCellThread = new Thread();
 
     // Residence data stuff
-    int timeLimitTCells = 100000;
+    int timeLimitTCells = 10000000;
     static ArrayList<int[]> startValues = new ArrayList<>();
 
 
@@ -269,7 +269,7 @@ public class Simulation extends Box {
     void runTCells() {
         tCellThread = new Thread(() -> {
             vox = new BoxVoxels(this);
-            addTestTCells();
+            addTCells();
 
             ArrayList<double[]> xyzOutput = new ArrayList<>();
 
