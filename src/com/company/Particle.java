@@ -18,6 +18,8 @@ public class Particle {
     ArrayList<Double> overlaps = new ArrayList<>();
 
     int overlappedCounter;
+    int tumorHitCounter = 0;
+    int residenceTime = 0;
 
     String tag = "Tumor_Remove";
 
@@ -80,6 +82,8 @@ public class Particle {
         imImage = false;
     }
 
+
+
     //Particles are assumed to be spheres
     double volume() {
         return 4 * PI * Math.pow(R, 3) / 3;
@@ -113,6 +117,15 @@ public class Particle {
         imageParticleArray[18] = imageXYZ7;
 
         return imageParticleArray;
+    }
+
+    int getTumorHitCounter() {
+        return tumorHitCounter;
+
+    }
+
+    int getResidenceTime() {
+        return residenceTime;
     }
 
     int getNumOverlaps() {
@@ -1383,18 +1396,6 @@ public class Particle {
         }
     }
 
-    public Particle getImageX() {
-        return imageX;
-    }
-
-    public Particle getImageY() {
-        return imageY;
-    }
-
-    public Particle getImageZ() {
-        return imageZ;
-    }
-
     public double getX() {
         return x;
     }
@@ -1507,23 +1508,11 @@ public class Particle {
 
     // returns false if no collision
     public boolean checkCollision() {
-        /*for(int i = 0; i < B.getNumTumor(); i++) {
-            double radius_sum = B.getTumoroids().get(i).getR() + R;
-            double dx = Math.abs(B.getTumoroids().get(i).getX() - x);
-            double dy = Math.abs(B.getTumoroids().get(i).getY() - y);
-            double dz = Math.abs(B.getTumoroids().get(i).getZ() - z);
-
-            if (dx < radius_sum && dy < radius_sum && dz < radius_sum) {        // is it even close?
-                if (dx * dx + dy * dy + dz * dz < radius_sum * radius_sum) {    // then compute radial distance and check *how* close
-                    return false;
-                }
-            }
-        }*/
 
         nearby = getNearby();
 
         for (Particle other : S.gels) {
-            if (other != null && other.imImage == false && other.type.equals("Gel")) {
+            if (other != null && other.imImage == false) {
                 double radiusSum = this.R + other.R;
                 double dx, dy, dz;
                 dx = this.x - other.x;
@@ -1616,23 +1605,6 @@ public class Particle {
     }
 
     public void updateCollision() {
-        /*for(int i = 0; i < B.getNumTumor(); i++) {
-            double radius_sum = B.getTumoroids().get(i).getR() + R;
-            double dx = Math.abs(B.getTumoroids().get(i).getX() - x);
-            double dy = Math.abs(B.getTumoroids().get(i).getY() - y);
-            double dz = Math.abs(B.getTumoroids().get(i).getZ() - z);
-
-            if (dx < radius_sum && dy < radius_sum && dz < radius_sum) {        // is it even close?
-                if (dx * dx + dy * dy + dz * dz < radius_sum * radius_sum) {    // then compute radial distance and check *how* close
-                    Vector diff = new Vector(dx, dy, dz);
-                    double d = diff.magnitude() - radius_sum;
-                    if (d < 0) { //overlap
-                        v = v.add(diff.unitVector().scale(-d * B.getTumoroids().get(i).getR() / radius_sum));
-
-                    }
-                }
-            }
-        }*/
 
         nearby = getNearby();
 
@@ -1640,10 +1612,9 @@ public class Particle {
         overlappedCounter = 0;
         overlaps.clear();
 
-
-        for (Particle other : nearby) {
+        for (Particle other : S.gels) {
             try {
-                if (other != null && other.imImage == false && other.type.equals("Gel")) {
+                if (other != null && other.imImage == false) {
                     double radiusSum = R + other.R;
                     double dx, dy, dz;
                     dx = x + v.x() - other.x;
@@ -1686,8 +1657,13 @@ public class Particle {
                             overlappedCounter++;
                             overlaps.add(diff.magnitude() / radiusSum);
 
+
+
                         }
 
+                    }
+
+                    else {
                     }
 
                 }
@@ -1700,103 +1676,9 @@ public class Particle {
         }
 
 
-        /*// Change with collision
-        if(checkCollision() == true && imImage == false) {
-            //Adjust position based on active forces and velocity
-            double[] updatedForceArray = springModel(nearby, this);
-
-            double forceXSquare = Math.pow(updatedForceArray[0], 2);
-            double forceYSquare = Math.pow(updatedForceArray[1], 2);
-            double forceZSquare = Math.pow(updatedForceArray[2], 2);
-
-            double one_sqrtF = 1.0 / (Math.sqrt(forceXSquare + forceYSquare + forceZSquare));
-
-            this.x += (updatedForceArray[0] * one_sqrtF * 0.7 * dt);
-            this.y += (updatedForceArray[1] * one_sqrtF * 0.7 * dt);
-            this.z += (updatedForceArray[2] * one_sqrtF * 0.7 * dt);
-
-            Vector forceVector = new Vector((updatedForceArray[0] * one_sqrtF * 0.7),
-                    (updatedForceArray[1] * one_sqrtF * 0.7),
-                    (updatedForceArray[2] * one_sqrtF * 0.7));
-
-            v = forceVector;
-        }
-
-        else if(checkCollision() == false) {
-            Vector forceVector = new Vector(0.0, 0.0, 0.0);
-            v = forceVector;
-        }*/
-
-
         if(imImage != true) {
             move();
         }
-
-    }
-
-    static double[] springModel(Particle[] nearby, Particle particle) {
-        // Force component array
-        double[] forceArray = {0.0, 0.0, 0.0};
-
-        for(Particle other : nearby) {
-
-            if(Double.isNaN(other.getX()) || Double.isNaN(other.getY()) || Double.isNaN(other.getZ())) {
-                continue;
-            }
-
-            if(other != null && other.imImage == false) {
-                // Vector A calculation from Greg's notes
-                double deltaXA = particle.getX() - other.getX();
-                double deltaYA = particle.getY() - other.getY();
-                double deltaZA = particle.getZ() - other.getZ();
-                System.out.println(other.getX());
-
-
-                double deltaXASquared = Math.pow(deltaXA, 2);
-                double deltaYASquared = Math.pow(deltaYA, 2);
-                double deltaZASquared = Math.pow(deltaZA, 2);
-
-                //System.out.println(deltaXA);
-
-            /*
-            double vectorA = (deltaXA * other.getTranslateX())
-                    + (deltaYA * other.getY())
-                    + (deltaZA * other.getZ());
-
-
-            // Magnitude and direction of resultant
-            double deltaRA = Math.sqrt(particle.getRSquared()
-                    + other.getRSquared()
-                    - deltaXASquared
-                    - deltaYASquared
-                    - deltaZASquared);
-
-             */
-                double rCheckSquared = deltaXASquared + deltaYASquared + deltaZASquared;
-
-                //System.out.println(rCheckSquared);
-
-                // check if worth calculating
-                if(rCheckSquared < (particle.getRSquared() + other.getRSquared())) {
-                    // Force components
-                    // Add to force component array
-                    forceArray[0] += (((particle.getRSquared() + other.getRSquared()) / (rCheckSquared)) - 1.0) * deltaXA;
-
-                    forceArray[1] += (((particle.getRSquared() + other.getRSquared()) / (rCheckSquared)) - 1.0) * deltaYA;
-
-                    forceArray[2] += (((particle.getRSquared() + other.getRSquared()) / (rCheckSquared)) - 1.0) * deltaZA;
-
-                }
-
-                else {
-                    continue;
-                }
-
-            }
-
-        }
-
-        return forceArray;
 
     }
     
@@ -1812,9 +1694,6 @@ public class Particle {
             yPrime += v.y();
             zPrime += v.z();
 
-            /*dx += v.x();
-            dy += v.y();
-            dz += v.z();*/
         }
     }
 }

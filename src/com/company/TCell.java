@@ -1,6 +1,9 @@
 package com.company;
 
 import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -13,6 +16,12 @@ public class TCell extends Particle implements Drawable {
     private boolean isAttacking;
 
     private boolean reachedMaxKills;
+
+    boolean previousNearTumor = false;
+    boolean nearTumor;
+    int arrayListPosition;
+    ArrayList<double[]> xyzOutput = new ArrayList<>();
+    String xyzFileName;
 
     private int numKills;
 
@@ -34,22 +43,18 @@ public class TCell extends Particle implements Drawable {
 
     double velocity = 1.0;
 
-    TCell(){}
+    TCell(){
 
-    TCell(double x, double y, double z, double R, Simulation S, Vector v){
-        super(x, y, z, R, S);
-        type = "TCell";
-        this.S = S;
-        numKills = 0;
-
-        this.v = v;
     }
 
-    TCell(double x, double y, double z, double R, Simulation S) {
+
+    TCell(double x, double y, double z, double R,  int idNum, Simulation S) {
         super(x, y, z, R, S);
         type = "TCell";
         this.S = S;
         numKills = 0;
+
+        this.idNum = idNum;
 
         randArray[0] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
         randArray[1] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
@@ -61,11 +66,22 @@ public class TCell extends Particle implements Drawable {
         velocityZ *= randArray[random.nextInt(3)];
 
         //v = new Vector(velocityX, velocityY, velocityZ);
+        xyzFileName = "xyz" + "_" + "id" + idNum + ".csv";
 
     }
 
     double distanceTraveled() {
         return Vector.magnitude(dx, dy, dz);
+    }
+
+    public void outputXYZCSV() throws IOException {
+        FileWriter xyzWriter = new FileWriter(this.xyzFileName);
+
+        for(int i = 0; i < xyzOutput.size(); i++) {
+            xyzWriter.append(String.format("%.3f,%.3f,%.3f\n", xyzOutput.get(i)[0],xyzOutput.get(i)[1], xyzOutput.get(i)[2]));
+        }
+
+        xyzWriter.flush();
     }
 
     //TODO launch with same random seed, launch with different random seed
@@ -82,6 +98,12 @@ public class TCell extends Particle implements Drawable {
     public double getZ() {
         return z;
     }
+
+    public boolean getNearTumor() {
+        return nearTumor;
+    }
+
+    public boolean getPreviousNearTumor() { return previousNearTumor; }
 
     public void setActivated(boolean activated) { this.isActivated = activated; }
 
@@ -143,20 +165,23 @@ public class TCell extends Particle implements Drawable {
         return R;
     }
 
-    void cellMove() {
+    void cellMove() throws IOException {
+        previousNearTumor = nearTumor;
+
         this.v = Vector.random2();
 
         while(checkCollision(mod(this.x + v.x(), S.side_length), mod(this.y + v.y(), S.side_length), mod(this.z + v.z(), S.side_length), this.R)) {
             this.v = Vector.random2();
-            
-        }
-
-        while(checkCollision(this.x + this.v.x(), this.y + this.v.y(), this.z + this.v.z(), this.R)) {
-            this.v = Vector.random2();
 
         }
 
-        updateCollision();
+        //TODO redundant?
+        move();
+
+        double[] tempArray = {this.getX(), this.getY(), this.getZ()};
+        xyzOutput.add(tempArray);
+
+
 
         if(numKills < 20) {
             if(this.lastTimeKilled >= 360) {
@@ -182,8 +207,8 @@ public class TCell extends Particle implements Drawable {
             }
 
             // check tumor cells
-            if(isActivated == true) {
-                for(int i = 0; i < S.getNumTumor(); i++) {
+            if(true) {
+                /*for(int i = 0; i < S.getNumTumor(); i++) {
 
                     if(isActivated == false) {
                         continue;
@@ -209,10 +234,78 @@ public class TCell extends Particle implements Drawable {
                         S.getTumoroids().get(i).setStatus("being_attacked");
                         numKills++;
                     }
+                }*/
+
+                for(int i = 0; i < S.gels.size(); i++) {
+
+                    /*if(isActivated == false) {
+                        continue;
+                    }*/
+
+                    /*if(S.getTumoroids().get(i).getStatus().equals("dead")) {
+                        continue;
+                    }*/
+
+
+
+                    double radius_sum_squared = Math.pow((this.getR() * 1.3) + S.gels.get(i).getR(), 2);
+
+                    double distanceX = Math.abs(S.gels.get(i).getX() - this.getX());
+                    double distanceY = Math.abs(S.gels.get(i).getY() - this.getY());
+                    double distanceZ = Math.abs(S.gels.get(i).getZ() - this.getZ());
+
+                    double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
+
+                    if(S.gels.get(i).name.equals("TumorGel")) {
+                        if (distanceVector <= radius_sum_squared + (2 * this.getR())) {
+                            residenceTime++;
+                            nearTumor = true;
+                            //System.out.println("Near Tumor Cell");
+                            //System.out.println(nearTumor);
+                            if(nearTumor && !previousNearTumor) {
+                                this.arrayListPosition = addStartPoint(this);
+                                System.out.println("entered tumor");
+                            }
+                        }
+                        else {
+                            residenceTime = 0;
+                            nearTumor = false;
+                            if(!nearTumor && previousNearTumor) {
+                                S.startValues.get(this.arrayListPosition)[2] = (int)S.sim_time;
+
+                                System.out.println("left tumor");
+
+
+                                //S.startValues.remove(this.arrayListPosition);
+
+                            }
+                        }
+                    }
+
+
+                    if(distanceVector < radius_sum_squared) {
+                        this.velocity = 0.0;
+                        setActivated(false);
+                        setIsAttacking(true);
+                        this.setStatus(2);
+                        //S.getTumoroids().get(i).setStatus("being_attacked");
+                        //numKills++;
+                        tumorHitCounter++;
+
+                    }
                 }
             }
         }
 
+    }
+
+    public int addStartPoint(TCell tcell) {
+        int[] startRow = {tcell.getIdNum(), (int)S.sim_time, 0};
+        S.startValues.add(startRow);
+
+        int position = S.startValues.indexOf(startRow);
+
+        return position;
     }
     public void draw(Graphics g) {
 

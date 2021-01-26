@@ -73,7 +73,11 @@ class StartPanel extends JPanel{
         BoxCreator() {
             super("Create new Box");
             addActionListener(actionEvent -> {
-                c.setContentPane(new FillVisualization());
+                try {
+                    c.setContentPane(new FillVisualization());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
@@ -224,8 +228,8 @@ class FillSettingsViz extends SimulationSettings {
                 dt_label.setFont(new Font("", Font.BOLD, 11));
                 dt_label.setForeground(Color.white);
                 //dt spinner
-                dt_spinner = new JSpinner(new SpinnerNumberModel(panel.S.dt, 0, 100, .01));
-                dt_spinner.addChangeListener(ChangeEvent -> panel.S.dt = (double) dt_spinner.getValue());
+                dt_spinner = new JSpinner(new SpinnerNumberModel(panel.S.sim_time, 0, 100, .01));
+                dt_spinner.addChangeListener(ChangeEvent -> panel.S.sim_time = (double) dt_spinner.getValue());
                 //dt_panel
                 JPanel dt_panel = new JPanel();
                 dt_panel.setOpaque(false);
@@ -243,8 +247,8 @@ class FillSettingsViz extends SimulationSettings {
 
 
                 //time_limit spinner
-                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.time_limit, 0, 10000000, 1000));
-                limit_spinner.addChangeListener(ChangeEvent -> panel.S.time_limit = ((Double)limit_spinner.getValue()));
+                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.timeLimitTCells, 0, 10000000, 1000));
+                limit_spinner.addChangeListener(ChangeEvent -> panel.S.timeLimitTCells = (int) limit_spinner.getValue());
                 limit_spinner.setPreferredSize(new Dimension(100, 20));
                 time_panel.add(limit_spinner);
 
@@ -446,13 +450,13 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Time Step: " + panel.S.fallTimeIterator);
+                setText("Time Step: " + panel.S.sim_time);
             }
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Time Step: " + panel.S.fallTimeIterator);
+                setText("Time Step: " + panel.S.sim_time);
             }
         }
 

@@ -3,6 +3,7 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 class Visualization extends JPanel {
     Simulation S;
@@ -397,7 +398,7 @@ class Visualization extends JPanel {
 }
 
 class FillVisualization extends Visualization {
-    FillVisualization() {
+    FillVisualization() throws IOException {
         S = new Simulation();
         add(new FillSettingsViz(this));
     }
