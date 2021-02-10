@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
-
 class Box {
     static Random rand = new Random();
     double sim_time = 0.0;
@@ -23,9 +21,7 @@ class Box {
 
 
     Box() {
-        side_length = 1000;
-        volume = side_length * side_length * side_length;
-        volume_ratio = .70;
+        
 
     }
 
@@ -63,7 +59,7 @@ public class Simulation extends Box {
     Thread tCellThread = new Thread();
 
     // Residence data stuff
-    int timeLimitTCells = 10000000;
+    int timeLimitTCells = 1000;
     static ArrayList<int[]> startValues = new ArrayList<>();
 
 
@@ -83,8 +79,11 @@ public class Simulation extends Box {
     double rangeOverAverageR = 0.0;
 
     //Constructors
-    Simulation() throws IOException {
+    Simulation() {
         super();
+        side_length = 1000;
+        volume = side_length * side_length * side_length;
+        volume_ratio = .70;
         //initFromCSVTumor("tumor.csv"); // BOX
 
     }
@@ -114,13 +113,11 @@ public class Simulation extends Box {
 
             // Scale down average radius and std dev
             int numGelsToSet = (int) ((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
-
-
+            
+            vox = new BoxVoxels(this);
+            
             rAverageRadius = rAverageRadius * 0.01;
 
-            //rangeOverAverageR = rangeOverAverageR * 0.01;
-
-            vox = new BoxVoxels(this);
 
             // Add tumor replacement gel
             if(tumor) {
@@ -131,10 +128,12 @@ public class Simulation extends Box {
 
             for (int i = 0; i < numGelsToSet; i++) {
                 addGel();
+                System.out.println(i);
             }
 
             while (sumSphereVolumes() / volume < volume_ratio) {
                 scaleSpheres(1.01);
+                System.out.println("scaling");
 
             }
 
@@ -150,6 +149,193 @@ public class Simulation extends Box {
         });
 
         fillThread.start();
+    }
+    
+    void fall() {
+        fallThread = new Thread(() -> {
+
+            long startTime = System.nanoTime();
+
+            while (fallTimeIterator < time_limit) {
+                for (int j = 0; j < numGels; j++) {
+                    gels.get(j).fall();
+                }
+
+                fallTimeIterator++;
+            }
+
+            double endTime = System.nanoTime();
+
+            double timeDiff = endTime - startTime;
+
+            System.out.println("Time to fall: " + timeDiff / 1e9);
+
+        });
+
+        fallThread.start();
+    }
+    
+    void runSim() throws InterruptedException {
+    	fillThread = new Thread(() -> {
+            double startTime = System.nanoTime();
+
+            setSide(side_length);
+            volume_ratio = .66;
+            if (settleThread.isAlive()) {
+                settleThread.interrupt();
+            }
+
+            // Scale down average radius and std dev
+            int numGelsToSet = (int) ((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
+
+            
+            rAverageRadius = rAverageRadius * 0.01;
+
+            //rangeOverAverageR = rangeOverAverageR * 0.01;
+
+            vox = new BoxVoxels(this);
+
+            // Add tumor replacement gel
+            if(tumor) {
+                Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2, 2.0, this, "TumorGel");
+                addGel(tumorGel);
+            }
+
+
+            for (int i = 0; i < numGelsToSet; i++) {
+                addGel();
+                System.out.println(i);
+            }
+
+            while (sumSphereVolumes() / volume < volume_ratio) {
+                scaleSpheres(1.01);
+                System.out.println("scaling");
+
+            }
+
+            System.out.println(rangeOverAverageR);
+
+            settle();
+
+            double endTime = System.nanoTime();
+
+            double timeDiff = endTime - startTime;
+
+            System.out.println("Time to fill: " + timeDiff / 1e9);
+        });
+    	
+    	fillThread.start();
+    	fillThread.join();
+
+        
+    	fallThread = new Thread(() -> {
+
+            long startTime = System.nanoTime();
+
+            while (fallTimeIterator < time_limit) {
+                for (int j = 0; j < numGels; j++) {
+                    gels.get(j).fall();
+                }
+
+                fallTimeIterator++;
+                System.out.println("running");
+            }
+
+            double endTime = System.nanoTime();
+
+            double timeDiff = endTime - startTime;
+
+            System.out.println("Time to fall: " + timeDiff / 1e9);
+
+        });
+
+        fallThread.start();
+        fallThread.join();
+    
+    	
+    }
+    
+    void fillUnthreaded() {
+       
+        double startTime = System.nanoTime();
+
+        setSide(side_length);
+        volume_ratio = .66;
+
+        // Scale down average radius and std dev
+        int numGelsToSet = (int) ((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
+
+        System.out.println(numGelsToSet);
+
+        rAverageRadius = rAverageRadius * 0.01;
+
+        //rangeOverAverageR = rangeOverAverageR * 0.01;
+
+        vox = new BoxVoxels(this);
+
+        // Add tumor replacement gel
+        if(tumor) {
+            Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2, 2.0, this, "TumorGel");
+            addGel(tumorGel);
+        }
+
+        for (int i = 0; i < numGelsToSet; i++) {
+            addGel();
+        }
+        
+
+        while (sumSphereVolumes() / volume < volume_ratio) {
+            scaleSpheres(1.01);
+
+        }
+
+        System.out.println("Range: " + rangeOverAverageR);
+
+        settle();
+
+        double endTime = System.nanoTime();
+
+        double timeDiff = endTime - startTime;
+
+        System.out.println("Time to fill: " + timeDiff / 1e9);
+        
+        
+        // TODO: Move this to separate function. Fix null pointer issue. I think it has to do with the Voxels
+       
+
+    }
+    
+    void settleUnthreaded() {
+        for (int i = 0; i < 50; ++i) {
+            int size = numGels;
+            for (int j = 0; j < size; ++j) {
+                gels.get(j).settle();
+            }
+        }
+
+    }
+    
+    
+    // TODO: Fix null pointer issue. I think it has to do with the Voxels
+    void fallUnthreaded() {
+    	
+
+        long startTime = System.nanoTime();
+
+        while (fallTimeIterator < time_limit) {
+            for (int j = 0; j < numGels; j++) {
+                gels.get(j).fall();
+            }
+
+            fallTimeIterator++;
+        }
+
+        double endTime = System.nanoTime();
+
+        double timeDiff = endTime - startTime;
+
+        System.out.println("Time to fall: " + timeDiff / 1e9);
+
     }
 
     public double returnGelRange() {
@@ -214,30 +400,6 @@ public class Simulation extends Box {
         }
 
         return sumVolume;
-    }
-
-    void fall() {
-        fallThread = new Thread(() -> {
-
-            long startTime = System.nanoTime();
-
-            while (fallTimeIterator < time_limit) {
-                for (int j = 0; j < numGels; j++) {
-                    gels.get(j).fall();
-                }
-
-                fallTimeIterator++;
-            }
-
-            double endTime = System.nanoTime();
-
-            double timeDiff = endTime - startTime;
-
-            System.out.println("Time to fall: " + timeDiff / 1e9);
-
-        });
-
-        fallThread.start();
     }
 
     public double calculateAvgRadius() {
@@ -323,9 +485,9 @@ public class Simulation extends Box {
                     residenceWriter.append(String.format("%d,%d,%d\n", startValues.get(i)[0], startValues.get(i)[1], startValues.get(i)[2]));
                 }
 
-                for(int i = 0; i < numTCells; i++) {
-                    tcells[i].outputXYZCSV();
-                }
+				/*
+				 * for(int i = 0; i < numTCells; i++) { tcells[i].outputXYZCSV(); }
+				 */
 
                 cellWriter.flush();
                 avgWriter.flush();
@@ -464,7 +626,7 @@ class BoxVoxels {
     int voxels_per_side = 5;
     double voxel_side_length;
     Voxel[][][] voxels;
-    BoxVoxels(Box B) {
+	BoxVoxels(Box B) {
         voxel_side_length = B.side_length/voxels_per_side;
         voxels = new Voxel[voxels_per_side][voxels_per_side][voxels_per_side];
         for (int i = 0; i < voxels_per_side; ++i) {

@@ -1614,13 +1614,13 @@ public class Particle {
 
         for (Particle other : S.gels) {
             try {
-                if (other != null && other.imImage == false) {
+                if (other != null) {
                     double radiusSum = R + other.R;
                     double dx, dy, dz;
                     dx = x + v.x() - other.x;
                     dy = y + v.y() - other.y;
                     dz = z + v.z() - other.z;
-
+                    
                     ///x bound
                     //if other particle big x you small x bring their x here
                     if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
