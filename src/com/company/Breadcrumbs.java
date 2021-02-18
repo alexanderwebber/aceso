@@ -64,6 +64,7 @@ class Breadcrumbs extends JFrame {
         addMouseWheelListener(o);
         addKeyListener(k);
         loadParticles(num_trails);
+        System.out.println("breadcrumb running");
     }
 
     /*
@@ -363,7 +364,7 @@ class Breadcrumbs extends JFrame {
                     }
                 }
             }
-            /*
+            
             //this is for tumors
             for (int tumor = 0; tumor < B.getTumoroids().size(); ++tumor) {
                 Gel temp = new Gel();
@@ -420,20 +421,21 @@ class Breadcrumbs extends JFrame {
                         int y1 = (int) breadcrumbs[trail * points + move].y1;
                         if ((x0 != 0 && y0 != 0) && (x1 != y1)) {
                             g.setColor(colors[breadcrumbs[trail * points + move].trail]);
+                            //g.setColor(Color.RED);
                             g.drawLine(x0 + k.offset_x, y0 + k.offset_y, x1 + k.offset_x, y1 + k.offset_y);
                         }
                     }
                 }
             }
             for (int i = 0; i < B.getTumoroids().size(); ++i) {
-                g.setColor(Color.BLACK);
+            	g.setColor(new Color(0, 255, 0, 90)); //fill
                 g.fillOval((int) drawthis[i].x + k.offset_x - (int) (drawthis[i].R * o.r / 2000),
                         (int) drawthis[i].y + k.offset_y - (int) (drawthis[i].R * o.r / 2000),
                         (int) (drawthis[i].R * o.r / 1000),
                         (int) (drawthis[i].R * o.r / 1000));
             }
 
-             */
+            
         }
     }
 }

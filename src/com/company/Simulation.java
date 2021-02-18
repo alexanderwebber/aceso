@@ -17,7 +17,7 @@ class Box {
     double volume;       //volume of the cube
     double volume_ratio;              //Desired volume ratio
     BoxVoxels vox;       //Voxel memory for the particles
-    private ArrayList<Tumoroid> tumoroids = new ArrayList<>();
+    ArrayList<Tumoroid> tumoroids = new ArrayList<>();
 
 
     Box() {
@@ -29,7 +29,7 @@ class Box {
         this.side_length = side_length;
         volume = side_length * side_length * side_length;
     }
-
+    
     public ArrayList<Tumoroid> getTumoroids() {
         return tumoroids;
     }
@@ -37,6 +37,12 @@ class Box {
     public int getNumTumor() {
         return tumoroids.size();
     }
+
+    public void addTumor(double x, double y, double z, double R, int idNum) {
+        tumoroids.add(new Tumoroid(x, y , z, R, idNum));
+    }
+
+    
 }
 
 public class Simulation extends Box {
@@ -48,7 +54,8 @@ public class Simulation extends Box {
     ArrayList<Particle> imageParticles = new ArrayList<>();
     ArrayList<Double> densityValues = new ArrayList<>();
     int numParticles = 0;
-    double numTCells = 1000;
+    double numTCells = 50;
+    
 
     boolean tumor = false;
     //double numGelsToSet = 1000;
@@ -68,7 +75,7 @@ public class Simulation extends Box {
     SliceDensityCalculator sdc = new SliceDensityCalculator(this);
     double t = 0;
     int fallTimeIterator = 0;
-    double time_limit = 1000;
+    double fall_time_limit = 1000;
     double dt = 1;
     boolean simulating = false;
     private Path savePath;
@@ -87,7 +94,9 @@ public class Simulation extends Box {
         //initFromCSVTumor("tumor.csv"); // BOX
 
     }
-
+    
+    
+    
     void settle() {
         settleThread = new Thread(() -> {
             for (int i = 0; i < 50; ++i) {
@@ -104,14 +113,16 @@ public class Simulation extends Box {
     void fill() {
         fillThread = new Thread(() -> {
             double startTime = System.nanoTime();
-
+            // TODO: Setup tumor 
+            
             setSide(side_length);
+            
             volume_ratio = .66;
             if (settleThread.isAlive()) {
                 settleThread.interrupt();
             }
-
-            // Scale down average radius and std dev
+            
+         // Scale down average radius and std dev
             int numGelsToSet = (int) ((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
             
             vox = new BoxVoxels(this);
@@ -119,25 +130,16 @@ public class Simulation extends Box {
             rAverageRadius = rAverageRadius * 0.01;
 
 
-            // Add tumor replacement gel
-            if(tumor) {
-                Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2, 2.0, this, "TumorGel");
-                addGel(tumorGel);
-            }
-
-
             for (int i = 0; i < numGelsToSet; i++) {
                 addGel();
-                System.out.println(i);
+                
             }
 
             while (sumSphereVolumes() / volume < volume_ratio) {
                 scaleSpheres(1.01);
-                System.out.println("scaling");
-
             }
 
-            System.out.println(rangeOverAverageR);
+            
 
             settle();
 
@@ -156,12 +158,13 @@ public class Simulation extends Box {
 
             long startTime = System.nanoTime();
 
-            while (fallTimeIterator < time_limit) {
+            while (fallTimeIterator < fall_time_limit) {
                 for (int j = 0; j < numGels; j++) {
                     gels.get(j).fall();
                 }
 
                 fallTimeIterator++;
+                System.out.println(fallTimeIterator);
             }
 
             double endTime = System.nanoTime();
@@ -204,12 +207,12 @@ public class Simulation extends Box {
 
             for (int i = 0; i < numGelsToSet; i++) {
                 addGel();
-                System.out.println(i);
+            
             }
 
             while (sumSphereVolumes() / volume < volume_ratio) {
                 scaleSpheres(1.01);
-                System.out.println("scaling");
+
 
             }
 
@@ -232,13 +235,13 @@ public class Simulation extends Box {
 
             long startTime = System.nanoTime();
 
-            while (fallTimeIterator < time_limit) {
+            while (fallTimeIterator < fall_time_limit) {
                 for (int j = 0; j < numGels; j++) {
                     gels.get(j).fall();
                 }
 
                 fallTimeIterator++;
-                System.out.println("running");
+                
             }
 
             double endTime = System.nanoTime();
@@ -265,7 +268,6 @@ public class Simulation extends Box {
         // Scale down average radius and std dev
         int numGelsToSet = (int) ((0.67) * (Math.floor((side_length * side_length * side_length) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
 
-        System.out.println(numGelsToSet);
 
         rAverageRadius = rAverageRadius * 0.01;
 
@@ -322,7 +324,7 @@ public class Simulation extends Box {
 
         long startTime = System.nanoTime();
 
-        while (fallTimeIterator < time_limit) {
+        while (fallTimeIterator < fall_time_limit) {
             for (int j = 0; j < numGels; j++) {
                 gels.get(j).fall();
             }
@@ -432,17 +434,57 @@ public class Simulation extends Box {
         tCellThread = new Thread(() -> {
             vox = new BoxVoxels(this);
             addTCells();
+            
+            int numTumor = 559;
 
-            ArrayList<double[]> xyzOutput = new ArrayList<>();
-
-
+            
+            BufferedReader builder2;
+			try {
+				builder2 = new BufferedReader(new FileReader("tumor.csv"));
+			
+			
+	            String thisline;
+	            Random r = new Random();
+	
+	            
+	
+	
+	            // Add tumor replacement gel
+	            if(tumor) {
+					/*
+					 * Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2,
+					 * 2.0, this, "TumorGel"); addGel(tumorGel);
+					 */
+	         
+	            		for (int i = 0; i < numTumor; i++) {
+	                        double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
+	                        thisline = builder2.readLine();
+	                        int comma = thisline.indexOf(',');
+	                        double x = Double.parseDouble(thisline.substring(0, comma));
+	                        int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
+	                        double y = Double.parseDouble(thisline.substring(comma + 1, comma2));
+	                        comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
+	                        double z = Double.parseDouble(thisline.substring(comma2 + 1, comma));
+	                        double R = randomRadius;
+	                        this.addTumor(x, y, z, R, i);
+	                    }
+	            		System.out.println("tumor runs");
+	            }
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+            
+            //ArrayList<double[]> xyzOutput = new ArrayList<>();
 
             String msdFileName = "msd_vs_time.csv" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
             String residenceFileName = "residence" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
+            int abridgedTimer = 0;
 
             try {
                 FileWriter avgWriter = new FileWriter(msdFileName);
-                FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + ".csv");
+                //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + ".csv");
+                FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
 
                 FileWriter residenceWriter = new FileWriter(residenceFileName);
 
@@ -455,20 +497,31 @@ public class Simulation extends Box {
                 while (sim_time < timeLimitTCells) {
                     average_displacement = 0.0;
 
-                    cellWriter.append(String.format("%.3f,", sim_time));
+                    //cellWriter.append(String.format("%.3f,", sim_time));
+                    
+                    
 
                     for (int i = 0; i < numTCells; i++) {
 
                         this.tcells[i].cellMove();
 
-                        cellWriter.append(String.format("%.5f,", tcells[i].displacement()));
+                        
+                        
+                        //cellWriter.append(String.format("%.5f,", tcells[i].displacement()));
+                        if((int) sim_time % 100 == 0) {
+                        	breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
 
-                        // When t-cell first enters range of tumor
+                            // When t-cell first enters range of tumor
 
-                        average_displacement += this.tcells[i].displacement() * this.tcells[i].displacement();
+                            average_displacement += this.tcells[i].displacement() * this.tcells[i].displacement();
+                           
+                            abridgedTimer++;
+                        }
+                        
                     }
 
-                    cellWriter.append(String.format("\n"));
+                    breadcrumbWriter.append(String.format("\n"));
+                    //cellWriter.append(String.format("\n"));
 
                     t += dt;
 
@@ -489,10 +542,10 @@ public class Simulation extends Box {
 				 * for(int i = 0; i < numTCells; i++) { tcells[i].outputXYZCSV(); }
 				 */
 
-                cellWriter.flush();
+                //cellWriter.flush();
                 avgWriter.flush();
                 residenceWriter.flush();
-
+                breadcrumbWriter.flush();
 
                 long finishTime = System.nanoTime() - startTime;
                 System.out.println("T Cell Running Time: " + finishTime / 1e9 + " seconds");
@@ -509,9 +562,9 @@ public class Simulation extends Box {
             }
 
 
-            //new Breadcrumbs(t, dt, 10, this);
+            new Breadcrumbs(t, abridgedTimer, (int)numTCells, this);
             if (gui) {
-                new Graph2(msdFileName, t, dt);
+                new Graph2(msdFileName, t, abridgedTimer);
             } else {
                 //new Graph2("msd_vs_time.csv" + calculateAvgRadius() + timeLimitTCells + ".csv", t, dt);
             }
@@ -607,7 +660,7 @@ public class Simulation extends Box {
     void start() {
         simulating = true;
         Thread simThread = new Thread(() -> {
-            while (simulating && t < time_limit) {
+            while (simulating && t < fall_time_limit) {
                 //timestep();
             }
             simulating = false;

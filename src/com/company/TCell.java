@@ -41,7 +41,7 @@ public class TCell extends Particle implements Drawable {
     double velocityY = ThreadLocalRandom.current().nextDouble(1.1 - velocityX);
     double velocityZ = (1.1 - velocityX - velocityY);
 
-    double velocity = 1.0;
+    double velocity = 0.5;
 
     TCell(){
 
@@ -168,10 +168,10 @@ public class TCell extends Particle implements Drawable {
     void cellMove() throws IOException {
         previousNearTumor = nearTumor;
 
-        this.v = Vector.random2();
+        this.v = Vector.random();
 
         while(checkCollision(mod(this.x + v.x(), S.side_length), mod(this.y + v.y(), S.side_length), mod(this.z + v.z(), S.side_length), this.R)) {
-            this.v = Vector.random2();
+            this.v = Vector.random();
 
         }
 

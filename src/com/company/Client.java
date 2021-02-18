@@ -280,7 +280,7 @@ class FillSettingsViz extends SimulationSettings {
                 numTCellsLabel.setForeground(Color.white);
                 //dt spinner
                 numTCellsSpinner = new JSpinner(new SpinnerNumberModel(panel.S.getNumTCells(), 0, 10000, 1));
-                numTCellsSpinner.addChangeListener(ChangeEvent -> panel.S.setNumTCells((double) numTCellsSpinner.getValue()));
+                numTCellsSpinner.addChangeListener(ChangeEvent -> panel.S.setNumTCells((double)numTCellsSpinner.getValue()));
                 //dt_panel
 
                 JPanel numTCellPanel = new JPanel();
@@ -809,7 +809,7 @@ class FillSettingsNonViz extends JPanel {
             time_panel.add(limit_label);
             //time_limit spinner
             limit_spinner = new JSpinner(new SpinnerNumberModel(10000, 0, 10000000, 10000));
-            limit_spinner.addChangeListener(ChangeEvent -> S.time_limit = ((double) (int) limit_spinner.getValue()));
+            limit_spinner.addChangeListener(ChangeEvent -> S.fall_time_limit = ((double) (int) limit_spinner.getValue()));
             limit_spinner.setPreferredSize(new Dimension(100, 20));
             time_panel.add(limit_spinner);
             // made a sub-panel for formatting called "time_settings"

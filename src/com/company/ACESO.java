@@ -5,20 +5,20 @@ import java.io.IOException;
 public class ACESO {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		//javax.swing.SwingUtilities.invokeLater(new Client());
+		javax.swing.SwingUtilities.invokeLater(new Client());
 
-		double averageRadius = Double.parseDouble(args[0]);
+		//double averageRadius = Double.parseDouble(args[0]);
 		
 		
 		
-		Simulation sim = new Simulation();
+		//Simulation sim = new Simulation();
 		
 		
-		sim.fillUnthreaded();
+		//sim.fillUnthreaded();
 		//sim.settleUnthreaded();
 		
-		sim.fallUnthreaded();
-		sim.runTCells();
+		//sim.fallUnthreaded();
+		//sim.runTCells();
 		 
 		//sim.runSim();
 		
