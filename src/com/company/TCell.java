@@ -37,11 +37,11 @@ public class TCell extends Particle implements Drawable {
     int[] randArray = new int[3];
 
     // Assign random velocity value
-    double velocityX = ThreadLocalRandom.current().nextDouble(1.1);
-    double velocityY = ThreadLocalRandom.current().nextDouble(1.1 - velocityX);
-    double velocityZ = (1.1 - velocityX - velocityY);
+    double velocityX = ThreadLocalRandom.current().nextDouble(3.1);
+    double velocityY = ThreadLocalRandom.current().nextDouble(3.1 - velocityX);
+    double velocityZ = (3.1 - velocityX - velocityY);
 
-    double velocity = 0.5;
+    double velocity = 3.0;
 
     TCell(){
 
@@ -166,18 +166,13 @@ public class TCell extends Particle implements Drawable {
     }
 
     void cellMove() throws IOException {
+    	
         previousNearTumor = nearTumor;
 
-        this.v = Vector.random();
+        this.v = Vector.random2();
 
-        while(checkCollision(mod(this.x + v.x(), S.side_length), mod(this.y + v.y(), S.side_length), mod(this.z + v.z(), S.side_length), this.R)) {
-            this.v = Vector.random();
-
-        }
-
-        //TODO redundant?
-        move();
-
+        updateCollision();
+        
         double[] tempArray = {this.getX(), this.getY(), this.getZ()};
         xyzOutput.add(tempArray);
 
@@ -199,7 +194,7 @@ public class TCell extends Particle implements Drawable {
                     setIsAttacking(false);
                     this.setStatus(3);
                     timeAttacking = 0;
-                    this.velocity = 4 * Math.exp(-0.01 * R) + 0.7;
+                    //this.velocity = 4 * Math.exp(-0.01 * R) + 0.7;
                 }
                 else {
                     timeAttacking++;

@@ -404,6 +404,8 @@ class FillSettingsViz extends SimulationSettings {
             add(new TimeStepPanel());
             add(new GelAvgSizeLabel());
             add(new GelStdDevLabel());
+            add(new MSD());
+            
         }
         class Numgelslabel extends  JLabel {
             Numgelslabel() {
@@ -418,6 +420,21 @@ class FillSettingsViz extends SimulationSettings {
                 setText("Num Gels: " + panel.S.numGels);
             }
         }
+        
+        class MSD extends JLabel {
+        	MSD() {
+                super();
+                setOpaque(false);
+                setForeground(Color.white);
+                setText("MSD: " + panel.S.averageDisplacementPanel);
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setText("MSD: " + panel.S.averageDisplacementPanel);
+            }
+        }
+        
         class Volumepercentage extends  JLabel {
             Volumepercentage() {
                 super();

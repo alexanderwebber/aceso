@@ -1512,36 +1512,36 @@ public class Particle {
         nearby = getNearby();
 
         for (Particle other : S.gels) {
-            if (other != null && other.imImage == false) {
+            if (other != null) {
                 double radiusSum = this.R + other.R;
                 double dx, dy, dz;
                 dx = this.x - other.x;
                 dy = this.y - other.y;
                 dz = this.z - other.z;
 
-                //x bound
-                //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
+//                //x bound
+//                //if other particle big x you small x bring their x here
+//                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+//                    dx -= S.side_length;
+//                }
+//                //if you big x other particle small x move x there to check
+//                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+//                    dx += S.side_length;
+//                }
+//                //y bound
+//                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+//                    dy -= S.side_length;
+//                }
+//                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+//                    dy += S.side_length;
+//                }
+//                //z bound
+//                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+//                    dz -= S.side_length;
+//                }
+//                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+//                    dz += S.side_length;
+//                }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
                     Vector diff = new Vector(dx, dy, dz);
@@ -1558,7 +1558,7 @@ public class Particle {
         nearby = getNearby();
 
         for (Particle other : S.gels) {
-            if (other != null && other.imImage == false) {
+            if (other != null) {
                 double radiusSum = R + other.R;
 
                 double dx, dy, dz;
@@ -1569,27 +1569,29 @@ public class Particle {
 
                 //x bound
                 //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
+//                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+//                    dx -= S.side_length;
+//                }
+//                //if you big x other particle small x move x there to check
+//                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+//                    dx += S.side_length;
+//                }
+//                
+//                //y bound
+//                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+//                    dy -= S.side_length;
+//                }
+//                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+//                    dy += S.side_length;
+//                }
+//                
+//                //z bound
+//                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+//                    dz -= S.side_length;
+//                }
+//                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+//                    dz += S.side_length;
+//                }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
                     Vector diff = new Vector(dx, dy, dz);
@@ -1606,7 +1608,7 @@ public class Particle {
 
     public void updateCollision() {
 
-        nearby = getNearby();
+        //nearby = getNearby();
 
         // Reset overlappedCounter before every loop
         overlappedCounter = 0;

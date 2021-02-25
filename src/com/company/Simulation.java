@@ -54,7 +54,8 @@ public class Simulation extends Box {
     ArrayList<Particle> imageParticles = new ArrayList<>();
     ArrayList<Double> densityValues = new ArrayList<>();
     int numParticles = 0;
-    double numTCells = 50;
+    double numTCells = 5;
+    double averageDisplacementPanel;
     
 
     boolean tumor = false;
@@ -66,7 +67,7 @@ public class Simulation extends Box {
     Thread tCellThread = new Thread();
 
     // Residence data stuff
-    int timeLimitTCells = 1000;
+    int timeLimitTCells = 1000000;
     static ArrayList<int[]> startValues = new ArrayList<>();
 
 
@@ -82,7 +83,7 @@ public class Simulation extends Box {
 
 
     // To be changed by panel settings
-    double rAverageRadius = 50;
+    double rAverageRadius = 80;
     double rangeOverAverageR = 0.0;
 
     //Constructors
@@ -95,7 +96,10 @@ public class Simulation extends Box {
 
     }
     
-    
+    void setAverageDisplacement(double averageDisplacement) {
+    	this.averageDisplacementPanel = averageDisplacement;
+    	
+    }
     
     void settle() {
         settleThread = new Thread(() -> {
@@ -480,6 +484,9 @@ public class Simulation extends Box {
             String msdFileName = "msd_vs_time.csv" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
             String residenceFileName = "residence" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
             int abridgedTimer = 0;
+            
+            double averageDisplacement;
+            
 
             try {
                 FileWriter avgWriter = new FileWriter(msdFileName);
@@ -488,14 +495,14 @@ public class Simulation extends Box {
 
                 FileWriter residenceWriter = new FileWriter(residenceFileName);
 
-                double average_displacement;
+                
 
                 long startTime = System.nanoTime();
 
                 // Keeping track of time steps for linear regression
 
                 while (sim_time < timeLimitTCells) {
-                    average_displacement = 0.0;
+                    averageDisplacement = 0.0;
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
                     
@@ -505,29 +512,35 @@ public class Simulation extends Box {
 
                         this.tcells[i].cellMove();
 
-                        
+                        breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
                         
                         //cellWriter.append(String.format("%.5f,", tcells[i].displacement()));
                         if((int) sim_time % 100 == 0) {
-                        	breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
+                        	
 
                             // When t-cell first enters range of tumor
 
-                            average_displacement += this.tcells[i].displacement() * this.tcells[i].displacement();
+                            averageDisplacement += this.tcells[i].displacement() * this.tcells[i].displacement();
+                            setAverageDisplacement(averageDisplacement);
                            
                             abridgedTimer++;
                         }
                         
                     }
 
+                    
                     breadcrumbWriter.append(String.format("\n"));
+                    
                     //cellWriter.append(String.format("\n"));
 
                     t += dt;
 
-                    //Write-out the average_displacement for this step
-                    avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, average_displacement, average_displacement / this.numParticles));
-
+                    
+                    if((int)sim_time % 100 == 0) {
+                    	//Write-out the average_displacement for this step
+                    	avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, averageDisplacement, averageDisplacement / this.numParticles));
+                    }
+                    
                     //xyzWriter.append("\n"); //formatting
 
                     //System.out.println(sim_time);
@@ -562,9 +575,9 @@ public class Simulation extends Box {
             }
 
 
-            new Breadcrumbs(t, abridgedTimer, (int)numTCells, this);
+            new Breadcrumbs(t, dt, (int)numTCells, this);
             if (gui) {
-                new Graph2(msdFileName, t, abridgedTimer);
+                new Graph2(msdFileName, t, dt);
             } else {
                 //new Graph2("msd_vs_time.csv" + calculateAvgRadius() + timeLimitTCells + ".csv", t, dt);
             }
@@ -598,6 +611,8 @@ public class Simulation extends Box {
     void addTcell(int idNum) {
         double R = 8;
 
+        //TODO: Change back to global positioning
+       
         double x = R + rand.nextDouble() * (side_length - 2 * R);
         double y = R + rand.nextDouble() * (side_length - 2 * R);
         double z = R + rand.nextDouble() * (side_length - 2 * R);
