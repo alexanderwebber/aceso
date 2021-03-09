@@ -55,6 +55,8 @@ public class TCell extends Particle implements Drawable {
         numKills = 0;
 
         this.idNum = idNum;
+        
+        this.status = 1;
 
         randArray[0] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
         randArray[1] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
@@ -139,7 +141,7 @@ public class TCell extends Particle implements Drawable {
         return isAttacking;
     }
 
-    public int getStatus() { return status; }
+    public int getStatus() { return this.status; }
 
     public double getX() {
         return x;
@@ -169,9 +171,13 @@ public class TCell extends Particle implements Drawable {
     	
         previousNearTumor = nearTumor;
 
-        this.v = Vector.random2();
+        if(isAttacking == false) {
+        	this.v = Vector.random();
+        	updateCollision();
+        }
+        
 
-        updateCollision();
+        
         
         double[] tempArray = {this.getX(), this.getY(), this.getZ()};
         xyzOutput.add(tempArray);
@@ -190,6 +196,7 @@ public class TCell extends Particle implements Drawable {
             }
 
             if(isAttacking == true) {
+            	
                 if(timeAttacking >= 60) {
                     setIsAttacking(false);
                     this.setStatus(3);
@@ -202,8 +209,8 @@ public class TCell extends Particle implements Drawable {
             }
 
             // check tumor cells
-            if(true) {
-                /*for(int i = 0; i < S.getNumTumor(); i++) {
+            if(isActivated == true) {
+                for(int i = 0; i < S.getNumTumor(); i++) {
 
                     if(isActivated == false) {
                         continue;
@@ -229,66 +236,8 @@ public class TCell extends Particle implements Drawable {
                         S.getTumoroids().get(i).setStatus("being_attacked");
                         numKills++;
                     }
-                }*/
-
-                for(int i = 0; i < S.gels.size(); i++) {
-
-                    /*if(isActivated == false) {
-                        continue;
-                    }*/
-
-                    /*if(S.getTumoroids().get(i).getStatus().equals("dead")) {
-                        continue;
-                    }*/
-
-
-
-                    double radius_sum_squared = Math.pow((this.getR() * 1.3) + S.gels.get(i).getR(), 2);
-
-                    double distanceX = Math.abs(S.gels.get(i).getX() - this.getX());
-                    double distanceY = Math.abs(S.gels.get(i).getY() - this.getY());
-                    double distanceZ = Math.abs(S.gels.get(i).getZ() - this.getZ());
-
-                    double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
-
-                    if(S.gels.get(i).name.equals("TumorGel")) {
-                        if (distanceVector <= radius_sum_squared + (2 * this.getR())) {
-                            residenceTime++;
-                            nearTumor = true;
-                            //System.out.println("Near Tumor Cell");
-                            //System.out.println(nearTumor);
-                            if(nearTumor && !previousNearTumor) {
-                                this.arrayListPosition = addStartPoint(this);
-                                System.out.println("entered tumor");
-                            }
-                        }
-                        else {
-                            residenceTime = 0;
-                            nearTumor = false;
-                            if(!nearTumor && previousNearTumor) {
-                                S.startValues.get(this.arrayListPosition)[2] = (int)S.sim_time;
-
-                                System.out.println("left tumor");
-
-
-                                //S.startValues.remove(this.arrayListPosition);
-
-                            }
-                        }
-                    }
-
-
-                    if(distanceVector < radius_sum_squared) {
-                        this.velocity = 0.0;
-                        setActivated(false);
-                        setIsAttacking(true);
-                        this.setStatus(2);
-                        //S.getTumoroids().get(i).setStatus("being_attacked");
-                        //numKills++;
-                        tumorHitCounter++;
-
-                    }
                 }
+
             }
         }
 
@@ -309,6 +258,7 @@ public class TCell extends Particle implements Drawable {
 
         g.setColor(new Color(200, 0, 0, 90)); //fill
         g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+        System.out.println(getStatus());
 
         if(this.getStatus() == 1) {
             g.setColor(new Color(200, 0, 0, 192)); //outline

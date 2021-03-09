@@ -31,7 +31,7 @@ class Client extends JFrame implements Runnable {
             while (running) {
                 getContentPane().repaint();
                 try {
-                    Thread.sleep(20);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -247,7 +247,7 @@ class FillSettingsViz extends SimulationSettings {
 
 
                 //time_limit spinner
-                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.timeLimitTCells, 0, 10000000, 1000));
+                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.timeLimitTCells, 0, 1000000000, 1000));
                 limit_spinner.addChangeListener(ChangeEvent -> panel.S.timeLimitTCells = (int) limit_spinner.getValue());
                 limit_spinner.setPreferredSize(new Dimension(100, 20));
                 time_panel.add(limit_spinner);
@@ -933,6 +933,7 @@ class SimulationSettings extends JPanel {
     class ViewChooser extends JPanel {
         JRadioButton slicer_view;
         JRadioButton box_view;
+        JCheckBox gel_visibility;
         ViewChooser() {
             setOpaque(false);
             setPreferredSize(new Dimension(100,55));

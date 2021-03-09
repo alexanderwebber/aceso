@@ -248,6 +248,9 @@ class Visualization extends JPanel {
             //center
             temp.x +=  (double) (getWidth() / 2) - temp.R;
             temp.y +=  (double) (getHeight() / 2) - temp.R;
+            
+            
+            
             drawthis[drawObjects++] = temp;
         }
     }
@@ -255,22 +258,28 @@ class Visualization extends JPanel {
     private void addParticles() {
         for (int i = 0; i < S.numParticles; ++i) {
             TCell temp = new TCell();
+            
+            temp.setStatus(S.tcells[i].getStatus());
             temp.R = S.tcells[i].R;
             double x = S.tcells[i].x - S.side_length / 2;
             double y = S.tcells[i].y - S.side_length / 2;
             double z = S.tcells[i].z - S.side_length / 2;
+            
             //transform
             temp.x = x * cos_theta - y * sin_theta;
             temp.y = z * cos_phi + (x * sin_theta + y * cos_theta) * sin_phi;
             temp.z = z * sin_phi - (x * sin_theta + y * cos_theta) * cos_phi;
+            
             //shift
             temp.x += k.offset_x;
             temp.y += k.offset_y;
+            
             //scale
             temp.x *= o.r / 2000;
             temp.y *= o.r / 2000;
             temp.z *= o.r / 2000;
             temp.R *= o.r / 2000;
+            
             //center
             temp.x +=  (double) (getWidth() / 2) - temp.R;
             temp.y +=  (double) (getHeight() / 2) - temp.R;

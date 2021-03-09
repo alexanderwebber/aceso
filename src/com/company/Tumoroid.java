@@ -49,8 +49,9 @@ public class Tumoroid extends Particle implements Drawable {
         randArray[1] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
         randArray[2] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
 
-        volume = (4.0 / 3) * Math.PI * (Math.pow(R, 3));
+        volume = (4.0  / 3) * Math.PI * (Math.pow(R, 3));
 
+        
         // math to keep it always within the sphere
         x = 400 + (600 - 400) * random.nextDouble();
         y = 400 + (600 - 400) * random.nextDouble();
@@ -156,25 +157,25 @@ public class Tumoroid extends Particle implements Drawable {
             }
         }*/
 
-        if (this.x > 600) {
+        if (this.x > 100 + s.tumorGel.getX()) {
             setX(getX() - 200);
         }
-        if (this.y > 600) {
+        if (this.y > 100 + s.tumorGel.getY()) {
             setY(getY() - 200);
 
         }
-        if (this.z > 600) {
+        if (this.z > 100 + s.tumorGel.getZ()) {
             setZ(getZ() - 200);
         }
 
         // Negative faces
-        if (this.x < 400) {
+        if (this.x < s.tumorGel.getX() - 100) {
             setX(getX() + 200);
         }
-        if (this.y < 400) {
+        if (this.y < s.tumorGel.getY() - 100) {
             setY(getY() + 200);
         }
-        if (this.z < 400) {
+        if (this.z < s.tumorGel.getZ() - 100) {
             setZ(getZ() + 200);
         }
 
@@ -374,6 +375,7 @@ public class Tumoroid extends Particle implements Drawable {
 
     void checkSetStatus() {
 
+
         if(this.getStatus().equals("being_attacked")) {
 
             if(timeSinceAttacked >= 60) {
@@ -381,6 +383,7 @@ public class Tumoroid extends Particle implements Drawable {
             }
             else {
                 timeSinceAttacked += 1;
+                
             }
         }
 

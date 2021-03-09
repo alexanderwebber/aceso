@@ -1519,29 +1519,29 @@ public class Particle {
                 dy = this.y - other.y;
                 dz = this.z - other.z;
 
-//                //x bound
-//                //if other particle big x you small x bring their x here
-//                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-//                    dx -= S.side_length;
-//                }
-//                //if you big x other particle small x move x there to check
-//                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-//                    dx += S.side_length;
-//                }
-//                //y bound
-//                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-//                    dy -= S.side_length;
-//                }
-//                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-//                    dy += S.side_length;
-//                }
-//                //z bound
-//                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-//                    dz -= S.side_length;
-//                }
-//                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-//                    dz += S.side_length;
-//                }
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
                     Vector diff = new Vector(dx, dy, dz);
@@ -1551,6 +1551,53 @@ public class Particle {
                 }
             }
         }
+        
+        for (Particle other : S.getTumoroids()) {
+            if (other != null) {
+                double radiusSum = R + other.R;
+
+                double dx, dy, dz;
+
+                dx = x - other.x;
+                dy = y - other.y;
+                dz = z - other.z;
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
         return false;
     }
 
@@ -1569,29 +1616,75 @@ public class Particle {
 
                 //x bound
                 //if other particle big x you small x bring their x here
-//                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-//                    dx -= S.side_length;
-//                }
-//                //if you big x other particle small x move x there to check
-//                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-//                    dx += S.side_length;
-//                }
-//                
-//                //y bound
-//                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-//                    dy -= S.side_length;
-//                }
-//                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-//                    dy += S.side_length;
-//                }
-//                
-//                //z bound
-//                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-//                    dz -= S.side_length;
-//                }
-//                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-//                    dz += S.side_length;
-//                }
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        for (Particle other : S.getTumoroids()) {
+            if (other != null) {
+                double radiusSum = R + other.R;
+
+                double dx, dy, dz;
+
+                dx = x - other.x;
+                dy = y - other.y;
+                dz = z - other.z;
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
                     Vector diff = new Vector(dx, dy, dz);
@@ -1617,6 +1710,7 @@ public class Particle {
         for (Particle other : S.gels) {
             try {
                 if (other != null) {
+                	
                     double radiusSum = R + other.R;
                     double dx, dy, dz;
                     dx = x + v.x() - other.x;
@@ -1658,8 +1752,6 @@ public class Particle {
                             other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
                             overlappedCounter++;
                             overlaps.add(diff.magnitude() / radiusSum);
-
-
 
                         }
 

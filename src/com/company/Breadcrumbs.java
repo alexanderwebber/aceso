@@ -21,10 +21,10 @@ class Breadcrumbs extends JFrame {
     private int points;
     private Random R;
 
-    Breadcrumbs(double time, double dt, int num_trails, Box B) {
+    Breadcrumbs(double time, double dt, int num_trails, Box B, String filename) {
         super("Path visualization");
         this.B = B;
-        this.filename = "breadcrumbs.csv";
+        this.filename = filename;
         points = (int) (time / dt);
         data = new double[num_trails][points][3];
 
