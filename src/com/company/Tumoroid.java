@@ -15,6 +15,7 @@ public class Tumoroid extends Particle implements Drawable {
     double volume = (4.0 / 3) * Math.PI * (Math.pow(R, 3));
     private double one_sqrtF;
     private int idNum;
+    private int numNeighbors;
 
     // Velocity vector
     private double velocityX;
@@ -125,9 +126,13 @@ public class Tumoroid extends Particle implements Drawable {
 
     public int getIdNum() { return idNum; }
 
-    public int getTimeSinceAttacked() { return getTimeSinceDead(); }
+    public int getTimeSinceAttacked() { return timeSinceAttacked; }
 
-    public int getTimeSinceDead() { return getTimeSinceAttacked(); }
+    public int getTimeSinceDead() { return timeSinceDead; }
+    
+    public int getNumNeighbors() { return numNeighbors; }
+    
+    public void setNumNeighbors(int numNeighbors) { this.numNeighbors = numNeighbors; }
 
     public void setStatus(String status) { this.status = status; }
 
@@ -157,107 +162,98 @@ public class Tumoroid extends Particle implements Drawable {
             }
         }*/
 
-        if (this.x > 100 + s.tumorGel.getX()) {
+    	if (this.x > 600) {
             setX(getX() - 200);
         }
-        if (this.y > 100 + s.tumorGel.getY()) {
+        if (this.y > 600) {
             setY(getY() - 200);
 
         }
-        if (this.z > 100 + s.tumorGel.getZ()) {
+        if (this.z > 600) {
             setZ(getZ() - 200);
         }
 
         // Negative faces
-        if (this.x < s.tumorGel.getX() - 100) {
+        if (this.x < 400) {
             setX(getX() + 200);
         }
-        if (this.y < s.tumorGel.getY() - 100) {
+        if (this.y < 400) {
             setY(getY() + 200);
         }
-        if (this.z < s.tumorGel.getZ() - 100) {
+        if (this.z < 400) {
             setZ(getZ() + 200);
         }
 
-        // Change without collision
-        double dx = this.getR() * 2 * velocityX * dt;
-        double dy = this.getR() * 2 * velocityY * dt;
-        double dz = this.getR() * 2 * velocityZ * dt;
+        int localNumNeighbors = 0;
+        
+        //check other tumor cells
+        for (int i = 0; i < s.getNumTumor(); i++) {
+            if (i != index) {
+	            try {
+	                if (s.getTumoroids().get(i) != null) {
+	                	
+	                    double radiusSum = R + s.getTumoroids().get(i).R;
+	                    double dx, dy, dz;
+	                    dx = x + v.x() - s.getTumoroids().get(i).x;
+	                    dy = y + v.y() - s.getTumoroids().get(i).y;
+	                    dz = z + v.z() - s.getTumoroids().get(i).z;
+	                    
+	                    
+	                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
+	                        Vector diff = new Vector(dx, dy, dz);
+	                        double d = diff.magnitude() - radiusSum;
+	                        
+	                        if(d < 0.5) {
+	                        	localNumNeighbors++;
+	                            setNumNeighbors(localNumNeighbors);
+	                        }
+	                        
+	                        if (d < 0) { //overlap
+	                        	if(-d * s.getTumoroids().get(i).R / radiusSum > 0.00015) {
+	                        		this.v = v.add(diff.unitVector().scale(-0.00015));
+	                        		s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(diff.unitVector().scale(0.00015));
+	                        	}
+	                        	
+	                        	else {
+	                        		this.v = v.add(diff.unitVector().scale(-d * s.getTumoroids().get(i).R / radiusSum));
+	                        		s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(diff.unitVector().scale(d * R / radiusSum));
+	                        	}
+	                        	
+	                        	this.setX(this.getX() + this.v.x());
+	    	                    this.setY(this.getY() + this.v.y());
+	    	                    this.setZ(this.getZ() + this.v.z());
+	                        	
+	                        }
+	                        
+	                        else if (d > 0) {
+	                        	this.v = v.add(0, 0, 0);
+	                        	s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(0, 0, 0);
+	                        	
+	                        	this.setX(this.getX());
+	    	                    this.setY(this.getY());
+	    	                    this.setZ(this.getZ());
+	                        	
+		                    }
+		
+	
+	                    }
+	                    
+	                    
+	                }
+	            }
+	
+	            catch(NullPointerException e) {
+	                System.out.println(e);
+	            }
 
-        if (checkCollision(this.x, this.y, this.z, this.R, index, s)) {
-            //Adjust position based on active forces and velocity
-            double[] updatedForceArray = springModel(s, this);
-
-            double forceXSquare = Math.pow(updatedForceArray[0], 2);
-            double forceYSquare = Math.pow(updatedForceArray[1], 2);
-            double forceZSquare = Math.pow(updatedForceArray[2], 2);
-
-            one_sqrtF = 1.0 / (Math.sqrt(forceXSquare + forceYSquare + forceZSquare));
-
-
-            this.x += (updatedForceArray[0] * one_sqrtF * 0.7 * dt);
-            this.y += (updatedForceArray[1] * one_sqrtF * 0.7 * dt);
-            this.z += (updatedForceArray[2] * one_sqrtF * 0.7 * dt);
-
-        } else {
-            /*this.x += dx;
-            this.y += dy;
-            this.z += dz;*/
-        }
-
-        // Image particle assignment, if within PBC:
-        // Check if next step results in entering PBC
-        // Positive faces
-        // q/check variable below is used to see if image particle is created:
-        /*int q = 0;
-        if ((getX()) > 600 - (getR())) {
-            this.imageParticle.add(0, (dx + getX()) - 200);
-            q += 1;
-        }
-        // Still add move in case other coordinate moves into PBC, don't increment monitor variable
-        else {
-            this.imageParticle.add(0, dx + getX());
-        }
-        if ((getY()) > 600 - (4 * getR())) {
-            this.imageParticle.add(1, (dy + getY()) - 200);
-            q += 1;
-        } else {
-            this.imageParticle.add(1, dy + getY());
-        }
-        if ((getZ()) > 600 - (4 * getR())) {
-            this.imageParticle.add(2, (dz + getZ()) - 200);
-            q += 1;
-        } else {
-            this.imageParticle.add(2, dz + getZ());
-        }
-        // Negative faces
-        if ((getX()) < 400 + (4 * getR())) {
-            this.imageParticle.add(0, (dx + getX()) + 200);
-            q += 1;
-        } else {
-            this.imageParticle.add(0, dx + getX());
-        }
-        if ((getY()) < 400 + (4 * getR())) {
-            this.imageParticle.add(1, (dy + getY()) + 200);
-            q += 1;
-        } else {
-            this.imageParticle.add(1, dy + getY());
-        }
-        if ((getZ()) < 400 + (4 * getR())) {
-            this.imageParticle.add(2, (dz + getZ()) + 200);
-            q += 1;
-        } else {
-            this.imageParticle.add(2, dz + getZ());
-        }
-        if (q == 0) {
-            for (int i = 0; i < imageParticle.size(); i++) {
-                imageParticle.clear();
             }
-        }*/
+        }
+        
 
     }
 
     boolean checkCollision(double x, double y, double z, double R, int index, Simulation s) {
+    	
         //check other tumor cells
         for (int i = 0; i < s.getNumTumor(); i++) {
             if (i != index) {
@@ -269,8 +265,9 @@ public class Tumoroid extends Particle implements Drawable {
 
                 if (dx < radius_sum && dy < radius_sum && dz < radius_sum) {        // is it even close?
                     if (dx * dx + dy * dy + dz * dz < radius_sum * radius_sum) {    // then compute radial distance and check *how* close
-                        return true;
+                    	return true;
                     }
+                    
                 }
             }
         }

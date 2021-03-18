@@ -347,7 +347,7 @@ class FillSettingsViz extends SimulationSettings {
                 gelRadiusLowerBoundLabel.setFont(new Font("", Font.BOLD, 11));
                 gelRadiusLowerBoundLabel.setForeground(Color.white);
                 //dt spinner
-                gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rAverageRadius, 0, 100, 0.1));
+                gelRadiusLowerBoundSpinner = new JSpinner(new SpinnerNumberModel(panel.S.rAverageRadius, 0, 200, 0.1));
                 gelRadiusLowerBoundSpinner.addChangeListener(ChangeEvent -> panel.S.rAverageRadius = (double) gelRadiusLowerBoundSpinner.getValue());
                 //dt_panel
 

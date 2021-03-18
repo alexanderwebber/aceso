@@ -396,7 +396,7 @@ class Breadcrumbs extends JFrame {
 
             //draw
             double[][] corners = drawBox();
-            g.setColor(Color.blue);
+            g.setColor(Color.BLUE);
             g.drawLine((int) corners[0][0] + k.offset_x, (int) corners[0][1] + k.offset_y, (int) corners[1][0] + k.offset_x, (int) corners[1][1] + k.offset_y);
             g.drawLine((int) corners[0][0] + k.offset_x, (int) corners[0][1] + k.offset_y, (int) corners[2][0] + k.offset_x, (int) corners[2][1] + k.offset_y);
             g.drawLine((int) corners[0][0] + k.offset_x, (int) corners[0][1] + k.offset_y, (int) corners[4][0] + k.offset_x, (int) corners[4][1] + k.offset_y);

@@ -258,7 +258,6 @@ public class TCell extends Particle implements Drawable {
 
         g.setColor(new Color(200, 0, 0, 90)); //fill
         g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-        System.out.println(getStatus());
 
         if(this.getStatus() == 1) {
             g.setColor(new Color(200, 0, 0, 192)); //outline
