@@ -96,6 +96,7 @@ class FillSettingsViz extends SimulationSettings {
 
         add(new Volumepanel());
         add(new FillButton());
+        add(new FillFCCButton());
         add(new FallButton());
         add(new ViewChooser());
         //add(new ResetViewButton());
@@ -508,6 +509,23 @@ class FillSettingsViz extends SimulationSettings {
         }
     }
 
+    class FillFCCButton extends JButton {
+        FillFCCButton() {
+            super("Fill FCC");
+            addActionListener(actionEvent -> {
+                panel.S.fillLattice();
+            });
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (panel.S.fillLattice.isAlive()) {
+                setText("Still settling");
+            } else {
+                setText("Fill FCC");
+            }
+        }
+    }
 
     class FillButton extends JButton {
         FillButton() {
@@ -601,6 +619,7 @@ class FillSettingsNonViz extends JPanel {
 
         add(new Volumepanel());
         add(new FillButton());
+        add(new FillFCCButton());
         add(new FallButton());
 
         //add(new ViewChooser());
@@ -721,6 +740,24 @@ class FillSettingsNonViz extends JPanel {
             super("Start Filling");
             addActionListener(actionEvent -> {
                 S.fill();
+            });
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (S.fillThread.isAlive()) {
+                setText("Still settling");
+            } else {
+                setText("Start filling");
+            }
+        }
+    }
+    
+    class FillFCCButton extends JButton {
+        FillFCCButton() {
+            super("Fill FCC");
+            addActionListener(actionEvent -> {
+                S.fillLattice();
             });
         }
         @Override

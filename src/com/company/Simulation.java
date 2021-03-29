@@ -64,8 +64,10 @@ public class Simulation extends Box {
     //Threads of control
     Thread settleThread = new Thread();
     Thread fillThread = new Thread();
+    Thread fillLattice = new Thread();
     Thread fallThread = new Thread();
     Thread tCellThread = new Thread();
+    Thread fillHexThread = new Thread();
 
     // Residence data stuff
     int timeLimitTCells = 1000000;
@@ -107,6 +109,7 @@ public class Simulation extends Box {
     
     void settle() {
         settleThread = new Thread(() -> {
+        	System.out.println(this.imageParticles.size());
             for (int i = 0; i < 50; ++i) {
                 int size = numGels;
                 for (int j = 0; j < size; ++j) {
@@ -125,13 +128,14 @@ public class Simulation extends Box {
             
             setSide(side_length);
             
-            volume_ratio = .66;
+            volume_ratio = 0.64;
+            
             if (settleThread.isAlive()) {
                 settleThread.interrupt();
             }
             
             // Scale down average radius and std dev
-            double sideLengthByNumGels = Math.cbrt((1000 * ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / 0.67);
+            double sideLengthByNumGels = Math.cbrt((1000 * ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / volume_ratio);
             setSideLength(sideLengthByNumGels);
             setVolume(side_length * side_length * side_length); 
 
@@ -169,6 +173,43 @@ public class Simulation extends Box {
 
         fillThread.start();
     }
+    
+    void fillLattice() {
+	    fillLattice = new Thread(() -> {
+	        //setSide(1000);
+
+            double sideLengthByNumGels = Math.cbrt((1000 * ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / 0.74);
+            setSideLength(sideLengthByNumGels);
+            setVolume(side_length * side_length * side_length); 
+
+            vox = new BoxVoxels(this);
+	        // At radius 50microns, corresponds to number required for ~74% packing fraction in 1 mL volume
+	        int numCells = 10;
+	        // Position of molecule in
+	        Double[][] fccArray = {{0.0, 0.0, 0.0}, {0.0, 1.0, 1.0},{1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}};
+	        // Loop through each position in minilattice, minilattice length is number of minilattices divided by box length
+	        for(int i = 0; i < 8; i++) {
+	            for(int j = 0; j < 8; j++) {
+	                for(int k = 0; k < 8; k++) {
+                        // Initial position before manipulation, generate four per mini lattice.
+                        Double[] atomPosition = {0.0, 0.0, 0.0};
+                      
+                    	atomPosition[0] = i * 2 * rAverageRadius;
+                        atomPosition[1] = j * 2 * rAverageRadius;
+                        atomPosition[2] = k * 2 * rAverageRadius;
+                        addGel(atomPosition[0], atomPosition[1], atomPosition[2], this.rAverageRadius, "Gel");
+                       
+                        
+	                   
+	                }
+	            }
+	        }
+	        //settle();
+	        System.out.println(side_length);
+	    });
+	    fillLattice.start();
+	}
+    
     
     void fall() {
         fallThread = new Thread(() -> {
@@ -535,7 +576,7 @@ public class Simulation extends Box {
             
             //ArrayList<double[]> xyzOutput = new ArrayList<>();
 
-            String msdFileName = "msd_vs_time" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
+            String msdFileName = "msd_vs_time" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + "_" + tcells[0].velocity + ".csv";
             //String residenceFileName = "residence" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
             int abridgedTimer = 0;
             
@@ -545,7 +586,7 @@ public class Simulation extends Box {
             try {
                 FileWriter avgWriter = new FileWriter(msdFileName);
                 avgWriter.append(String.format("%s,%s,%s\n", "time", "nonsense", "msd"));
-                //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + ".csv");
+                //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + tcells[0].velocity + ".csv");
                 //FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
                 //FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
 
@@ -627,6 +668,7 @@ public class Simulation extends Box {
                 System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
                 
                 avgWriter.close();
+                //cellWriter.close();
                 //breadcrumbWriter.close();
                 //breadcrumbWriterNoPBC.close();
 

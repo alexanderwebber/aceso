@@ -29,29 +29,29 @@ public class Particle {
 
 
     // Possible Image Particles
-    Particle imageX;
-    Particle imageY;
-    Particle imageZ;
+    Gel imageX;
+    Gel imageY;
+    Gel imageZ;
 
-    Particle imageXY1;
-    Particle imageXY2;
-    Particle imageXY3;
+    Gel imageXY1;
+    Gel imageXY2;
+    Gel imageXY3;
+    
+    Gel imageXZ1;
+    Gel imageXZ2;
+    Gel imageXZ3;
 
-    Particle imageXZ1;
-    Particle imageXZ2;
-    Particle imageXZ3;
+    Gel imageYZ1;
+    Gel imageYZ2;
+    Gel imageYZ3;
 
-    Particle imageYZ1;
-    Particle imageYZ2;
-    Particle imageYZ3;
-
-    Particle imageXYZ1;
-    Particle imageXYZ2;
-    Particle imageXYZ3;
-    Particle imageXYZ4;
-    Particle imageXYZ5;
-    Particle imageXYZ6;
-    Particle imageXYZ7;
+    Gel imageXYZ1;
+    Gel imageXYZ2;
+    Gel imageXYZ3;
+    Gel imageXYZ4;
+    Gel imageXYZ5;
+    Gel imageXYZ6;
+    Gel imageXYZ7;
 
     boolean imImage;
 
@@ -89,8 +89,8 @@ public class Particle {
         return 4 * PI * Math.pow(R, 3) / 3;
     }
 
-    Particle[] getImageParticles() {
-        Particle[] imageParticleArray = new Particle[19];
+    Gel[] getImageParticles() {
+        Gel[] imageParticleArray = new Gel[19];
 
         imageParticleArray[0] = imageX;
         imageParticleArray[1] = imageY;
@@ -134,6 +134,419 @@ public class Particle {
 
     ArrayList<Double> getOverlapDistribution() { return overlaps; }
 
+    
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
+    }
+
+    public double getR() {
+        return R;
+    }
+
+    public void setR(double R) { this.R = R; }
+
+    public double getxPrime() {
+        return xPrime;
+    }
+
+    public double getyPrime() {
+        return yPrime;
+    }
+
+    public double getzPrime() {
+        return zPrime;
+    }
+
+    public double getRSquared() { return R * R; }
+
+    public int getNumPBCJumpsX() { return numPBCJumpsX; }
+
+    public int getNumPBCJumpsY() {
+        return numPBCJumpsY;
+    }
+
+    public int getNumPBCJumpsZ() {
+        return numPBCJumpsZ;
+    }
+
+    Voxel[] getVoxels() {
+        HashSet<Voxel> ans = new HashSet<>();
+        ans.add(getVoxel(x, y, z));
+        ans.add(getVoxel(x + R, y + R, z + R));
+        ans.add(getVoxel(x + R, y + R, z - R));
+        ans.add(getVoxel(x + R, y - R, z + R));
+        ans.add(getVoxel(x + R, y - R, z - R));
+        ans.add(getVoxel(x - R, y + R, z + R));
+        ans.add(getVoxel(x - R, y + R, z - R));
+        ans.add(getVoxel(x - R, y - R, z + R));
+        ans.add(getVoxel(x - R, y - R, z - R));
+        Voxel[] arr = new Voxel[ans.size()];
+        Object[] temp = ans.toArray();
+        for (int i = 0; i < ans.size(); ++i)
+            arr[i] = (Voxel) temp[i];
+        return arr;
+    }
+
+    public Particle[] getNearby() {
+        HashSet<Particle> ans = new HashSet<>();
+        for (Voxel v : in_voxels) {
+            for (Particle p : v.particles) {
+                ans.add(p);
+            }
+        }
+        ans.remove(this);
+        Particle[] arr = new Particle[ans.size()];
+        int index = 0;
+        for (Particle p : ans) {
+            arr[index++] = p;
+        }
+        return arr;
+    }
+
+    Voxel getVoxel() {
+        double vox_length = (S.side_length / S.vox.voxels_per_side);
+        int i = (int) (x / vox_length);
+        i = i >= 0 ? i < S.vox.voxels_per_side ? i : i - S.vox.voxels_per_side : i + S.vox.voxels_per_side;
+        int j = (int) (y / vox_length);
+        j = j >= 0 ? j < S.vox.voxels_per_side ? j : j - S.vox.voxels_per_side : j + S.vox.voxels_per_side;
+        int k = (int) (z / vox_length);
+        k = k >= 0 ? k < S.vox.voxels_per_side ? k : k - S.vox.voxels_per_side : k + S.vox.voxels_per_side;
+        return S.vox.voxels[i][j][k];
+    }
+
+    Voxel getVoxel(double x, double y, double z) {
+        double vox_length = (S.side_length / S.vox.voxels_per_side);
+        int i = (int) (x / vox_length);
+        i = i >= 0 ? i < S.vox.voxels_per_side ? i : i - S.vox.voxels_per_side : i + S.vox.voxels_per_side;
+        int j = (int) (y / vox_length);
+        j = j >= 0 ? j < S.vox.voxels_per_side ? j : j - S.vox.voxels_per_side : j + S.vox.voxels_per_side;
+        int k = (int) (z / vox_length);
+        k = k >= 0 ? k < S.vox.voxels_per_side ? k : k - S.vox.voxels_per_side : k + S.vox.voxels_per_side;
+        return S.vox.voxels[i][j][k];
+    }
+
+    // returns false if no collision
+    public boolean checkCollision() {
+
+        nearby = getNearby();
+
+        for (Particle other : S.gels) {
+            if (other != null) {
+                double radiusSum = this.R + other.R;
+                double dx, dy, dz;
+                dx = this.x - other.x;
+                dy = this.y - other.y;
+                dz = this.z - other.z;
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        for (Particle other : S.getTumoroids()) {
+            if (other != null) {
+                double radiusSum = R + other.R;
+
+                double dx, dy, dz;
+
+                dx = x - other.x;
+                dy = y - other.y;
+                dz = z - other.z;
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    boolean checkCollision(double x, double y, double z, double R) {
+        nearby = getNearby();
+
+        for (Particle other : S.gels) {
+            if (other != null) {
+                double radiusSum = R + other.R;
+
+                double dx, dy, dz;
+
+                dx = x - other.x;
+                dy = y - other.y;
+                dz = z - other.z;
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        for (Particle other : S.getTumoroids()) {
+            if (other != null) {
+                double radiusSum = R + other.R;
+
+                double dx, dy, dz;
+
+                dx = x - other.x;
+                dy = y - other.y;
+                dz = z - other.z;
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.side_length;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.side_length;
+                }
+                
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.side_length;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.side_length;
+                }
+                
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.side_length;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.side_length;
+                }
+
+                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void updateCollision() {
+
+        //nearby = getNearby();
+
+        // Reset overlappedCounter before every loop
+        overlappedCounter = 0;
+        overlaps.clear();
+
+        for (Particle other : S.gels) {
+            try {
+                if (other != null) {
+                	
+                    double radiusSum = R + other.R;
+                    double dx, dy, dz;
+                    dx = x + v.x() - other.x;
+                    dy = y + v.y() - other.y;
+                    dz = z + v.z() - other.z;
+                    
+                    ///x bound
+                    //if other particle big x you small x bring their x here
+                    if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                        dx -= S.side_length;
+                    }
+                    //if you big x other particle small x move x there to check
+                    else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                        dx += S.side_length;
+                    }
+                    //y bound
+                    if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                        dy -= S.side_length;
+                    } else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                        dy += S.side_length;
+                    }
+                    //z bound
+                    if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                        dz -= S.side_length;
+                    } else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                        dz += S.side_length;
+                    }
+                    
+                    
+                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
+                        Vector diff = new Vector(dx, dy, dz);
+                        double d = diff.magnitude() - radiusSum;
+                        if (d < 0) { //overlap
+                            v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
+                            other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
+                            overlappedCounter++;
+                            overlaps.add(diff.magnitude() / radiusSum);
+                        }
+
+                    }
+                    
+					/*
+					 * if(this.type.equals("TCell")) { for(int i = 0; i <
+					 * other.getImageParticles().length; i++) { if(other.getImageParticles()[i] !=
+					 * null) { double radiusSumImage = R + other.R; double dxImage, dyImage,
+					 * dzImage;
+					 * 
+					 * dxImage = x + v.x() - other.getImageParticles()[i].x; dyImage = y + v.y() -
+					 * other.getImageParticles()[i].y; dzImage = z + v.z() -
+					 * other.getImageParticles()[i].z;
+					 * 
+					 * if (Math.abs(dxImage) < radiusSum && Math.abs(dyImage) < radiusSum &&
+					 * Math.abs(dzImage) < radiusSumImage) {//check box Vector diff = new
+					 * Vector(dxImage, dyImage, dzImage); double d = diff.magnitude() -
+					 * radiusSumImage; if (d < 0) { //overlap v = v.add(diff.unitVector().scale(-d *
+					 * other.getImageParticles()[i].R / radiusSumImage)); overlappedCounter++;
+					 * overlaps.add(diff.magnitude() / radiusSum); }
+					 * 
+					 * } } } }
+					 */
+
+                    else {
+                    }
+
+                }
+            }
+
+            catch(NullPointerException e) {
+                System.out.println(e);
+            }
+
+        }
+
+
+        if(imImage != true) {
+            move();
+        }
+    }
+    
+    double mod(double a, double b) {
+        return ((a % b) + b) % b;
+    }
+
+    protected void move() {
+        if(imImage == false) {
+        	numPBCJumpsX = 0;
+        	numPBCJumpsY = 0;
+        	numPBCJumpsZ = 0;
+        	
+        	if(x + v.x() > S.side_length) {
+        		numPBCJumpsX++;
+        	}
+        	
+        	if(x + v.x() < 0) {
+        		numPBCJumpsX--;
+        	}
+        	
+        	if(y + v.y() > S.side_length) {
+        		numPBCJumpsY++;
+        	}
+        	
+        	if(y + v.y() < 0) {
+        		numPBCJumpsY--;
+        	}
+        
+        	if(y + v.z() > S.side_length) {
+        		numPBCJumpsZ++;
+        	}
+        	
+        	if(y + v.z() < 0) {
+        		numPBCJumpsZ--;
+        	}        	
+        	
+            setXYZ(mod(x + v.x(), S.side_length), mod(y + v.y(), S.side_length), mod(z + v.z(), S.side_length));
+
+            xPrime += v.x();
+            yPrime += v.y();
+            zPrime += v.z();
+
+        }
+    }
+    
     synchronized void setXYZ(double newx, double newy, double newz) {
         S.vox.remove(this);
         this.x = newx;
@@ -164,7 +577,7 @@ public class Particle {
             if(this.y + this.getR() >= this.S.side_length) {
                 if(this.z + getR() >= this.S.side_length) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -173,7 +586,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -182,7 +595,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -191,7 +604,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -200,7 +613,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -209,7 +622,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -218,7 +631,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ());
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -230,7 +643,7 @@ public class Particle {
 
                 else if(this.z - getR() <= 0) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -239,7 +652,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -248,7 +661,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -257,7 +670,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ());
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -266,7 +679,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ());
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -275,7 +688,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -284,7 +697,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -297,7 +710,7 @@ public class Particle {
 
                 else {
                     if(imageXY1 == null) {
-                        imageXY1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY1.imImage = true;
                     }
                     imageXY1.setX(this.getX() - this.S.side_length);
@@ -305,7 +718,7 @@ public class Particle {
                     imageXY1.setZ(this.getZ());
 
                     if(imageXY2 == null) {
-                        imageXY2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY2.imImage = true;
                     }
                     imageXY2.setX(this.getX() - this.S.side_length);
@@ -313,7 +726,7 @@ public class Particle {
                     imageXY2.setZ(this.getZ());
 
                     if(imageXY3 == null) {
-                        imageXY3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY3.imImage = true;
                     }
                     imageXY3.setX(this.getX());
@@ -326,7 +739,7 @@ public class Particle {
             else if(this.y - getR() <= 0) {
                 if(this.z + getR() >= this.S.side_length) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -335,7 +748,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -344,7 +757,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -353,7 +766,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -362,7 +775,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ());
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -371,7 +784,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -380,7 +793,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -391,7 +804,7 @@ public class Particle {
                 }
                 else if(this.z - getR() <= 0) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -400,7 +813,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -409,7 +822,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -418,7 +831,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ());
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -427,7 +840,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ());
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -436,7 +849,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -445,7 +858,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -457,7 +870,7 @@ public class Particle {
 
                 else {
                     if(imageXY1 == null) {
-                        imageXY1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY1.imImage = true;
                     }
                     imageXY1.setX(this.getX() - this.S.side_length);
@@ -465,7 +878,7 @@ public class Particle {
                     imageXY1.setZ(this.getZ());
 
                     if(imageXY2 == null) {
-                        imageXY2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY2.imImage = true;
                     }
                     imageXY2.setX(this.getX() - this.S.side_length);
@@ -473,7 +886,7 @@ public class Particle {
                     imageXY2.setZ(this.getZ());
 
                     if(imageXY3 == null) {
-                        imageXY3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY3.imImage = true;
                     }
                     imageXY3.setX(this.getX());
@@ -485,7 +898,7 @@ public class Particle {
 
             else if(this.z + getR() >= this.S.side_length) {
                 if(imageXZ1 == null) {
-                    imageXZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ1.imImage = true;
                 }
                 imageXZ1.setX(this.getX() - this.S.side_length);
@@ -493,7 +906,7 @@ public class Particle {
                 imageXZ1.setZ(this.getZ() - this.S.side_length);
 
                 if(imageXZ2 == null) {
-                    imageXZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ2.imImage = true;
                 }
                 imageXZ2.setX(this.getX() - this.S.side_length);
@@ -501,7 +914,7 @@ public class Particle {
                 imageXZ2.setZ(this.getZ());
 
                 if(imageXZ3 == null) {
-                    imageXZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ3.imImage = true;
                 }
                 imageXZ3.setX(this.getX());
@@ -512,7 +925,7 @@ public class Particle {
 
             else if(this.z - getR() <= 0) {
                 if(imageXZ1 == null) {
-                    imageXZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ1.imImage = true;
                 }
                 imageXZ1.setX(this.getX() - this.S.side_length);
@@ -520,7 +933,7 @@ public class Particle {
                 imageXZ1.setZ(this.getZ() + this.S.side_length);
 
                 if(imageXZ2 == null) {
-                    imageXZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ2.imImage = true;
                 }
                 imageXZ2.setX(this.getX() - this.S.side_length);
@@ -528,7 +941,7 @@ public class Particle {
                 imageXZ2.setZ(this.getZ());
 
                 if(imageXZ3 == null) {
-                    imageXZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ3.imImage = true;
                 }
                 imageXZ3.setX(this.getX());
@@ -539,7 +952,7 @@ public class Particle {
 
             else {
                 if(imageX == null) {
-                    imageX = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageX = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageX.imImage = true;
                 }
                 imageX.setX(this.getX() - this.S.side_length);
@@ -555,7 +968,7 @@ public class Particle {
             if(this.y + this.getR() >= this.S.side_length) {
                 if(this.z + getR() >= this.S.side_length) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -564,7 +977,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -573,7 +986,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -582,7 +995,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -591,7 +1004,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -600,7 +1013,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -609,7 +1022,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ());
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -620,7 +1033,7 @@ public class Particle {
                 }
                 else if(this.z - getR() <= 0) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -629,7 +1042,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -638,7 +1051,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -647,7 +1060,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ());
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -656,7 +1069,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ());
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -665,7 +1078,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -674,7 +1087,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -686,7 +1099,7 @@ public class Particle {
 
                 else {
                     if(imageXY1 == null) {
-                        imageXY1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY1.imImage = true;
                     }
                     imageXY1.setX(this.getX() + this.S.side_length);
@@ -694,7 +1107,7 @@ public class Particle {
                     imageXY1.setZ(this.getZ());
 
                     if(imageXY2 == null) {
-                        imageXY2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY2.imImage = true;
                     }
                     imageXY2.setX(this.getX() + this.S.side_length);
@@ -702,7 +1115,7 @@ public class Particle {
                     imageXY2.setZ(this.getZ());
 
                     if(imageXY3 == null) {
-                        imageXY3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY3.imImage = true;
                     }
                     imageXY3.setX(this.getX());
@@ -715,7 +1128,7 @@ public class Particle {
             else if(this.y - getR() <= 0) {
                 if(this.z + getR() >= this.S.side_length) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -724,7 +1137,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -733,7 +1146,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -742,7 +1155,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -751,7 +1164,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ());
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -760,7 +1173,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -769,7 +1182,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ() - this.S.side_length);
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -780,7 +1193,7 @@ public class Particle {
                 }
                 else if(this.z - getR() <= 0) {
                     if(imageXYZ1 == null) {
-                        imageXYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ1.imImage = true;
                     }
 
@@ -789,7 +1202,7 @@ public class Particle {
                     imageXYZ1.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ2 == null) {
-                        imageXYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ2.imImage = true;
                     }
 
@@ -798,7 +1211,7 @@ public class Particle {
                     imageXYZ2.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ3 == null) {
-                        imageXYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ3.imImage = true;
                     }
 
@@ -807,7 +1220,7 @@ public class Particle {
                     imageXYZ3.setZ(this.getZ());
 
                     if(imageXYZ4 == null) {
-                        imageXYZ4 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ4.imImage = true;
                     }
 
@@ -816,7 +1229,7 @@ public class Particle {
                     imageXYZ4.setZ(this.getZ());
 
                     if(imageXYZ5 == null) {
-                        imageXYZ5 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ5.imImage = true;
                     }
 
@@ -825,7 +1238,7 @@ public class Particle {
                     imageXYZ5.setZ(this.getZ());
 
                     if(imageXYZ6 == null) {
-                        imageXYZ6 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ6.imImage = true;
                     }
 
@@ -834,7 +1247,7 @@ public class Particle {
                     imageXYZ6.setZ(this.getZ() + this.S.side_length);
 
                     if(imageXYZ7 == null) {
-                        imageXYZ7 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXYZ7.imImage = true;
                     }
 
@@ -846,7 +1259,7 @@ public class Particle {
 
                 else {
                     if(imageXY1 == null) {
-                        imageXY1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY1.imImage = true;
                     }
                     imageXY1.setX(this.getX() + this.S.side_length);
@@ -854,7 +1267,7 @@ public class Particle {
                     imageXY1.setZ(this.getZ());
 
                     if(imageXY2 == null) {
-                        imageXY2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY2.imImage = true;
                     }
                     imageXY2.setX(this.getX() + this.S.side_length);
@@ -862,7 +1275,7 @@ public class Particle {
                     imageXY2.setZ(this.getZ());
 
                     if(imageXY3 == null) {
-                        imageXY3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                         imageXY3.imImage = true;
                     }
                     imageXY3.setX(this.getX());
@@ -874,7 +1287,7 @@ public class Particle {
 
             else if(this.z + getR() >= this.S.side_length) {
                 if(imageXZ1 == null) {
-                    imageXZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ1.imImage = true;
                 }
                 imageXZ1.setX(this.getX() + this.S.side_length);
@@ -882,7 +1295,7 @@ public class Particle {
                 imageXZ1.setZ(this.getZ() - this.S.side_length);
 
                 if(imageXZ2 == null) {
-                    imageXZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ2.imImage = true;
                 }
                 imageXZ2.setX(this.getX() + this.S.side_length);
@@ -890,7 +1303,7 @@ public class Particle {
                 imageXZ2.setZ(this.getZ());
 
                 if(imageXZ3 == null) {
-                    imageXZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ3.imImage = true;
                 }
                 imageXZ3.setX(this.getX());
@@ -901,7 +1314,7 @@ public class Particle {
 
             else if(this.z - getR() <= 0) {
                 if(imageXZ1 == null) {
-                    imageXZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ1.imImage = true;
                 }
                 imageXZ1.setX(this.getX() + this.S.side_length);
@@ -909,7 +1322,7 @@ public class Particle {
                 imageXZ1.setZ(this.getZ() + this.S.side_length);
 
                 if(imageXZ2 == null) {
-                    imageXZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ2.imImage = true;
                 }
                 imageXZ2.setX(this.getX() + this.S.side_length);
@@ -917,7 +1330,7 @@ public class Particle {
                 imageXZ2.setZ(this.getZ());
 
                 if(imageXZ3 == null) {
-                    imageXZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageXZ3.imImage = true;
                 }
                 imageXZ3.setX(this.getX());
@@ -928,7 +1341,7 @@ public class Particle {
 
             else {
                 if(imageX == null) {
-                    imageX = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageX = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageX.imImage = true;
                 }
                 imageX.setX(this.getX() + this.S.side_length);
@@ -942,7 +1355,7 @@ public class Particle {
         else if((this.y + this.getR()) >= this.S.side_length && imImage == false) {
             if(this.z + getR() >= this.S.side_length) {
                 if(imageYZ1 == null) {
-                    imageYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ1.imImage = true;
                 }
                 imageYZ1.setX(this.getX());
@@ -950,7 +1363,7 @@ public class Particle {
                 imageYZ1.setZ(this.getZ() - this.S.side_length);
 
                 if(imageYZ2 == null) {
-                    imageYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ2.imImage = true;
                 }
                 imageYZ2.setX(this.getX());
@@ -958,7 +1371,7 @@ public class Particle {
                 imageYZ2.setZ(this.getZ() - this.S.side_length);
 
                 if(imageYZ3 == null) {
-                    imageYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ3.imImage = true;
                 }
                 imageYZ3.setX(this.getX());
@@ -969,7 +1382,7 @@ public class Particle {
 
             else if(this.z - this.getR() <= 0) {
                 if(imageYZ1 == null) {
-                    imageYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ1.imImage = true;
                 }
                 imageYZ1.setX(this.getX());
@@ -977,7 +1390,7 @@ public class Particle {
                 imageYZ1.setZ(this.getZ() + this.S.side_length);
 
                 if(imageYZ2 == null) {
-                    imageYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ2.imImage = true;
                 }
                 imageYZ2.setX(this.getX());
@@ -985,7 +1398,7 @@ public class Particle {
                 imageYZ2.setZ(this.getZ() + this.S.side_length);
 
                 if(imageYZ3 == null) {
-                    imageYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ3.imImage = true;
                 }
                 imageYZ3.setX(this.getX());
@@ -996,7 +1409,7 @@ public class Particle {
 
             else {
                 if(imageY == null) {
-                    imageY = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageY = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageY.imImage = true;
                 }
                 imageY.setX(this.getX());
@@ -1010,7 +1423,7 @@ public class Particle {
         else if((this.y - this.getR()) <= 0 && imImage == false) {
             if(this.z + getR() >= this.S.side_length) {
                 if(imageYZ1 == null) {
-                    imageYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ1.imImage = true;
                 }
                 imageYZ1.setX(this.getX());
@@ -1018,7 +1431,7 @@ public class Particle {
                 imageYZ1.setZ(this.getZ() - this.S.side_length);
 
                 if(imageYZ2 == null) {
-                    imageYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ2.imImage = true;
                 }
                 imageYZ2.setX(this.getX());
@@ -1026,7 +1439,7 @@ public class Particle {
                 imageYZ2.setZ(this.getZ());
 
                 if(imageYZ3 == null) {
-                    imageYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ3.imImage = true;
                 }
                 imageYZ3.setX(this.getX());
@@ -1037,7 +1450,7 @@ public class Particle {
 
             else if(this.z - this.getR() <= 0) {
                 if(imageYZ1 == null) {
-                    imageYZ1 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ1.imImage = true;
                 }
                 imageYZ1.setX(this.getX());
@@ -1045,7 +1458,7 @@ public class Particle {
                 imageYZ1.setZ(this.getZ() + this.S.side_length);
 
                 if(imageYZ2 == null) {
-                    imageYZ2 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ2.imImage = true;
                 }
                 imageYZ2.setX(this.getX());
@@ -1053,7 +1466,7 @@ public class Particle {
                 imageYZ2.setZ(this.getZ());
 
                 if(imageYZ3 == null) {
-                    imageYZ3 = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageYZ3.imImage = true;
                 }
                 imageYZ3.setX(this.getX());
@@ -1064,7 +1477,7 @@ public class Particle {
 
             else {
                 if(imageY == null) {
-                    imageY = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                    imageY = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                     imageY.imImage = true;
                 }
                 imageY.setX(this.getX());
@@ -1077,7 +1490,7 @@ public class Particle {
         else if((this.z + this.getR()) >= this.S.side_length && imImage == false) {
             if(imageZ == null)
             {
-                imageZ = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                imageZ = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                 imageZ.imImage = true;
             }
             imageZ.setX(this.getX());
@@ -1089,7 +1502,7 @@ public class Particle {
         else if((this.z - this.getR()) <= 0 && imImage == false) {
             if(imageZ == null)
             {
-                imageZ = new Particle(this.getX(), this.getY(), this.getZ(), this.getR(), S);
+                imageZ = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
                 imageZ.imImage = true;
             }
             imageZ.setX(this.getX());
@@ -1393,401 +1806,6 @@ public class Particle {
                 S.imageParticles.remove(this.imageZ);
                 this.imageZ = null;
             }
-        }
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getZ() {
-        return z;
-    }
-
-    public void setZ(double z) {
-        this.z = z;
-    }
-
-    public double getR() {
-        return R;
-    }
-
-    public void setR(double R) { this.R = R; }
-
-    public double getxPrime() {
-        return xPrime;
-    }
-
-    public double getyPrime() {
-        return yPrime;
-    }
-
-    public double getzPrime() {
-        return zPrime;
-    }
-
-    public double getRSquared() { return R * R; }
-
-    public int getNumPBCJumpsX() { return numPBCJumpsX; }
-
-    public int getNumPBCJumpsY() {
-        return numPBCJumpsY;
-    }
-
-    public int getNumPBCJumpsZ() {
-        return numPBCJumpsZ;
-    }
-
-    Voxel[] getVoxels() {
-        HashSet<Voxel> ans = new HashSet<>();
-        ans.add(getVoxel(x, y, z));
-        ans.add(getVoxel(x + R, y + R, z + R));
-        ans.add(getVoxel(x + R, y + R, z - R));
-        ans.add(getVoxel(x + R, y - R, z + R));
-        ans.add(getVoxel(x + R, y - R, z - R));
-        ans.add(getVoxel(x - R, y + R, z + R));
-        ans.add(getVoxel(x - R, y + R, z - R));
-        ans.add(getVoxel(x - R, y - R, z + R));
-        ans.add(getVoxel(x - R, y - R, z - R));
-        Voxel[] arr = new Voxel[ans.size()];
-        Object[] temp = ans.toArray();
-        for (int i = 0; i < ans.size(); ++i)
-            arr[i] = (Voxel) temp[i];
-        return arr;
-    }
-
-    public Particle[] getNearby() {
-        HashSet<Particle> ans = new HashSet<>();
-        for (Voxel v : in_voxels) {
-            for (Particle p : v.particles) {
-                ans.add(p);
-            }
-        }
-        ans.remove(this);
-        Particle[] arr = new Particle[ans.size()];
-        int index = 0;
-        for (Particle p : ans) {
-            arr[index++] = p;
-        }
-        return arr;
-    }
-
-    Voxel getVoxel() {
-        double vox_length = (S.side_length / S.vox.voxels_per_side);
-        int i = (int) (x / vox_length);
-        i = i >= 0 ? i < S.vox.voxels_per_side ? i : i - S.vox.voxels_per_side : i + S.vox.voxels_per_side;
-        int j = (int) (y / vox_length);
-        j = j >= 0 ? j < S.vox.voxels_per_side ? j : j - S.vox.voxels_per_side : j + S.vox.voxels_per_side;
-        int k = (int) (z / vox_length);
-        k = k >= 0 ? k < S.vox.voxels_per_side ? k : k - S.vox.voxels_per_side : k + S.vox.voxels_per_side;
-        return S.vox.voxels[i][j][k];
-    }
-
-    Voxel getVoxel(double x, double y, double z) {
-        double vox_length = (S.side_length / S.vox.voxels_per_side);
-        int i = (int) (x / vox_length);
-        i = i >= 0 ? i < S.vox.voxels_per_side ? i : i - S.vox.voxels_per_side : i + S.vox.voxels_per_side;
-        int j = (int) (y / vox_length);
-        j = j >= 0 ? j < S.vox.voxels_per_side ? j : j - S.vox.voxels_per_side : j + S.vox.voxels_per_side;
-        int k = (int) (z / vox_length);
-        k = k >= 0 ? k < S.vox.voxels_per_side ? k : k - S.vox.voxels_per_side : k + S.vox.voxels_per_side;
-        return S.vox.voxels[i][j][k];
-    }
-
-    // returns false if no collision
-    public boolean checkCollision() {
-
-        nearby = getNearby();
-
-        for (Particle other : S.gels) {
-            if (other != null) {
-                double radiusSum = this.R + other.R;
-                double dx, dy, dz;
-                dx = this.x - other.x;
-                dy = this.y - other.y;
-                dz = this.z - other.z;
-
-                //x bound
-                //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
-
-                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
-                    Vector diff = new Vector(dx, dy, dz);
-                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        for (Particle other : S.getTumoroids()) {
-            if (other != null) {
-                double radiusSum = R + other.R;
-
-                double dx, dy, dz;
-
-                dx = x - other.x;
-                dy = y - other.y;
-                dz = z - other.z;
-
-                //x bound
-                //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
-
-                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
-                    Vector diff = new Vector(dx, dy, dz);
-
-                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        return false;
-    }
-
-    boolean checkCollision(double x, double y, double z, double R) {
-        nearby = getNearby();
-
-        for (Particle other : S.gels) {
-            if (other != null) {
-                double radiusSum = R + other.R;
-
-                double dx, dy, dz;
-
-                dx = x - other.x;
-                dy = y - other.y;
-                dz = z - other.z;
-
-                //x bound
-                //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
-
-                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
-                    Vector diff = new Vector(dx, dy, dz);
-
-                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        for (Particle other : S.getTumoroids()) {
-            if (other != null) {
-                double radiusSum = R + other.R;
-
-                double dx, dy, dz;
-
-                dx = x - other.x;
-                dy = y - other.y;
-                dz = z - other.z;
-
-                //x bound
-                //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
-
-                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
-                    Vector diff = new Vector(dx, dy, dz);
-
-                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public void updateCollision() {
-
-        //nearby = getNearby();
-
-        // Reset overlappedCounter before every loop
-        overlappedCounter = 0;
-        overlaps.clear();
-
-        for (Particle other : S.gels) {
-            try {
-                if (other != null) {
-                	
-                    double radiusSum = R + other.R;
-                    double dx, dy, dz;
-                    dx = x + v.x() - other.x;
-                    dy = y + v.y() - other.y;
-                    dz = z + v.z() - other.z;
-                    
-                    ///x bound
-                    //if other particle big x you small x bring their x here
-                    if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                        dx -= S.side_length;
-                        numPBCJumpsX++;
-                    }
-                    //if you big x other particle small x move x there to check
-                    else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                        dx += S.side_length;
-                        numPBCJumpsX--;
-                    }
-                    //y bound
-                    if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                        dy -= S.side_length;
-                        numPBCJumpsY++;
-                    } else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                        dy += S.side_length;
-                        numPBCJumpsY--;
-                    }
-                    //z bound
-                    if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                        dz -= S.side_length;
-                        numPBCJumpsZ++;
-                    } else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                        dz += S.side_length;
-                        numPBCJumpsZ--;
-                    }
-                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
-                        Vector diff = new Vector(dx, dy, dz);
-                        double d = diff.magnitude() - radiusSum;
-                        if (d < 0) { //overlap
-                            v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
-                            other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
-                            overlappedCounter++;
-                            overlaps.add(diff.magnitude() / radiusSum);
-
-                        }
-
-                    }
-
-                    else {
-                    }
-
-                }
-            }
-
-            catch(NullPointerException e) {
-                System.out.println(e);
-            }
-
-        }
-
-
-        if(imImage != true) {
-            move();
-        }
-
-    }
-    
-    double mod(double a, double b) {
-        return ((a % b) + b) % b;
-    }
-
-    protected void move() {
-        if(imImage == false) {
-            setXYZ(mod(x + v.x(), S.side_length), mod(y + v.y(), S.side_length), mod(z + v.z(), S.side_length));
-
-            xPrime += v.x();
-            yPrime += v.y();
-            zPrime += v.z();
-
         }
     }
 }

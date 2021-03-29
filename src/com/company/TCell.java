@@ -41,7 +41,7 @@ public class TCell extends Particle implements Drawable {
     double velocityY = ThreadLocalRandom.current().nextDouble(3.1 - velocityX);
     double velocityZ = (3.1 - velocityX - velocityY);
 
-    double velocity = 3.0;
+    double velocity = 10.0;
 
     TCell(){
 
@@ -89,10 +89,11 @@ public class TCell extends Particle implements Drawable {
     //TODO launch with same random seed, launch with different random seed
     double displacement() {
 
-        double pbcAdjustmentX = S.side_length * getNumPBCJumpsX();
-        double pbcAdjustmentY = S.side_length * getNumPBCJumpsY();
-        double pbcAdjustmentZ = S.side_length * getNumPBCJumpsZ();
-
+		/*
+		 * double pbcAdjustmentX = S.side_length * getNumPBCJumpsX(); double
+		 * pbcAdjustmentY = S.side_length * getNumPBCJumpsY(); double pbcAdjustmentZ =
+		 * S.side_length * getNumPBCJumpsZ();
+		 */
         //TODO Adjust to consider jumps across PBC
         return Vector.magnitude(this.getxPrime() - x0, this.getyPrime() - y0, this.getzPrime() - z0);
     }
@@ -172,11 +173,9 @@ public class TCell extends Particle implements Drawable {
         previousNearTumor = nearTumor;
 
         if(isAttacking == false) {
-        	this.v = Vector.random();
+        	this.v = Vector.random().scale(velocity);
         	updateCollision();
         }
-        
-
         
         
         double[] tempArray = {this.getX(), this.getY(), this.getZ()};
