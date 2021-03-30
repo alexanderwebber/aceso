@@ -588,29 +588,43 @@ public class Simulation extends Box {
                 avgWriter.append(String.format("%s,%s,%s\n", "time", "nonsense", "msd"));
                 //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + tcells[0].velocity + ".csv");
                 //FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
-                //FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
+                FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
+                FileWriter xyzWriter = new FileWriter("abs_xyz.csv");
 
                 //FileWriter residenceWriter = new FileWriter(residenceFileName);
+                
+                xyzWriter.append(String.format("%s, %s, %s\n", "x", "y", "z"));
 
                 long startTime = System.nanoTime();
 
                 // Keeping track of time steps for linear regression
 
+                double xTotal = 0;
+                double yTotal = 0;
+                double zTotal = 0;
+                
                 while (sim_time < timeLimitTCells) {
                     averageDisplacement = 0.0;
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
                     
-                    
 
                     for (int i = 0; i < numTCells; i++) {
                     	tcells[i].cellMove();
 
+                    	xTotal += Math.abs(this.tcells[i].v.x());
+                    	yTotal += Math.abs(this.tcells[i].v.y());
+                    	zTotal += Math.abs(this.tcells[i].v.z());
+                    	
+                    	
                         //breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
-                        //breadcrumbWriterNoPBC.append(String.format("%f,%f,%f,", this.tcells[i].xPrime, this.tcells[i].yPrime, this.tcells[i].zPrime));
+                        breadcrumbWriterNoPBC.append(String.format("%f,%f,%f,", this.tcells[i].xPrime, this.tcells[i].yPrime, this.tcells[i].zPrime));
+                        
                         averageDisplacement += this.tcells[i].displacement() * this.tcells[i].displacement();
                         
+                        
                         //cellWriter.append(String.format("%.5f,", tcells[i].displacement()));
+                        
                         
                         
                     }
@@ -628,18 +642,16 @@ public class Simulation extends Box {
                     
                     //setAverageDisplacement(averageDisplacement);
                     
-                    
+                    xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
                     avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, averageDisplacement, averageDisplacement / this.numParticles));
 
                     
                     //breadcrumbWriter.append(String.format("\n"));
-                    //breadcrumbWriterNoPBC.append(String.format("\n"));
+                    breadcrumbWriterNoPBC.append(String.format("\n"));
                     
                     //cellWriter.append(String.format("\n"));
 
                     t += dt;
-                    
-                    //xyzWriter.append("\n"); //formatting
 
                     //System.out.println(sim_time);
                     sim_time++;
@@ -657,7 +669,8 @@ public class Simulation extends Box {
                 avgWriter.flush();
                 //residenceWriter.flush();
                 //breadcrumbWriter.flush();
-                //breadcrumbWriterNoPBC.flush();
+                breadcrumbWriterNoPBC.flush();
+                xyzWriter.flush();
 
                 long finishTime = System.nanoTime() - startTime;
                 System.out.println("T Cell Running Time: " + finishTime / 1e9 + " seconds");
@@ -670,7 +683,8 @@ public class Simulation extends Box {
                 avgWriter.close();
                 //cellWriter.close();
                 //breadcrumbWriter.close();
-                //breadcrumbWriterNoPBC.close();
+                breadcrumbWriterNoPBC.close();
+                xyzWriter.close();
 
 
             } catch (Exception e) {
