@@ -21,8 +21,7 @@ class Box {
 
 
     Box() {
-        
-
+       
     }
 
     public void setSide(double side_length) {
@@ -178,31 +177,36 @@ public class Simulation extends Box {
 	    fillLattice = new Thread(() -> {
 	        //setSide(1000);
 
-            double sideLengthByNumGels = Math.cbrt((1000 * ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / 0.74);
+            double sideLengthByNumGels = 10 * (2 * rAverageRadius);
             setSideLength(sideLengthByNumGels);
             setVolume(side_length * side_length * side_length); 
 
             vox = new BoxVoxels(this);
-	        // At radius 50microns, corresponds to number required for ~74% packing fraction in 1 mL volume
-	        int numCells = 10;
+	        
 	        // Position of molecule in
 	        Double[][] fccArray = {{0.0, 0.0, 0.0}, {0.0, 1.0, 1.0},{1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}};
-	        // Loop through each position in minilattice, minilattice length is number of minilattices divided by box length
-	        for(int i = 0; i < 8; i++) {
-	            for(int j = 0; j < 8; j++) {
-	                for(int k = 0; k < 8; k++) {
-                        // Initial position before manipulation, generate four per mini lattice.
-                        Double[] atomPosition = {0.0, 0.0, 0.0};
-                      
-                    	atomPosition[0] = i * 2 * rAverageRadius;
-                        atomPosition[1] = j * 2 * rAverageRadius;
-                        atomPosition[2] = k * 2 * rAverageRadius;
-                        addGel(atomPosition[0], atomPosition[1], atomPosition[2], this.rAverageRadius, "Gel");
-                       
-                        
+	        
+	        for(int i = 0; i < 10; i++) {
+	        	for(int j = 0; j < 10; j++) {
+	        		
+	        			Double[] atomPosition = {0.0, 0.0, 0.0};
+	                    
+	                	if(i % 2 == 0) {
+	                		atomPosition[0] = j *  2 * rAverageRadius;
+	                	}
+	                	else {
+	                		atomPosition[0] = j * (2 * rAverageRadius) + rAverageRadius;
+	                	}
+	                	
+	                	atomPosition[1] = i * (Math.sqrt(6) / 3) * (2 * rAverageRadius);
+	                	
+	                    atomPosition[2] = 0 * 2 * rAverageRadius;
+	                    addGel(atomPosition[0], atomPosition[1], atomPosition[2], this.rAverageRadius, "Gel"); 
+	        		
+	        		
+	        	}
+                                   
 	                   
-	                }
-	            }
 	        }
 	        //settle();
 	        System.out.println(side_length);
@@ -593,7 +597,7 @@ public class Simulation extends Box {
 
                 //FileWriter residenceWriter = new FileWriter(residenceFileName);
                 
-                xyzWriter.append(String.format("%s, %s, %s\n", "x", "y", "z"));
+                xyzWriter.append(String.format("%s,%s,%s\n", "x", "y", "z"));
 
                 long startTime = System.nanoTime();
 
@@ -603,8 +607,14 @@ public class Simulation extends Box {
                 double yTotal = 0;
                 double zTotal = 0;
                 
+                averageDisplacement = 0.0;
+                
+                System.out.println(numTCells + numParticles);
+                
+                System.out.println("Starting TCells");
+                
                 while (sim_time < timeLimitTCells) {
-                    averageDisplacement = 0.0;
+                    
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
                     
@@ -612,9 +622,9 @@ public class Simulation extends Box {
                     for (int i = 0; i < numTCells; i++) {
                     	tcells[i].cellMove();
 
-                    	xTotal += Math.abs(this.tcells[i].v.x());
-                    	yTotal += Math.abs(this.tcells[i].v.y());
-                    	zTotal += Math.abs(this.tcells[i].v.z());
+                    	xTotal += Math.abs(this.tcells[i].velocityX);
+                    	yTotal += Math.abs(this.tcells[i].velocityY);
+                    	zTotal += Math.abs(this.tcells[i].velocityZ);
                     	
                     	
                         //breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
@@ -643,7 +653,7 @@ public class Simulation extends Box {
                     //setAverageDisplacement(averageDisplacement);
                     
                     xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
-                    avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, averageDisplacement, averageDisplacement / this.numParticles));
+                    avgWriter.append(String.format("%.3f,%.5f,%.5f\n", sim_time, averageDisplacement, averageDisplacement / this.numTCells));
 
                     
                     //breadcrumbWriter.append(String.format("\n"));
@@ -656,6 +666,9 @@ public class Simulation extends Box {
                     //System.out.println(sim_time);
                     sim_time++;
                 }
+                
+                
+                System.out.println("MSD: " + averageDisplacement / this.numTCells);
 
 //                for(int i = 0; i < startValues.size(); i++) {
 //                    residenceWriter.append(String.format("%d,%d,%d\n", startValues.get(i)[0], startValues.get(i)[1], startValues.get(i)[2]));
@@ -704,6 +717,190 @@ public class Simulation extends Box {
 
         tCellThread.start();
     }
+    
+    void runTCellsIterable(int runNum) {
+    		
+    		vox = new BoxVoxels(this);
+    		addTCells();
+            
+            int numTumor = 559;
+
+            
+            BufferedReader builder2;
+			try {
+				builder2 = new BufferedReader(new FileReader("tumor.csv"));
+			
+			
+	            String thisline;
+	            Random r = new Random();
+	
+	            
+	
+	
+	            // Add tumor replacement gel
+	            if(tumor) {
+					/*
+					 * Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2,
+					 * 2.0, this, "TumorGel"); addGel(tumorGel);
+					 */
+	         
+	            		for (int i = 0; i < numTumor; i++) {
+	                        double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
+	                        thisline = builder2.readLine();
+	                        int comma = thisline.indexOf(',');
+	                        double x = Double.parseDouble(thisline.substring(0, comma));
+	                        int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
+	                        double y = Double.parseDouble(thisline.substring(comma + 1, comma2));
+	                        comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
+	                        double z = Double.parseDouble(thisline.substring(comma2 + 1, comma));
+	                        double R = randomRadius;
+	                        this.addTumor(x, y, z, R, i);
+	                    }
+	            		System.out.println("tumor runs");
+	            }
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+            
+            //ArrayList<double[]> xyzOutput = new ArrayList<>();
+
+            String msdFileName = "msd_vs_time" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + "_" + tcells[0].velocity + "_runNum" + runNum + ".csv";
+            //String residenceFileName = "residence" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
+            int abridgedTimer = 0;
+            
+            double averageDisplacement;
+            
+
+            try {
+                FileWriter avgWriter = new FileWriter(msdFileName);
+                avgWriter.append(String.format("%s,%s\n", "time","msd"));
+                //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + tcells[0].velocity + ".csv");
+                //FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
+                //FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
+                //FileWriter xyzWriter = new FileWriter("abs_xyz.csv");
+
+                //FileWriter residenceWriter = new FileWriter(residenceFileName);
+                
+                //xyzWriter.append(String.format("%s,%s,%s\n", "x", "y", "z"));
+
+                long startTime = System.nanoTime();
+
+                // Keeping track of time steps for linear regression
+
+                //double xTotal = 0;
+                //double yTotal = 0;
+                //double zTotal = 0;
+                
+                averageDisplacement = 0.0;
+                
+                
+                System.out.println("Starting TCells");
+                
+                sim_time = 0;
+                
+                while (sim_time < timeLimitTCells) {
+                    
+
+                    //cellWriter.append(String.format("%.3f,", sim_time));
+                    
+
+                    for (int i = 0; i < numTCells; i++) {
+                    	tcells[i].cellMove();
+
+                    	//xTotal += Math.abs(this.tcells[i].velocityX);
+                    	//yTotal += Math.abs(this.tcells[i].velocityY);
+                    	//zTotal += Math.abs(this.tcells[i].velocityZ);
+                    	
+                    	
+                        //breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
+                        //breadcrumbWriterNoPBC.append(String.format("%f,%f,%f,", this.tcells[i].xPrime, this.tcells[i].yPrime, this.tcells[i].zPrime));
+                        
+                        averageDisplacement += this.tcells[i].displacement() * this.tcells[i].displacement();
+                        
+                        
+                        //cellWriter.append(String.format("%.5f,", tcells[i].displacement()));
+                        
+                        
+                        
+                    }
+                    
+                    if(tumor) {
+                		tumorGarbageCollector();
+                        tumorGrow();
+                        checkTumors();
+                	}
+                    
+                    if((int) sim_time % 100 == 0) {
+                    	// abridgedTimer++;
+                        
+                    }
+                    
+                    //setAverageDisplacement(averageDisplacement);
+                    
+                    //xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
+                    avgWriter.append(String.format("%.3f,%.5f\n", sim_time, averageDisplacement / this.numTCells));
+
+                    
+                    //breadcrumbWriter.append(String.format("\n"));
+                    //breadcrumbWriterNoPBC.append(String.format("\n"));
+                    
+                    //cellWriter.append(String.format("\n"));
+
+                    t += dt;
+
+                    //System.out.println(sim_time);
+                    sim_time++;
+                }
+                
+                
+                System.out.println("MSD: " + averageDisplacement / numTCells);
+
+//                for(int i = 0; i < startValues.size(); i++) {
+//                    residenceWriter.append(String.format("%d,%d,%d\n", startValues.get(i)[0], startValues.get(i)[1], startValues.get(i)[2]));
+//                }
+
+				/*
+				 * for(int i = 0; i < numTCells; i++) { tcells[i].outputXYZCSV(); }
+				 */
+
+                //cellWriter.flush();
+                avgWriter.flush();
+                //residenceWriter.flush();
+                //breadcrumbWriter.flush();
+                //breadcrumbWriterNoPBC.flush();
+                //xyzWriter.flush();
+
+                long finishTime = System.nanoTime() - startTime;
+                System.out.println("T Cell Running Time: " + finishTime / 1e9 + " seconds");
+                //System.out.println("Average collisions with tumorGel: " + );
+                System.out.println(returnGelRange());
+                System.out.println(calculateAvgRadius());
+                System.out.println("range / mu(r) = " + (returnGelRange() / calculateAvgRadius()));
+                System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
+                
+                avgWriter.close();
+                //cellWriter.close();
+                //breadcrumbWriter.close();
+                //breadcrumbWriterNoPBC.close();
+                //xyzWriter.close();
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                
+            }
+
+
+            //new Breadcrumbs(t, dt, (int)numTCells, this, "breadcrumbs.csv");
+            //new Breadcrumbs(t, dt, (int)numTCells, this, "breadcrumbs_no_pbc.csv");
+            if (gui) {
+                //new Graph2(msdFileName, t, dt);
+            } else {
+                //new Graph2("msd_vs_time.csv" + calculateAvgRadius() + timeLimitTCells + ".csv", t, dt);
+            }
+     
+    }
 
 
     void addTCells() {
@@ -718,7 +915,7 @@ public class Simulation extends Box {
     void addTestTCells() {
         int idNum = 0;
         while (numParticles < getNumTCells()) {
-            TCell c = new TCell(500, 500, 500, 8, idNum, this);
+            TCell c = new TCell(500, 500, 500, 8, idNum, this, rand);
             vox.add(c);
             tcells[numParticles++] = c;
             sum_sphere_volume += c.volume();
@@ -730,17 +927,19 @@ public class Simulation extends Box {
     void addTcell(int idNum) {
         double R = 8;
 
+        
         //TODO: Change back to global positioning
        
         double x = R + rand.nextDouble() * (side_length - 2 * R);
         double y = R + rand.nextDouble() * (side_length - 2 * R);
         double z = R + rand.nextDouble() * (side_length - 2 * R);
 
-        TCell c = new TCell(x, y, z, R, idNum, this);
+        TCell c = new TCell(x, y, z, R, idNum, this, rand);
 
         if (c.checkCollision() == false) {
             vox.add(c);
-            tcells[numParticles++] = c;
+            tcells[idNum] = c;
+            numParticles++;
             sum_sphere_volume += c.volume();
             //System.out.println(c.getIdNum());
         }

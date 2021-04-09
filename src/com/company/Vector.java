@@ -59,9 +59,9 @@ class Vector {
         return new Vector(Math.sin(phi) * Math.cos(theta), Math.sin(phi) * Math.sin(theta), Math.cos(phi));
     }
 
-    static Vector random2(double velocity) {
+    static Vector random2(double velocity, Random random) {
         // Random number gen:
-        Random random = new Random();
+        
         int[] randArray = new int[3];
 
         randArray[0] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
@@ -69,8 +69,8 @@ class Vector {
         randArray[2] = (random.nextInt(1) + 1) * (random.nextBoolean() ? -1 : 1);
 
         // Assign random velocity value
-        double velocityX = ThreadLocalRandom.current().nextDouble(velocity);
-        double velocityY = ThreadLocalRandom.current().nextDouble(velocity - velocityX);
+        double velocityX = ThreadLocalRandom.current().nextDouble(0, velocity);
+        double velocityY = ThreadLocalRandom.current().nextDouble(0, velocity - velocityX);
         double velocityZ = (velocity - velocityX - velocityY);
 
         // Randomize the polarity
@@ -79,6 +79,21 @@ class Vector {
         velocityZ *= randArray[random.nextInt(3)];
 
         return new Vector(velocityX, velocityY, velocityZ);
+    }
+    
+    static Vector random3(double velocity, Random random) {
+    	double dx = random.nextDouble() - 0.5;
+    	double dy = random.nextDouble() - 0.5;
+    	double dz = random.nextDouble() - 0.5;
+    	
+    	double length = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+    	
+    	dx = dx * (velocity / length);
+    	dy = dy * (velocity / length);
+    	dz = dz * (velocity / length);
+    	
+    	
+    	return new Vector(dx, dy, dz);
     }
 
     double dot(Vector u) {
