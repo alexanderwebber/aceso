@@ -246,7 +246,7 @@ public class TCell extends Particle implements Drawable {
 
                     double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
 
-                    if(distanceVector < 500) {
+                    if(distanceVector < 750) {
                         incrementLifeTime();
 
                     }

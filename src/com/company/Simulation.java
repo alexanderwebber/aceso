@@ -94,7 +94,7 @@ public class Simulation extends Box {
     private Path savePath;
 
     // To be changed by panel settings
-    double rAverageRadius = 80.0;
+    double rAverageRadius = 50.0;
     double rangeOverAverageR = 0.0;
 
     //Constructors
@@ -479,6 +479,12 @@ public class Simulation extends Box {
 
         rAverageRadius = rAverageRadius * 0.1;
 
+        // Add tumor replacement gel
+        if(tumor) {
+            tumorGel = new Gel(sideLength / 2, sideLength / 2, sideLength / 2, 10, this, "TumorGel");
+            addGel(tumorGel);
+        }
+
         for (int i = 0; i < numGelsToSet; i++) {
             addGel();
         }
@@ -850,19 +856,24 @@ public class Simulation extends Box {
                      * 2.0, this, "TumorGel"); addGel(tumorGel);
                      */
 
+
                     for (int i = 0; i < numTumor; i++) {
                         double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                         thisline = builder2.readLine();
                         int comma = thisline.indexOf(',');
-                        double x = Double.parseDouble(thisline.substring(0, comma));
+                        double x = (tumorGel.getX() - sideLength / 2) + Double.parseDouble(thisline.substring(0, comma));
                         int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
-                        double y = Double.parseDouble(thisline.substring(comma + 1, comma2));
+                        double y = (tumorGel.getY() - sideLength / 2) + Double.parseDouble(thisline.substring(comma + 1, comma2));
                         comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
-                        double z = Double.parseDouble(thisline.substring(comma2 + 1, comma));
+                        double z = (tumorGel.getZ() - sideLength / 2) + Double.parseDouble(thisline.substring(comma2 + 1, comma));
                         double R = randomRadius;
                         this.addTumor(x, y, z, R, i);
                     }
                     System.out.println("tumor runs");
+                    vox.remove(tumorGel);
+                    gels.remove(tumorGel);
+                    numGels--;
+
                 }
 
             } catch (Exception e) {
