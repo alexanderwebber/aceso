@@ -2,7 +2,7 @@ package com.company;
 
 import java.awt.*;
 
-
+// Used to draw lines for the simulation space outline
 public class LineSegment implements Drawable {
     double x1;
     double x2;
@@ -19,10 +19,12 @@ public class LineSegment implements Drawable {
         this.z1 = z1;
         this.z2 = z2;
     }
+
     @Override
     public double getZ() {
         return Math.max(z1, z2);
     }
+
     @Override
     public void draw(Graphics g) {
         g.setColor(Color.white);

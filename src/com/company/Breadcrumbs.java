@@ -329,6 +329,11 @@ class Breadcrumbs extends JFrame {
             int size = 0;
 
             for (int trail = 0; trail < num_trails; ++trail) {
+            	
+            	if(trail == 0) {
+            		continue;
+            	}
+            	
                 for (int move = 0; move + 1 < points; ++move) {
                     int l = 50;
                     if (Math.abs(data[trail][move][0] - data[trail][move + 1][0]) < l && Math.abs(data[trail][move][1] - data[trail][move + 1][1]) < l && Math.abs(data[trail][move][2] - data[trail][move + 1][2]) < l) {
@@ -369,9 +374,9 @@ class Breadcrumbs extends JFrame {
             for (int tumor = 0; tumor < B.getTumoroids().size(); ++tumor) {
                 Gel temp = new Gel();
                 temp.R = B.getTumoroids().get(tumor).getR();
-                double x = B.getTumoroids().get(tumor).getX() - B.side_length * 0.5;
-                double y = B.getTumoroids().get(tumor).getY() - B.side_length * 0.5;
-                double z = B.getTumoroids().get(tumor).getZ() - B.side_length * 0.5;
+                double x = B.getTumoroids().get(tumor).getX() - B.sideLength * 0.5;
+                double y = B.getTumoroids().get(tumor).getY() - B.sideLength * 0.5;
+                double z = B.getTumoroids().get(tumor).getZ() - B.sideLength * 0.5;
 
                 //transfooooooooorm
                 temp.x = x * cos_theta - y * sin_theta;

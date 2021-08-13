@@ -1,5 +1,6 @@
 package com.company;
 //this is the sorting loop for all the draw objects in frame
+// TODO: Replace with Gosling version
 public class QuickSort implements Runnable {
     Drawable[] a;
     int lo;

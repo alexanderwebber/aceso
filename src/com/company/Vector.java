@@ -36,9 +36,9 @@ class Vector {
 
     public static double magnitude(double dx, double dy, double dz) {
         double sum = 0;
-        sum += Math.pow(dx, 2);
-        sum += Math.pow(dy, 2);
-        sum += Math.pow(dz, 2);
+        sum += dx * dx;
+        sum += dy * dy;
+        sum += dz * dz;
         return Math.sqrt(sum);
     }
     public Vector scale(double d) {
@@ -82,9 +82,9 @@ class Vector {
     }
     
     static Vector random3(double velocity, Random random) {
-    	double dx = random.nextDouble() - 0.5;
-    	double dy = random.nextDouble() - 0.5;
-    	double dz = random.nextDouble() - 0.5;
+    	double dx = Math.random()- 0.5;
+    	double dy = Math.random() - 0.5;
+    	double dz = Math.random() - 0.5;
     	
     	double length = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
     	

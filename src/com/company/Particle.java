@@ -1,7 +1,11 @@
 package com.company;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
+
+
 
 public class Particle {
     static final double PI = 3.14159265358979323846264338327950288419716939937511;
@@ -29,29 +33,6 @@ public class Particle {
 
 
     // Possible Image Particles
-    Gel imageX;
-    Gel imageY;
-    Gel imageZ;
-
-    Gel imageXY1;
-    Gel imageXY2;
-    Gel imageXY3;
-    
-    Gel imageXZ1;
-    Gel imageXZ2;
-    Gel imageXZ3;
-
-    Gel imageYZ1;
-    Gel imageYZ2;
-    Gel imageYZ3;
-
-    Gel imageXYZ1;
-    Gel imageXYZ2;
-    Gel imageXYZ3;
-    Gel imageXYZ4;
-    Gel imageXYZ5;
-    Gel imageXYZ6;
-    Gel imageXYZ7;
 
     boolean imImage;
 
@@ -80,43 +61,12 @@ public class Particle {
         in_voxels = getVoxels();
         nearby = getNearby();
         imImage = false;
+        
     }
-
-
-
+    
     //Particles are assumed to be spheres
     double volume() {
         return 4 * PI * Math.pow(R, 3) / 3;
-    }
-
-    Gel[] getImageParticles() {
-        Gel[] imageParticleArray = new Gel[19];
-
-        imageParticleArray[0] = imageX;
-        imageParticleArray[1] = imageY;
-        imageParticleArray[2] = imageZ;
-
-        imageParticleArray[3] = imageXY1;
-        imageParticleArray[4] = imageXY2;
-        imageParticleArray[5] = imageXY3;
-
-        imageParticleArray[6] = imageXZ1;
-        imageParticleArray[7] = imageXZ2;
-        imageParticleArray[8] = imageXZ3;
-
-        imageParticleArray[9] = imageYZ1;
-        imageParticleArray[10] = imageYZ2;
-        imageParticleArray[11] = imageYZ3;
-
-        imageParticleArray[12] = imageXYZ1;
-        imageParticleArray[13] = imageXYZ2;
-        imageParticleArray[14] = imageXYZ3;
-        imageParticleArray[15] = imageXYZ4;
-        imageParticleArray[16] = imageXYZ5;
-        imageParticleArray[17] = imageXYZ6;
-        imageParticleArray[18] = imageXYZ7;
-
-        return imageParticleArray;
     }
 
     int getTumorHitCounter() {
@@ -133,8 +83,6 @@ public class Particle {
     }
 
     ArrayList<Double> getOverlapDistribution() { return overlaps; }
-
-    
 
     public double getX() {
         return x;
@@ -225,7 +173,7 @@ public class Particle {
     }
 
     Voxel getVoxel() {
-        double vox_length = (S.side_length / S.vox.voxels_per_side);
+        double vox_length = (S.sideLength / S.vox.voxels_per_side);
         int i = (int) (x / vox_length);
         i = i >= 0 ? i < S.vox.voxels_per_side ? i : i - S.vox.voxels_per_side : i + S.vox.voxels_per_side;
         int j = (int) (y / vox_length);
@@ -236,7 +184,7 @@ public class Particle {
     }
 
     Voxel getVoxel(double x, double y, double z) {
-        double vox_length = (S.side_length / S.vox.voxels_per_side);
+        double vox_length = (S.sideLength / S.vox.voxels_per_side);
         int i = (int) (x / vox_length);
         i = i >= 0 ? i < S.vox.voxels_per_side ? i : i - S.vox.voxels_per_side : i + S.vox.voxels_per_side;
         int j = (int) (y / vox_length);
@@ -262,25 +210,25 @@ public class Particle {
                 //x bound
                 //if other particle big x you small x bring their x here
                 if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
+                    dx -= S.sideLength;
                 }
                 //if you big x other particle small x move x there to check
                 else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
+                    dx += S.sideLength;
                 }
                 //y bound
                 if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
+                    dy -= S.sideLength;
                 }
                 else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
+                    dy += S.sideLength;
                 }
                 //z bound
                 if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
+                    dz -= S.sideLength;
                 }
                 else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
+                    dz += S.sideLength;
                 }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
@@ -313,6 +261,83 @@ public class Particle {
         }
         
         return false;
+    }
+    
+    public static double roundAwayFromZero(double numberToRound) {
+		double roundedNumber;
+		
+		// Need to use BigDecimal since Java's rounding doesn't work with PBC
+		// Have to use two BigDecimals since the class is immutable
+		BigDecimal firstIntermediateNumber = new BigDecimal(numberToRound);
+		BigDecimal secondIntermediateNumber;
+		
+		secondIntermediateNumber = firstIntermediateNumber.setScale(0, RoundingMode.HALF_UP);
+		
+		// Convert BigDecimal to a double then return
+		roundedNumber = secondIntermediateNumber.doubleValue();
+
+		return roundedNumber;
+	}
+
+    int returnCoordination() {
+        nearby = getNearby();
+
+        int coordinationNumber = 0;
+
+        for (Particle other : S.gels) {
+            if (other != null && !other.equals(this)) {
+                // Dilation of 1%
+                double dilationRadiusSum = (this.R * (1 + 0.01)) + (other.R * (1 + 0.01));
+
+                double dx, dy, dz;
+
+                dx = this.x - other.x;
+                dy = this.y - other.y;
+                dz = this.z - other.z;
+
+
+                // Minimum image convention
+//                dx = dx - S.side_length * roundAwayFromZero(dx / S.side_length);
+//                dy = dy - S.side_length * roundAwayFromZero(dy / S.side_length);
+//                dz = dz - S.side_length * roundAwayFromZero(dz / S.side_length);
+
+                //x bound
+                //if other particle big x you small x bring their x here
+                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                    dx -= S.sideLength;
+                }
+                //if you big x other particle small x move x there to check
+                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                    dx += S.sideLength;
+                }
+
+                //y bound
+                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                    dy -= S.sideLength;
+                }
+                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                    dy += S.sideLength;
+                }
+
+                //z bound
+                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                    dz -= S.sideLength;
+                }
+                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                    dz += S.sideLength;
+                }
+
+                if (Math.abs(dx) < dilationRadiusSum && Math.abs(dy) < dilationRadiusSum && Math.abs(dz) < dilationRadiusSum) {
+                    Vector diff = new Vector(dx, dy, dz);
+
+                    if (diff.magnitude() - dilationRadiusSum < 0) {
+                        coordinationNumber++;
+                    }
+                }
+            }
+        }
+
+        return coordinationNumber;
     }
 
     boolean checkCollision(double x, double y, double z, double R) {
@@ -327,83 +352,43 @@ public class Particle {
                 dx = x - other.x;
                 dy = y - other.y;
                 dz = z - other.z;
+                
+                
+                // Minimum image convention
+//                dx = dx - S.side_length * roundAwayFromZero(dx / S.side_length);
+//                dy = dy - S.side_length * roundAwayFromZero(dy / S.side_length);
+//                dz = dz - S.side_length * roundAwayFromZero(dz / S.side_length);
 
                 //x bound
                 //if other particle big x you small x bring their x here
                 if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
+                    dx -= S.sideLength;
                 }
                 //if you big x other particle small x move x there to check
                 else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
+                    dx += S.sideLength;
                 }
                 
                 //y bound
                 if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
+                    dy -= S.sideLength;
                 }
                 else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
+                    dy += S.sideLength;
                 }
                 
                 //z bound
                 if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
+                    dz -= S.sideLength;
                 }
                 else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
+                    dz += S.sideLength;
                 }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
                     Vector diff = new Vector(dx, dy, dz);
 
-                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        for (Particle other : S.getTumoroids()) {
-            if (other != null) {
-                double radiusSum = R + other.R;
-
-                double dx, dy, dz;
-
-                dx = x - other.x;
-                dy = y - other.y;
-                dz = z - other.z;
-
-                //x bound
-                //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.side_length;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.side_length;
-                }
-                
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.side_length;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.side_length;
-                }
-                
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.side_length;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.side_length;
-                }
-
-                if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
-                    Vector diff = new Vector(dx, dy, dz);
-
-                    if (diff.magnitude() < Math.pow(radiusSum, 2)) {
+                    if (diff.magnitude() - radiusSum < 0) {
                         return true;
                     }
                 }
@@ -415,7 +400,7 @@ public class Particle {
 
     public void updateCollision() {
 
-        //nearby = getNearby();
+        nearby = getNearby();
 
         // Reset overlappedCounter before every loop
         overlappedCounter = 0;
@@ -431,63 +416,50 @@ public class Particle {
                     dy = y + v.y() - other.y;
                     dz = z + v.z() - other.z;
                     
-                    ///x bound
-                    //if other particle big x you small x bring their x here
-                    if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                        dx -= S.side_length;
-                    }
-                    //if you big x other particle small x move x there to check
-                    else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                        dx += S.side_length;
-                    }
-                    //y bound
-                    if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                        dy -= S.side_length;
-                    } else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                        dy += S.side_length;
-                    }
-                    //z bound
-                    if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                        dz -= S.side_length;
-                    } else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                        dz += S.side_length;
-                    }
                     
-                    
-                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
-                        Vector diff = new Vector(dx, dy, dz);
-                        double d = diff.magnitude() - radiusSum;
-                        if (d < 0) { //overlap
-                            v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
-                            other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
-                            overlappedCounter++;
-                            overlaps.add(diff.magnitude() / radiusSum);
-                        }
+//                    dx = dx - S.side_length * roundAwayFromZero(dx / S.side_length);
+//                    dy = dy - S.side_length * roundAwayFromZero(dy / S.side_length);
+//                    dz = dz - S.side_length * roundAwayFromZero(dz / S.side_length);
+                 
+                //if you big x other particle small x move x there to check
+				if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+				    dx -= S.sideLength;
+				}
+				else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+				    dx += S.sideLength;
+				}
+				  
+				//y bound
+				if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+				    dy -= S.sideLength;
+				}
+				else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+				    dy += S.sideLength;
+				}
+				  
+				  //z bound
+				if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+				    dz -= S.sideLength;
+				}
+				else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+				    dz += S.sideLength;
+				}
+				                    
+				if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
+				    Vector diff = new Vector(dx, dy, dz);
+				    double d = diff.magnitude() - radiusSum;
+				    if (d < 0) { //overlap
+				        v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
+				        other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
+				        overlappedCounter++;
+				        overlaps.add(diff.magnitude() / radiusSum);
+				
+				    }
+				
+				}
 
-                    }
-                    
-					/*
-					 * if(this.type.equals("TCell")) { for(int i = 0; i <
-					 * other.getImageParticles().length; i++) { if(other.getImageParticles()[i] !=
-					 * null) { double radiusSumImage = R + other.R; double dxImage, dyImage,
-					 * dzImage;
-					 * 
-					 * dxImage = x + v.x() - other.getImageParticles()[i].x; dyImage = y + v.y() -
-					 * other.getImageParticles()[i].y; dzImage = z + v.z() -
-					 * other.getImageParticles()[i].z;
-					 * 
-					 * if (Math.abs(dxImage) < radiusSum && Math.abs(dyImage) < radiusSum &&
-					 * Math.abs(dzImage) < radiusSumImage) {//check box Vector diff = new
-					 * Vector(dxImage, dyImage, dzImage); double d = diff.magnitude() -
-					 * radiusSumImage; if (d < 0) { //overlap v = v.add(diff.unitVector().scale(-d *
-					 * other.getImageParticles()[i].R / radiusSumImage)); overlappedCounter++;
-					 * overlaps.add(diff.magnitude() / radiusSum); }
-					 * 
-					 * } } } }
-					 */
-
-                    else {
-                    }
+                else {
+                }
 
                 }
             }
@@ -502,6 +474,7 @@ public class Particle {
         if(imImage != true) {
             move();
         }
+
     }
     
     double mod(double a, double b) {
@@ -510,35 +483,9 @@ public class Particle {
 
     protected void move() {
         if(imImage == false) {
-        	numPBCJumpsX = 0;
-        	numPBCJumpsY = 0;
-        	numPBCJumpsZ = 0;
+        	    	
         	
-        	if(x + v.x() > S.side_length) {
-        		numPBCJumpsX++;
-        	}
-        	
-        	if(x + v.x() < 0) {
-        		numPBCJumpsX--;
-        	}
-        	
-        	if(y + v.y() > S.side_length) {
-        		numPBCJumpsY++;
-        	}
-        	
-        	if(y + v.y() < 0) {
-        		numPBCJumpsY--;
-        	}
-        
-        	if(y + v.z() > S.side_length) {
-        		numPBCJumpsZ++;
-        	}
-        	
-        	if(y + v.z() < 0) {
-        		numPBCJumpsZ--;
-        	}        	
-        	
-            setXYZ(mod(x + v.x(), S.side_length), mod(y + v.y(), S.side_length), mod(z + v.z(), S.side_length));
+            setXYZ(mod(x + v.x(), S.sideLength), mod(y + v.y(), S.sideLength), mod(z + v.z(), S.sideLength));
 
             xPrime += v.x();
             yPrime += v.y();
@@ -558,1254 +505,5 @@ public class Particle {
         nearby = getNearby();
         S.vox.add(this);
 
-        //Creation of the image at border
-        // at the case of
-        // colliding with one of the borders:
-        // We identify which border is under collision
-        // According to the axis that collides, we mirror
-
-        boolean updatedX = false;
-        boolean updatedY = false;
-        boolean updatedZ = false;
-        boolean updatedXY = false;
-        boolean updatedXZ = false;
-        boolean updatedXYZ = false;
-        boolean updatedYZ = false;
-
-        // done
-        if(this.x + this.getR() >= this.S.side_length && imImage == false) {
-            if(this.y + this.getR() >= this.S.side_length) {
-                if(this.z + getR() >= this.S.side_length) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() - this.S.side_length);
-                    imageXYZ1.setY(this.getY() - this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX());
-                    imageXYZ2.setY(this.getY() - this.S.side_length);
-                    imageXYZ2.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX());
-                    imageXYZ3.setY(this.getY());
-                    imageXYZ3.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX() - this.S.side_length);
-                    imageXYZ4.setY(this.getY());
-                    imageXYZ4.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX() - this.S.side_length);
-                    imageXYZ5.setY(this.getY());
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() - this.S.side_length);
-                    imageXYZ6.setZ(this.getZ());
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() - this.S.side_length);
-                    imageXYZ7.setY(this.getY() - this.S.side_length);
-                    imageXYZ7.setZ(this.getZ());
-                    updatedXYZ = true;
-                }
-
-                else if(this.z - getR() <= 0) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() - this.S.side_length);
-                    imageXYZ1.setY(this.getY() - this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX());
-                    imageXYZ2.setY(this.getY());
-                    imageXYZ2.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX() - this.S.side_length);
-                    imageXYZ3.setY(this.getY() - this.S.side_length);
-                    imageXYZ3.setZ(this.getZ());
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX() - this.S.side_length);
-                    imageXYZ4.setY(this.getY());
-                    imageXYZ4.setZ(this.getZ());
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX());
-                    imageXYZ5.setY(this.getY() - this.S.side_length);
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() - this.S.side_length);
-                    imageXYZ6.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() - this.S.side_length);
-                    imageXYZ7.setY(this.getY());
-                    imageXYZ7.setZ(this.getZ() + this.S.side_length);
-
-                    updatedXYZ = true;
-                }
-
-                else {
-                    if(imageXY1 == null) {
-                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY1.imImage = true;
-                    }
-                    imageXY1.setX(this.getX() - this.S.side_length);
-                    imageXY1.setY(this.getY() - this.S.side_length);
-                    imageXY1.setZ(this.getZ());
-
-                    if(imageXY2 == null) {
-                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY2.imImage = true;
-                    }
-                    imageXY2.setX(this.getX() - this.S.side_length);
-                    imageXY2.setY(this.getY());
-                    imageXY2.setZ(this.getZ());
-
-                    if(imageXY3 == null) {
-                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY3.imImage = true;
-                    }
-                    imageXY3.setX(this.getX());
-                    imageXY3.setY(this.getY() - this.S.side_length);
-                    imageXY3.setZ(this.getZ());
-                    updatedXY = true;
-                }
-            }
-
-            else if(this.y - getR() <= 0) {
-                if(this.z + getR() >= this.S.side_length) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() - this.S.side_length);
-                    imageXYZ1.setY(this.getY() + this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX() - this.S.side_length);
-                    imageXYZ2.setY(this.getY());
-                    imageXYZ2.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX());
-                    imageXYZ3.setY(this.getY());
-                    imageXYZ3.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX() - this.S.side_length);
-                    imageXYZ4.setY(this.getY());
-                    imageXYZ4.setZ(this.getZ());
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX());
-                    imageXYZ5.setY(this.getY() + this.S.side_length);
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() + this.S.side_length);
-                    imageXYZ6.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() - this.S.side_length);
-                    imageXYZ7.setY(this.getY() + this.S.side_length);
-                    imageXYZ7.setZ(this.getZ());
-                    updatedXYZ = true;
-                }
-                else if(this.z - getR() <= 0) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() - this.S.side_length);
-                    imageXYZ1.setY(this.getY() + this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX());
-                    imageXYZ2.setY(this.getY());
-                    imageXYZ2.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX() - this.S.side_length);
-                    imageXYZ3.setY(this.getY());
-                    imageXYZ3.setZ(this.getZ());
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX());
-                    imageXYZ4.setY(this.getY() + this.S.side_length);
-                    imageXYZ4.setZ(this.getZ());
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX() - this.S.side_length);
-                    imageXYZ5.setY(this.getY() + this.S.side_length);
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() + this.S.side_length);
-                    imageXYZ6.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() - this.S.side_length);
-                    imageXYZ7.setY(this.getY());
-                    imageXYZ7.setZ(this.getZ() + this.S.side_length);
-                    updatedXYZ = true;
-                }
-
-                else {
-                    if(imageXY1 == null) {
-                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY1.imImage = true;
-                    }
-                    imageXY1.setX(this.getX() - this.S.side_length);
-                    imageXY1.setY(this.getY());
-                    imageXY1.setZ(this.getZ());
-
-                    if(imageXY2 == null) {
-                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY2.imImage = true;
-                    }
-                    imageXY2.setX(this.getX() - this.S.side_length);
-                    imageXY2.setY(this.getY() + this.S.side_length);
-                    imageXY2.setZ(this.getZ());
-
-                    if(imageXY3 == null) {
-                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY3.imImage = true;
-                    }
-                    imageXY3.setX(this.getX());
-                    imageXY3.setY(this.getY() + this.S.side_length);
-                    imageXY3.setZ(this.getZ());
-                    updatedXY = true;
-                }
-            }
-
-            else if(this.z + getR() >= this.S.side_length) {
-                if(imageXZ1 == null) {
-                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ1.imImage = true;
-                }
-                imageXZ1.setX(this.getX() - this.S.side_length);
-                imageXZ1.setY(this.getY());
-                imageXZ1.setZ(this.getZ() - this.S.side_length);
-
-                if(imageXZ2 == null) {
-                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ2.imImage = true;
-                }
-                imageXZ2.setX(this.getX() - this.S.side_length);
-                imageXZ2.setY(this.getY());
-                imageXZ2.setZ(this.getZ());
-
-                if(imageXZ3 == null) {
-                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ3.imImage = true;
-                }
-                imageXZ3.setX(this.getX());
-                imageXZ3.setY(this.getY());
-                imageXZ3.setZ(this.getZ() - this.S.side_length);
-                updatedXZ = true;
-            }
-
-            else if(this.z - getR() <= 0) {
-                if(imageXZ1 == null) {
-                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ1.imImage = true;
-                }
-                imageXZ1.setX(this.getX() - this.S.side_length);
-                imageXZ1.setY(this.getY());
-                imageXZ1.setZ(this.getZ() + this.S.side_length);
-
-                if(imageXZ2 == null) {
-                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ2.imImage = true;
-                }
-                imageXZ2.setX(this.getX() - this.S.side_length);
-                imageXZ2.setY(this.getY());
-                imageXZ2.setZ(this.getZ());
-
-                if(imageXZ3 == null) {
-                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ3.imImage = true;
-                }
-                imageXZ3.setX(this.getX());
-                imageXZ3.setY(this.getY());
-                imageXZ3.setZ(this.getZ() + this.S.side_length);
-                updatedXZ = true;
-            }
-
-            else {
-                if(imageX == null) {
-                    imageX = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageX.imImage = true;
-                }
-                imageX.setX(this.getX() - this.S.side_length);
-                imageX.setY(this.getY());
-                imageX.setZ(this.getZ());
-                updatedX = true;
-            }
-
-        }
-
-        // done
-        else if(this.x - this.getR() <= 0 && imImage == false) {
-            if(this.y + this.getR() >= this.S.side_length) {
-                if(this.z + getR() >= this.S.side_length) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() + this.S.side_length);
-                    imageXYZ1.setY(this.getY() - this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX());
-                    imageXYZ2.setY(this.getY() - this.S.side_length);
-                    imageXYZ2.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX());
-                    imageXYZ3.setY(this.getY());
-                    imageXYZ3.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX() + this.S.side_length);
-                    imageXYZ4.setY(this.getY());
-                    imageXYZ4.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX() + this.S.side_length);
-                    imageXYZ5.setY(this.getY());
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() - this.S.side_length);
-                    imageXYZ6.setZ(this.getZ());
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() + this.S.side_length);
-                    imageXYZ7.setY(this.getY() - this.S.side_length);
-                    imageXYZ7.setZ(this.getZ());
-                    updatedXYZ = true;
-                }
-                else if(this.z - getR() <= 0) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() + this.S.side_length);
-                    imageXYZ1.setY(this.getY() - this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX());
-                    imageXYZ2.setY(this.getY());
-                    imageXYZ2.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX() + this.S.side_length);
-                    imageXYZ3.setY(this.getY() - this.S.side_length);
-                    imageXYZ3.setZ(this.getZ());
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX() + this.S.side_length);
-                    imageXYZ4.setY(this.getY());
-                    imageXYZ4.setZ(this.getZ());
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX());
-                    imageXYZ5.setY(this.getY() - this.S.side_length);
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() - this.S.side_length);
-                    imageXYZ6.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() + this.S.side_length);
-                    imageXYZ7.setY(this.getY());
-                    imageXYZ7.setZ(this.getZ() + this.S.side_length);
-                    updatedXYZ = true;
-                }
-
-                else {
-                    if(imageXY1 == null) {
-                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY1.imImage = true;
-                    }
-                    imageXY1.setX(this.getX() + this.S.side_length);
-                    imageXY1.setY(this.getY() - this.S.side_length);
-                    imageXY1.setZ(this.getZ());
-
-                    if(imageXY2 == null) {
-                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY2.imImage = true;
-                    }
-                    imageXY2.setX(this.getX() + this.S.side_length);
-                    imageXY2.setY(this.getY());
-                    imageXY2.setZ(this.getZ());
-
-                    if(imageXY3 == null) {
-                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY3.imImage = true;
-                    }
-                    imageXY3.setX(this.getX());
-                    imageXY3.setY(this.getY() - this.S.side_length);
-                    imageXY3.setZ(this.getZ());
-                    updatedXY = true;
-                }
-            }
-
-            else if(this.y - getR() <= 0) {
-                if(this.z + getR() >= this.S.side_length) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() + this.S.side_length);
-                    imageXYZ1.setY(this.getY() + this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX() + this.S.side_length);
-                    imageXYZ2.setY(this.getY());
-                    imageXYZ2.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX());
-                    imageXYZ3.setY(this.getY());
-                    imageXYZ3.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX() + this.S.side_length);
-                    imageXYZ4.setY(this.getY());
-                    imageXYZ4.setZ(this.getZ());
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX());
-                    imageXYZ5.setY(this.getY() + this.S.side_length);
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() + this.S.side_length);
-                    imageXYZ6.setZ(this.getZ() - this.S.side_length);
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() + this.S.side_length);
-                    imageXYZ7.setY(this.getY() + this.S.side_length);
-                    imageXYZ7.setZ(this.getZ());
-                    updatedXYZ = true;
-                }
-                else if(this.z - getR() <= 0) {
-                    if(imageXYZ1 == null) {
-                        imageXYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ1.imImage = true;
-                    }
-
-                    imageXYZ1.setX(this.getX() + this.S.side_length);
-                    imageXYZ1.setY(this.getY() + this.S.side_length);
-                    imageXYZ1.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ2 == null) {
-                        imageXYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ2.imImage = true;
-                    }
-
-                    imageXYZ2.setX(this.getX());
-                    imageXYZ2.setY(this.getY());
-                    imageXYZ2.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ3 == null) {
-                        imageXYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ3.imImage = true;
-                    }
-
-                    imageXYZ3.setX(this.getX() + this.S.side_length);
-                    imageXYZ3.setY(this.getY());
-                    imageXYZ3.setZ(this.getZ());
-
-                    if(imageXYZ4 == null) {
-                        imageXYZ4 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ4.imImage = true;
-                    }
-
-                    imageXYZ4.setX(this.getX());
-                    imageXYZ4.setY(this.getY() + this.S.side_length);
-                    imageXYZ4.setZ(this.getZ());
-
-                    if(imageXYZ5 == null) {
-                        imageXYZ5 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ5.imImage = true;
-                    }
-
-                    imageXYZ5.setX(this.getX() + this.S.side_length);
-                    imageXYZ5.setY(this.getY() + this.S.side_length);
-                    imageXYZ5.setZ(this.getZ());
-
-                    if(imageXYZ6 == null) {
-                        imageXYZ6 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ6.imImage = true;
-                    }
-
-                    imageXYZ6.setX(this.getX());
-                    imageXYZ6.setY(this.getY() + this.S.side_length);
-                    imageXYZ6.setZ(this.getZ() + this.S.side_length);
-
-                    if(imageXYZ7 == null) {
-                        imageXYZ7 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXYZ7.imImage = true;
-                    }
-
-                    imageXYZ7.setX(this.getX() + this.S.side_length);
-                    imageXYZ7.setY(this.getY());
-                    imageXYZ7.setZ(this.getZ() + this.S.side_length);
-                    updatedXYZ = true;
-                }
-
-                else {
-                    if(imageXY1 == null) {
-                        imageXY1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY1.imImage = true;
-                    }
-                    imageXY1.setX(this.getX() + this.S.side_length);
-                    imageXY1.setY(this.getY());
-                    imageXY1.setZ(this.getZ());
-
-                    if(imageXY2 == null) {
-                        imageXY2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY2.imImage = true;
-                    }
-                    imageXY2.setX(this.getX() + this.S.side_length);
-                    imageXY2.setY(this.getY() + this.S.side_length);
-                    imageXY2.setZ(this.getZ());
-
-                    if(imageXY3 == null) {
-                        imageXY3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                        imageXY3.imImage = true;
-                    }
-                    imageXY3.setX(this.getX());
-                    imageXY3.setY(this.getY() + this.S.side_length);
-                    imageXY3.setZ(this.getZ());
-                    updatedXY = true;
-                }
-            }
-
-            else if(this.z + getR() >= this.S.side_length) {
-                if(imageXZ1 == null) {
-                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ1.imImage = true;
-                }
-                imageXZ1.setX(this.getX() + this.S.side_length);
-                imageXZ1.setY(this.getY());
-                imageXZ1.setZ(this.getZ() - this.S.side_length);
-
-                if(imageXZ2 == null) {
-                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ2.imImage = true;
-                }
-                imageXZ2.setX(this.getX() + this.S.side_length);
-                imageXZ2.setY(this.getY());
-                imageXZ2.setZ(this.getZ());
-
-                if(imageXZ3 == null) {
-                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ3.imImage = true;
-                }
-                imageXZ3.setX(this.getX());
-                imageXZ3.setY(this.getY());
-                imageXZ3.setZ(this.getZ() - this.S.side_length);
-                updatedXZ = true;
-            }
-
-            else if(this.z - getR() <= 0) {
-                if(imageXZ1 == null) {
-                    imageXZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ1.imImage = true;
-                }
-                imageXZ1.setX(this.getX() + this.S.side_length);
-                imageXZ1.setY(this.getY());
-                imageXZ1.setZ(this.getZ() + this.S.side_length);
-
-                if(imageXZ2 == null) {
-                    imageXZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ2.imImage = true;
-                }
-                imageXZ2.setX(this.getX() + this.S.side_length);
-                imageXZ2.setY(this.getY());
-                imageXZ2.setZ(this.getZ());
-
-                if(imageXZ3 == null) {
-                    imageXZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageXZ3.imImage = true;
-                }
-                imageXZ3.setX(this.getX());
-                imageXZ3.setY(this.getY());
-                imageXZ3.setZ(this.getZ() + this.S.side_length);
-                updatedXZ = true;
-            }
-
-            else {
-                if(imageX == null) {
-                    imageX = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageX.imImage = true;
-                }
-                imageX.setX(this.getX() + this.S.side_length);
-                imageX.setY(this.getY());
-                imageX.setZ(this.getZ());
-                updatedX = true;
-            }
-        }
-
-        // done
-        else if((this.y + this.getR()) >= this.S.side_length && imImage == false) {
-            if(this.z + getR() >= this.S.side_length) {
-                if(imageYZ1 == null) {
-                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ1.imImage = true;
-                }
-                imageYZ1.setX(this.getX());
-                imageYZ1.setY(this.getY() - this.S.side_length);
-                imageYZ1.setZ(this.getZ() - this.S.side_length);
-
-                if(imageYZ2 == null) {
-                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ2.imImage = true;
-                }
-                imageYZ2.setX(this.getX());
-                imageYZ2.setY(this.getY());
-                imageYZ2.setZ(this.getZ() - this.S.side_length);
-
-                if(imageYZ3 == null) {
-                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ3.imImage = true;
-                }
-                imageYZ3.setX(this.getX());
-                imageYZ3.setY(this.getY() - this.S.side_length);
-                imageYZ3.setZ(this.getZ());
-                updatedYZ = true;
-            }
-
-            else if(this.z - this.getR() <= 0) {
-                if(imageYZ1 == null) {
-                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ1.imImage = true;
-                }
-                imageYZ1.setX(this.getX());
-                imageYZ1.setY(this.getY() - this.S.side_length);
-                imageYZ1.setZ(this.getZ() + this.S.side_length);
-
-                if(imageYZ2 == null) {
-                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ2.imImage = true;
-                }
-                imageYZ2.setX(this.getX());
-                imageYZ2.setY(this.getY());
-                imageYZ2.setZ(this.getZ() + this.S.side_length);
-
-                if(imageYZ3 == null) {
-                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ3.imImage = true;
-                }
-                imageYZ3.setX(this.getX());
-                imageYZ3.setY(this.getY() - this.S.side_length);
-                imageYZ3.setZ(this.getZ());
-                updatedYZ = true;
-            }
-
-            else {
-                if(imageY == null) {
-                    imageY = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageY.imImage = true;
-                }
-                imageY.setX(this.getX());
-                imageY.setY(this.getY() - this.S.side_length);
-                imageY.setZ(this.getZ());
-                updatedY = true;
-            }
-        }
-
-        // done
-        else if((this.y - this.getR()) <= 0 && imImage == false) {
-            if(this.z + getR() >= this.S.side_length) {
-                if(imageYZ1 == null) {
-                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ1.imImage = true;
-                }
-                imageYZ1.setX(this.getX());
-                imageYZ1.setY(this.getY() + this.S.side_length);
-                imageYZ1.setZ(this.getZ() - this.S.side_length);
-
-                if(imageYZ2 == null) {
-                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ2.imImage = true;
-                }
-                imageYZ2.setX(this.getX());
-                imageYZ2.setY(this.getY() + this.S.side_length);
-                imageYZ2.setZ(this.getZ());
-
-                if(imageYZ3 == null) {
-                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ3.imImage = true;
-                }
-                imageYZ3.setX(this.getX());
-                imageYZ3.setY(this.getY());
-                imageYZ3.setZ(this.getZ() - this.S.side_length);
-                updatedYZ = true;
-            }
-
-            else if(this.z - this.getR() <= 0) {
-                if(imageYZ1 == null) {
-                    imageYZ1 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ1.imImage = true;
-                }
-                imageYZ1.setX(this.getX());
-                imageYZ1.setY(this.getY() + this.S.side_length);
-                imageYZ1.setZ(this.getZ() + this.S.side_length);
-
-                if(imageYZ2 == null) {
-                    imageYZ2 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ2.imImage = true;
-                }
-                imageYZ2.setX(this.getX());
-                imageYZ2.setY(this.getY() + this.S.side_length);
-                imageYZ2.setZ(this.getZ());
-
-                if(imageYZ3 == null) {
-                    imageYZ3 = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageYZ3.imImage = true;
-                }
-                imageYZ3.setX(this.getX());
-                imageYZ3.setY(this.getY());
-                imageYZ3.setZ(this.getZ() + this.S.side_length);
-                updatedYZ = true;
-            }
-
-            else {
-                if(imageY == null) {
-                    imageY = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                    imageY.imImage = true;
-                }
-                imageY.setX(this.getX());
-                imageY.setY(this.getY() + this.S.side_length);
-                imageY.setZ(this.getZ());
-                updatedY = true;
-            }
-        }
-
-        else if((this.z + this.getR()) >= this.S.side_length && imImage == false) {
-            if(imageZ == null)
-            {
-                imageZ = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                imageZ.imImage = true;
-            }
-            imageZ.setX(this.getX());
-            imageZ.setY(this.getY());
-            imageZ.setZ(this.getZ() - this.S.side_length);
-            updatedZ = true;
-        }
-
-        else if((this.z - this.getR()) <= 0 && imImage == false) {
-            if(imageZ == null)
-            {
-                imageZ = new Gel(this.getX(), this.getY(), this.getZ(), this.getR(), S);
-                imageZ.imImage = true;
-            }
-            imageZ.setX(this.getX());
-            imageZ.setY(this.getY());
-            imageZ.setZ(this.getZ() + this.S.side_length);
-            updatedZ = true;
-        }
-
-        // we validate if there is a need for an image or not in for x y and z, update if necessary
-        // remove if not
-        if(updatedXYZ == true) {
-            S.vox.remove(this.imageXYZ1);
-            S.imageParticles.remove(this.imageXYZ1);
-            this.imageXYZ1.voxel = this.imageXYZ1.getVoxel();
-            this.imageXYZ1.in_voxels = this.imageXYZ1.getVoxels();
-            this.imageXYZ1.nearby = this.imageXYZ1.getNearby();
-            S.vox.add(this.imageXYZ1);
-            S.imageParticles.add(this.imageXYZ1);
-
-            S.vox.remove(this.imageXYZ2);
-            S.imageParticles.remove(this.imageXYZ2);
-            this.imageXYZ2.voxel = this.imageXYZ2.getVoxel();
-            this.imageXYZ2.in_voxels = this.imageXYZ2.getVoxels();
-            this.imageXYZ2.nearby = this.imageXYZ2.getNearby();
-            S.vox.add(this.imageXYZ2);
-            S.imageParticles.add(this.imageXYZ2);
-
-            S.vox.remove(this.imageXYZ3);
-            S.imageParticles.remove(this.imageXYZ3);
-            this.imageXYZ3.voxel = this.imageXYZ3.getVoxel();
-            this.imageXYZ3.in_voxels = this.imageXYZ3.getVoxels();
-            this.imageXYZ3.nearby = this.imageXYZ3.getNearby();
-            S.vox.add(this.imageXYZ3);
-            S.imageParticles.add(this.imageXYZ3);
-
-            S.vox.remove(this.imageXYZ4);
-            S.imageParticles.remove(this.imageXYZ4);
-            this.imageXYZ4.voxel = this.imageXYZ4.getVoxel();
-            this.imageXYZ4.in_voxels = this.imageXYZ4.getVoxels();
-            this.imageXYZ4.nearby = this.imageXYZ4.getNearby();
-            S.vox.add(this.imageXYZ4);
-            S.imageParticles.add(this.imageXYZ4);
-
-            S.vox.remove(this.imageXYZ5);
-            S.imageParticles.remove(this.imageXYZ5);
-            this.imageXYZ5.voxel = this.imageXYZ5.getVoxel();
-            this.imageXYZ5.in_voxels = this.imageXYZ5.getVoxels();
-            this.imageXYZ5.nearby = this.imageXYZ5.getNearby();
-            S.vox.add(this.imageXYZ5);
-            S.imageParticles.add(this.imageXYZ5);
-
-            S.vox.remove(this.imageXYZ6);
-            S.imageParticles.remove(this.imageXYZ6);
-            this.imageXYZ6.voxel = this.imageXYZ6.getVoxel();
-            this.imageXYZ6.in_voxels = this.imageXYZ6.getVoxels();
-            this.imageXYZ6.nearby = this.imageXYZ6.getNearby();
-            S.vox.add(this.imageXYZ6);
-            S.imageParticles.add(this.imageXYZ6);
-
-            S.vox.remove(this.imageXYZ7);
-            S.imageParticles.remove(this.imageXYZ7);
-            this.imageXYZ7.voxel = this.imageXYZ7.getVoxel();
-            this.imageXYZ7.in_voxels = this.imageXYZ7.getVoxels();
-            this.imageXYZ7.nearby = this.imageXYZ7.getNearby();
-            S.vox.add(this.imageXYZ7);
-            S.imageParticles.add(this.imageXYZ7);
-        }
-
-        else {
-            if(this.imageXYZ1 != null) {
-                S.vox.remove(this.imageXYZ1);
-                S.imageParticles.remove(this.imageXYZ1);
-                this.imageXYZ1 = null;
-            }
-
-            if(this.imageXYZ2 != null) {
-                S.vox.remove(this.imageXYZ2);
-                S.imageParticles.remove(this.imageXYZ2);
-                this.imageXYZ2 = null;
-            }
-
-            if(imageXYZ3 != null) {
-                S.vox.remove(this.imageXYZ3);
-                S.imageParticles.remove(this.imageXYZ3);
-                this.imageXYZ3 = null;
-            }
-
-            if(this.imageXYZ4 != null) {
-                S.vox.remove(this.imageXYZ4);
-                S.imageParticles.remove(this.imageXYZ4);
-                this.imageXYZ4 = null;
-            }
-
-            if(this.imageXYZ5 != null) {
-                S.vox.remove(this.imageXYZ5);
-                S.imageParticles.remove(this.imageXYZ5);
-                this.imageXYZ5 = null;
-            }
-
-            if(this.imageXYZ6 != null) {
-                S.vox.remove(this.imageXYZ6);
-                S.imageParticles.remove(this.imageXYZ6);
-                this.imageXYZ6 = null;
-            }
-
-            if(this.imageXYZ7 != null) {
-                S.vox.remove(this.imageXYZ7);
-                S.imageParticles.remove(this.imageXYZ7);
-                this.imageXYZ7 = null;
-            }
-        }
-
-        if(updatedXY == true) {
-            S.vox.remove(this.imageXY1);
-            S.imageParticles.remove(this.imageXY1);
-            this.imageXY1.voxel = this.imageXY1.getVoxel();
-            this.imageXY1.in_voxels = this.imageXY1.getVoxels();
-            this.imageXY1.nearby = this.imageXY1.getNearby();
-            S.vox.add(this.imageXY1);
-            S.imageParticles.add(this.imageXY1);
-
-            S.vox.remove(this.imageXY2);
-            S.imageParticles.remove(this.imageXY2);
-            this.imageXY2.voxel = this.imageXY2.getVoxel();
-            this.imageXY2.in_voxels = this.imageXY2.getVoxels();
-            this.imageXY2.nearby = this.imageXY2.getNearby();
-            S.vox.add(this.imageXY2);
-            S.imageParticles.add(this.imageXY2);
-
-            S.vox.remove(this.imageXY3);
-            S.imageParticles.remove(this.imageXY3);
-            this.imageXY3.voxel = this.imageXY3.getVoxel();
-            this.imageXY3.in_voxels = this.imageXY3.getVoxels();
-            this.imageXY3.nearby = this.imageXY3.getNearby();
-            S.vox.add(this.imageXY3);
-            S.imageParticles.add(this.imageXY3);
-        }
-
-        else {
-            if(this.imageXY1 != null) {
-                S.vox.remove(this.imageXY1);
-                S.imageParticles.remove(this.imageXY1);
-                this.imageXY1 = null;
-            }
-
-            if(this.imageXY2 != null) {
-                S.vox.remove(this.imageXY2);
-                S.imageParticles.remove(this.imageXY2);
-                this.imageXY2 = null;
-            }
-
-            if(this.imageXY3 != null) {
-                S.vox.remove(this.imageXY3);
-                S.imageParticles.remove(this.imageXY3);
-                this.imageXY3 = null;
-            }
-        }
-
-        if(updatedXZ == true) {
-            S.vox.remove(this.imageXZ1);
-            S.imageParticles.remove(this.imageXZ1);
-            this.imageXZ1.voxel = this.imageXZ1.getVoxel();
-            this.imageXZ1.in_voxels = this.imageXZ1.getVoxels();
-            this.imageXZ1.nearby = this.imageXZ1.getNearby();
-            S.vox.add(this.imageXZ1);
-            S.imageParticles.add(this.imageXZ1);
-
-            S.vox.remove(this.imageXZ2);
-            S.imageParticles.remove(this.imageXZ2);
-            this.imageXZ2.voxel = this.imageXZ2.getVoxel();
-            this.imageXZ2.in_voxels = this.imageXZ2.getVoxels();
-            this.imageXZ2.nearby = this.imageXZ2.getNearby();
-            S.vox.add(this.imageXZ2);
-            S.imageParticles.add(this.imageXZ2);
-
-            S.vox.remove(this.imageXZ3);
-            S.imageParticles.remove(this.imageXZ3);
-            this.imageXZ3.voxel = this.imageXZ3.getVoxel();
-            this.imageXZ3.in_voxels = this.imageXZ3.getVoxels();
-            this.imageXZ3.nearby = this.imageXZ3.getNearby();
-            S.vox.add(this.imageXZ3);
-            S.imageParticles.add(this.imageXZ3);
-        }
-
-        else {
-            if(this.imageXZ1 != null) {
-                S.vox.remove(this.imageXZ1);
-                S.imageParticles.remove(this.imageXZ1);
-                this.imageXZ1 = null;
-            }
-
-            if(this.imageXZ2 != null) {
-                S.vox.remove(this.imageXZ2);
-                S.imageParticles.remove(this.imageXZ2);
-                this.imageXZ2 = null;
-            }
-
-            if(this.imageXZ3 != null) {
-                S.vox.remove(this.imageXZ3);
-                S.imageParticles.remove(this.imageXZ3);
-                this.imageXZ3 = null;
-            }
-        }
-
-        if(updatedYZ == true) {
-            S.vox.remove(this.imageYZ1);
-            S.imageParticles.remove(this.imageYZ1);
-            this.imageYZ1.voxel = this.imageYZ1.getVoxel();
-            this.imageYZ1.in_voxels = this.imageYZ1.getVoxels();
-            this.imageYZ1.nearby = this.imageYZ1.getNearby();
-            S.vox.add(this.imageYZ1);
-            S.imageParticles.add(this.imageYZ1);
-
-            S.vox.remove(this.imageYZ2);
-            S.imageParticles.remove(this.imageYZ2);
-            this.imageYZ2.voxel = this.imageYZ2.getVoxel();
-            this.imageYZ2.in_voxels = this.imageYZ2.getVoxels();
-            this.imageYZ2.nearby = this.imageYZ2.getNearby();
-            S.vox.add(this.imageYZ2);
-            S.imageParticles.add(this.imageYZ2);
-
-            S.vox.remove(this.imageYZ3);
-            S.imageParticles.remove(this.imageYZ3);
-            this.imageYZ3.voxel = this.imageYZ3.getVoxel();
-            this.imageYZ3.in_voxels = this.imageYZ3.getVoxels();
-            this.imageYZ3.nearby = this.imageYZ3.getNearby();
-            S.vox.add(this.imageYZ3);
-            S.imageParticles.add(this.imageYZ3);
-        }
-
-        else {
-            if(this.imageYZ1 != null) {
-                S.vox.remove(this.imageYZ1);
-                S.imageParticles.remove(this.imageYZ1);
-                this.imageYZ1 = null;
-            }
-
-            if(this.imageYZ2 != null) {
-                S.vox.remove(this.imageYZ2);
-                S.imageParticles.remove(this.imageYZ2);
-                this.imageYZ2 = null;
-            }
-
-            if(this.imageYZ3 != null) {
-                S.vox.remove(this.imageYZ3);
-                S.imageParticles.remove(this.imageYZ3);
-                this.imageYZ3 = null;
-            }
-        }
-
-        if(updatedX == true) {
-            S.vox.remove(this.imageX);
-            S.imageParticles.remove(this.imageX);
-            this.imageX.voxel = this.imageX.getVoxel();
-            this.imageX.in_voxels = this.imageX.getVoxels();
-            this.imageX.nearby = this.imageX.getNearby();
-            S.vox.add(this.imageX);
-            S.imageParticles.add(this.imageX);
-        }
-
-        else {
-            if(this.imageX != null) {
-                S.vox.remove(this.imageX);
-                S.imageParticles.remove(this.imageX);
-                this.imageX = null;
-            }
-        }
-
-        if(updatedY == true) {
-            S.vox.remove(this.imageY);
-            S.imageParticles.remove(this.imageY);
-            this.imageY.voxel = this.imageY.getVoxel();
-            this.imageY.in_voxels = this.imageY.getVoxels();
-            this.imageY.nearby = this.imageY.getNearby();
-            S.vox.add(this.imageY);
-            S.imageParticles.add(this.imageY);
-
-        }
-
-        else {
-            if(this.imageY != null) {
-                S.vox.remove(this.imageY);
-                S.imageParticles.remove(this.imageY);
-                this.imageY = null;
-            }
-        }
-
-        if(updatedZ == true) {
-            S.vox.remove(this.imageZ);
-            S.imageParticles.remove(this.imageZ);
-            this.imageZ.voxel = this.imageZ.getVoxel();
-            this.imageZ.in_voxels = this.imageZ.getVoxels();
-            this.imageZ.nearby = this.imageZ.getNearby();
-            S.vox.add(this.imageZ);
-            S.imageParticles.add(this.imageZ);
-        }
-
-        else {
-            if(this.imageZ != null) {
-                S.vox.remove(this.imageZ);
-                S.imageParticles.remove(this.imageZ);
-                this.imageZ = null;
-            }
-        }
     }
 }

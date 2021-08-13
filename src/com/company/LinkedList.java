@@ -15,13 +15,12 @@ public class LinkedList<E>
     public void insertElement(E element) {
         if(head == null) {
             head = new Node(element);
-            numOfElements++;
         }
 
         else {
             head.insertNext(element);
-            numOfElements++;
         }
+        numOfElements++;
     }
 
     public Node deleteElement(E element) {

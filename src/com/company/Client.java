@@ -10,17 +10,24 @@ class Client extends JFrame implements Runnable {
     static long START_TIME;
     static boolean running;
     static Thread drawThread;
-    Simulation S = new Simulation();
+    Simulation S;
+    Visualization panel;
+
+
     Client() throws IOException {
+
         super("A  C  E  S  O");
 
-        getContentPane().add(new FillVisualization());
-        //getContentPane().add(new FillSettingsNonViz(S));
-        getContentPane().add(new ACESO_label());
+        S = new Simulation();
+        panel = new Visualization(S);
 
+        this.setLayout(new BorderLayout());
+        getContentPane().add(new SimulationViewPanel(panel), BorderLayout.NORTH);
+        getContentPane().add(panel, BorderLayout.CENTER);
+        //getContentPane().add(new FillSettingsNonViz(S));
+        //getContentPane().add(new ACESO_label(), BorderLayout.BEFORE_FIRST_LINE);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(null);
         setSize(1500, 1500);
 
         running = true;
@@ -54,38 +61,14 @@ class Client extends JFrame implements Runnable {
     }
 }
 
-class StartPanel extends JPanel{
-    Client c;
-    StartPanel(Client c) {
-        this.c = c;
-        setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Start Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
-        setBackground(new Color(0x6A2D2D2D, true));
-        setSize(300, 400);
-        setBounds(30, 90, 300, 400);
-        add(new ChoosePanel());
-    }
-    private class ChoosePanel extends JPanel {
-        ChoosePanel() {
-            add(new BoxCreator());
-        }
-    }
-    private class BoxCreator extends JButton {
-        BoxCreator() {
-            super("Create new Box");
-            addActionListener(actionEvent -> {
-                try {
-                    c.setContentPane(new FillVisualization());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-    }
-}
 
-class FillSettingsViz extends SimulationSettings {
-    FillSettingsViz(Visualization B) {
-        panel = B;
+
+class SimulationViewPanel extends JPanel {
+    Visualization panel;
+    SimulationViewPanel(Visualization panel) {
+
+        this.panel = panel;
+
         this.setLayout(new FlowLayout());
         setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Create New Gel Bed", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
         setBackground(new Color(0x6A2D2D2D, true));
@@ -94,22 +77,44 @@ class FillSettingsViz extends SimulationSettings {
 
         //this.getOutputPath();
 
-        add(new Volumepanel());
-        add(new FillButton());
-        add(new FillFCCButton());
-        add(new FallButton());
+        add(new ParametersPanel());
+        add(new StartButtonsPanel());
         add(new ViewChooser());
+        add(new VisibilityPanel());
+        add(new OutputButtonsPanel());
+        add(new SimStatePanel());
         //add(new ResetViewButton());
-        add(new SetFilePathButton());
+
         //add(new ResetButton());
-        add(new DensityButton());
-        add(new RunTCellsButton());
-        add(new SettingsPanel());
 
-        //panel.S.setSavePath(getOutputPath());
 
-        this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
+
+
+        //S.setSavePath(getOutputPath());
+
+
+    }
+
+    class StartButtonsPanel extends JPanel {
+        StartButtonsPanel() {
+            setLayout(new GridLayout(3, 1));
+            add(new FillRandomButton());
+            add(new FillFCCButton());
+            //add(new FallButton());
+            add(new RunTCellsButton());
+
+        }
+
+
+    }
+
+    class OutputButtonsPanel extends JPanel {
+        OutputButtonsPanel() {
+            setLayout(new GridLayout(2, 1));
+            add(new DensityButton());
+            add(new SetFilePathButton());
+        }
     }
 
     public static Path getOutputPath() {
@@ -141,6 +146,68 @@ class FillSettingsViz extends SimulationSettings {
         }
     }
 
+    class ViewChooser extends JPanel {
+        JRadioButton slicer_view;
+        JRadioButton box_view;
+        JCheckBox gel_visibility;
+        ViewChooser() {
+            setOpaque(false);
+            setPreferredSize(new Dimension(100,55));
+            setLayout(new FlowLayout(FlowLayout.LEFT));
+            slicer_view = new JRadioButton("Slicer View", false);
+            slicer_view.addItemListener(itemEvent -> {
+                if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+                    setSlicerView();
+                }});
+            slicer_view.setOpaque(false);
+            slicer_view.setForeground(Color.white);
+            //box view
+            box_view = new JRadioButton("Box View", true);
+            box_view.addItemListener(itemEvent -> {
+                if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+                    setBoxView();
+                }});
+            box_view.setOpaque(false);
+            box_view.setForeground(Color.white);
+            //button group for radiobutton functionality
+            ButtonGroup view_modes = new ButtonGroup();
+            view_modes.add(box_view);
+            view_modes.add(slicer_view);
+            //add to panel
+            add(box_view);
+            add(slicer_view);
+        }
+    }
+    public void setSlicerView() {
+        panel.box_view = false;
+        panel.slicer_view = true;
+    }
+    public void setBoxView() {
+        panel.box_view = true;
+        panel.slicer_view = false;
+    }
+    class VisibilityPanel extends JPanel {
+        JCheckBox edge_visibility;
+        JCheckBox gel_visibility;
+        VisibilityPanel() {
+            setOpaque(false);
+            setPreferredSize(new Dimension(160,55));
+            setLayout(new FlowLayout(FlowLayout.LEFT));
+            edge_visibility = new JCheckBox("Edges Visible", true);
+            edge_visibility.addItemListener(itemEvent -> panel.see_box = itemEvent.getStateChange() == ItemEvent.SELECTED);
+            edge_visibility.setOpaque(false);
+            edge_visibility.setForeground(Color.white);
+            //gel visible
+            gel_visibility = new JCheckBox("Gel Visible", true);
+            gel_visibility.addItemListener(itemEvent -> panel.see_gels = itemEvent.getStateChange() == ItemEvent.SELECTED);
+            gel_visibility.setOpaque(false);
+            gel_visibility.setForeground(Color.white);
+            //add to panel
+            add(gel_visibility);
+            add(edge_visibility);
+        }
+    }
+
     class DensityButton extends JButton {
         Thread t = new Thread(()-> {
             synchronized (this) {
@@ -165,19 +232,17 @@ class FillSettingsViz extends SimulationSettings {
         }
     }
 
-    class SettingsPanel extends JPanel {
-        SettingsPanel() {
+    class ParametersPanel extends JPanel {
+        ParametersPanel() {
             super();
             setOpaque(false);
-            setPreferredSize(new Dimension(300, 350));
-            setLayout(new FlowLayout(FlowLayout.LEFT));
-            setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Settings Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Parameters Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
             setBackground(new Color(0x6A2D2D2D, true));
             add(new NumberOfTCellsPanel());
             //add(new NumberOfGelsPanel());
             add(new GelSizePanel());
             add(new TimeSettingsPanel());
-            add(new BoxSideLengthPanel());
 
             //this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         }
@@ -194,7 +259,7 @@ class FillSettingsViz extends SimulationSettings {
                 boxSideLengthLabel.setFont(new Font("", Font.BOLD, 11));
                 boxSideLengthLabel.setForeground(Color.white);
                 //dt spinner
-                boxSideLengthSpinner = new JSpinner(new SpinnerNumberModel(panel.S.side_length, 0, 10000, 1));
+                boxSideLengthSpinner = new JSpinner(new SpinnerNumberModel(panel.S.sideLength, 0, 10000, 1));
                 boxSideLengthSpinner.addChangeListener(ChangeEvent -> panel.S.setSide((double) boxSideLengthSpinner.getValue()));
                 //dt_panel
 
@@ -313,15 +378,15 @@ class FillSettingsViz extends SimulationSettings {
                 numGelsLabel.setFont(new Font("", Font.BOLD, 11));
                 numGelsLabel.setForeground(Color.white);
                 //dt spinner
-                numGelsSpinner = new JSpinner(new SpinnerNumberModel(panel.S.numGelsToSet, 0, 10000, 1));
-                //numGelsSpinner.addChangeListener(ChangeEvent -> panel.S.numGelsToSet = (double) numGelsSpinner.getValue());
+                numGelsSpinner = new JSpinner(new SpinnerNumberModel(S.numGelsToSet, 0, 10000, 1));
+                //numGelsSpinner.addChangeListener(ChangeEvent -> S.numGelsToSet = (double) numGelsSpinner.getValue());
                 //dt_panel
 
                 JPanel numGelsPanel = new JPanel();
-                numGelsPanel.setOpaque(false);
+                numGelsSetOpaque(false);
                 numGelsPanel.add(numGelsLabel);
                 numGelsPanel.add(numGelsSpinner);
-                numGelsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+                numGelsSetLayout(new FlowLayout(FlowLayout.LEFT));
 
                 // made a sub-panel for formatting called "time_settings"
                 JPanel numGelsSettings = new JPanel();
@@ -390,26 +455,25 @@ class FillSettingsViz extends SimulationSettings {
         }
     }
 
-    class Volumepanel extends JPanel {
-        Volumepanel() {
+    class SimStatePanel extends JPanel {
+        SimStatePanel() {
             super();
             setOpaque(false);
-            setPreferredSize(new Dimension(150, 90));
-            setLayout(new FlowLayout(FlowLayout.LEFT));
-            setBorder(BorderFactory.createTitledBorder(this.getBorder(), "SimState Panel", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Sim State", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
             setBackground(new Color(0x6A2D2D2D, true));
 
-            add(new Numgelslabel());
-            add(new Volumelabel());
+            add(new NumGelsLabel());
+            add(new NumTCellsLabel());
             add(new Volumepercentage());
             add(new TimeStepPanel());
             add(new GelAvgSizeLabel());
             add(new GelStdDevLabel());
             add(new MSD());
-            
+
         }
-        class Numgelslabel extends  JLabel {
-            Numgelslabel() {
+        class NumGelsLabel extends  JLabel {
+            NumGelsLabel() {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
@@ -421,7 +485,7 @@ class FillSettingsViz extends SimulationSettings {
                 setText("Num Gels: " + panel.S.numGels);
             }
         }
-        
+
         class MSD extends JLabel {
         	MSD() {
                 super();
@@ -435,7 +499,21 @@ class FillSettingsViz extends SimulationSettings {
                 setText("MSD: " + panel.S.averageDisplacementPanel);
             }
         }
-        
+
+        class NumTCellsLabel extends JLabel {
+            NumTCellsLabel() {
+                super();
+                setOpaque(false);
+                setForeground(Color.white);
+                setText("Number of T-Cells: " + panel.S.numParticles);
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setText("Number of T-Cells: " + panel.S.numParticles);
+            }
+        }
+
         class Volumepercentage extends  JLabel {
             Volumepercentage() {
                 super();
@@ -483,13 +561,13 @@ class FillSettingsViz extends SimulationSettings {
                 super();
                 setOpaque(false);
                 setForeground(Color.white);
-                setText("Gel Avg Radius: " + String.format("%.1f", panel.S.outputMeanRadius()));
+                setText("Gel Weighted Avg Radius: " + String.format("%.1f", panel.S.calculateWeightedAvgRadius()));
             }
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                setText("Gel Avg Radius: " + String.format("%.1f", panel.S.outputMeanRadius()));
+                setText("Gel Weighted Avg Radius: " + String.format("%.1f", panel.S.calculateWeightedAvgRadius()));
             }
         }
 
@@ -513,36 +591,30 @@ class FillSettingsViz extends SimulationSettings {
         FillFCCButton() {
             super("Fill FCC");
             addActionListener(actionEvent -> {
-                panel.S.fillLattice();
+                panel.S.fillFCC();
             });
         }
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (panel.S.fillLattice.isAlive()) {
-                setText("Still settling");
-            } else {
-                setText("Fill FCC");
-            }
-        }
+
     }
 
-    class FillButton extends JButton {
-        FillButton() {
-            super("Start Filling");
+    class FillRandomButton extends JButton {
+        FillRandomButton() {
+            super("Fill Random");
             addActionListener(actionEvent -> {
-                panel.S.fill();
+                panel.S.fillUnthreaded();
+                panel.S.fallUnthreaded();
+
             });
         }
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (panel.S.fillThread.isAlive()) {
-                setText("Still settling");
-            } else {
-                setText("Start filling");
-            }
-        }
+//        @Override
+//        protected void paintComponent(Graphics g) {
+//            super.paintComponent(g);
+//            if (panel.S.fillThread.isAlive()) {
+//                setText("Still settling");
+//            } else {
+//                setText("Fill Random");
+//            }
+//        }
     }
     class AddButton extends JButton {
         AddButton() {
@@ -752,12 +824,12 @@ class FillSettingsNonViz extends JPanel {
             }
         }
     }
-    
+
     class FillFCCButton extends JButton {
         FillFCCButton() {
             super("Fill FCC");
             addActionListener(actionEvent -> {
-                S.fillLattice();
+                S.fillHex();
             });
         }
         @Override
@@ -927,128 +999,3 @@ class FillSettingsNonViz extends JPanel {
 }
 
 
-class SimulationSettings extends JPanel {
-    Visualization panel;
-    SimulationSettings() {}
-    SimulationSettings(Visualization B) {
-
-
-        super();
-        panel = B;
-        setBorder(BorderFactory.createTitledBorder(this.getBorder(), "Simulation Settings", 0, 0, new Font("", Font.PLAIN, 12), Color.white));
-        setBackground(new Color(0x6A2D2D2D, true));
-        setSize(300, 400);
-        setBounds(30, 90, 300, 400);
-
-        add(new ViewChooser());
-        add(new VisibilityPanel());
-
-        //add(new TimeSettingsPanel());
-        add(new StartButton());
-    }
-    class ResetViewButton extends JButton
-    {
-        ResetViewButton() {
-            super("Reset view");
-            addActionListener(actionEvent -> {
-                double r = 1000, theta = -.07, phi = -0.03;
-                panel.o.r = r;
-                panel.o.theta = theta;
-                panel.o.phi = phi;
-            });
-        }
-    }
-    class ResetButton extends JButton
-    {
-        ResetButton() {
-            super("Reset");
-            addActionListener(actionEvent -> {
-                panel.S.reset();
-            });
-        }
-    }
-    class ViewChooser extends JPanel {
-        JRadioButton slicer_view;
-        JRadioButton box_view;
-        JCheckBox gel_visibility;
-        ViewChooser() {
-            setOpaque(false);
-            setPreferredSize(new Dimension(100,55));
-            setLayout(new FlowLayout(FlowLayout.LEFT));
-            slicer_view = new JRadioButton("Slicer View", false);
-            slicer_view.addItemListener(itemEvent -> {
-                if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-                    setSlicerView();
-                }});
-            slicer_view.setOpaque(false);
-            slicer_view.setForeground(Color.white);
-            //box view
-            box_view = new JRadioButton("Box View", true);
-            box_view.addItemListener(itemEvent -> {
-                if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-                    setBoxView();
-                }});
-            box_view.setOpaque(false);
-            box_view.setForeground(Color.white);
-            //button group for radiobutton functionality
-            ButtonGroup view_modes = new ButtonGroup();
-            view_modes.add(box_view);
-            view_modes.add(slicer_view);
-            //add to panel
-            add(box_view);
-            add(slicer_view);
-        }
-    }
-    public void setSlicerView() {
-        panel.box_view = false;
-        panel.slicer_view = true;
-    }
-    public void setBoxView() {
-        panel.box_view = true;
-        panel.slicer_view = false;
-    }
-    class VisibilityPanel extends JPanel {
-        JCheckBox edge_visibility;
-        JCheckBox gel_visibility;
-        VisibilityPanel() {
-            setOpaque(false);
-            setPreferredSize(new Dimension(160,55));
-            setLayout(new FlowLayout(FlowLayout.LEFT));
-            edge_visibility = new JCheckBox("Edges Visible", false);
-            edge_visibility.addItemListener(itemEvent -> panel.see_box = itemEvent.getStateChange() == ItemEvent.SELECTED);
-            edge_visibility.setOpaque(false);
-            edge_visibility.setForeground(Color.white);
-            //gel visible
-            gel_visibility = new JCheckBox("Gel Visible", true);
-            gel_visibility.addItemListener(itemEvent -> panel.see_gels = itemEvent.getStateChange() == ItemEvent.SELECTED);
-            gel_visibility.setOpaque(false);
-            gel_visibility.setForeground(Color.white);
-            //add to panel
-            add(gel_visibility);
-            add(edge_visibility);
-        }
-    }
-
-    class StartButton extends JButton {
-        StartButton() {
-            super("Start Simulation");
-            addActionListener(actionEvent -> {
-                if (panel.S.simulating) {
-                    panel.S.pause();
-                } else {
-                    panel.S.start();
-                }
-            });
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (panel.S.simulating) {
-                setText("Pause Simulation");
-            } else {
-                setText("Start Simulation");
-            }
-        }
-    }
-}

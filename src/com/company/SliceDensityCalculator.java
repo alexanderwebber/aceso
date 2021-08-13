@@ -5,10 +5,6 @@ import java.util.ArrayList;
 class SliceDensityCalculator {
     Simulation S;
 
-    ArrayList<Double> sliceDensityXY = new ArrayList<>();
-    ArrayList<Double> sliceDensityXZ = new ArrayList<>();
-    ArrayList<Double> sliceDensityYZ = new ArrayList<>();
-
     SliceDensityCalculator(Simulation S) {
         this.S = S;
 
@@ -18,11 +14,13 @@ class SliceDensityCalculator {
         return true;
     }
 
-    double calculateAreaFractionDensityXY() {
+    ArrayList<Double> calculateAreaFractionDensityXY() {
+        ArrayList<Double> sliceDensityXY = new ArrayList<>();
+
         double averageAreaFraction = 0.0;
 
         // Move across normal axis (Z), calculate density of all particles in XY plane at 1 micron increments
-        for(int normalPosition = 1; normalPosition < S.side_length; normalPosition++) {
+        for(int normalPosition = 1; normalPosition < S.sideLength; normalPosition++) {
             double sliceGelAreaSum = 0.0;
 
             for(int i = 0; i < S.numGels; i++) {
@@ -33,40 +31,41 @@ class SliceDensityCalculator {
                     sliceGelAreaSum += Math.PI * (R * R);
                 }
 
-                /*for(int j = 0; j < S.gels.get(i).getImageParticles().length; j++) {
-                    if(S.gels.get(i).getImageParticles()[j] != null) {
-                        double planeImage = Math.abs(normalPosition - S.gels.get(i).getImageParticles()[j].getZ());
-
-                        if (planeImage < S.gels.get(i).getImageParticles()[j].getR()) {
-                            double rImage = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - planeImage * planeImage));
-                            sliceGelAreaSum += Math.PI * (rImage * rImage);
-                        }
-                    }
-                }*/
+                // "Images"
+//                plane = Math.abs(S.side_length - normalPosition - S.gels.get(i).getX());
+//
+//                // Near 0
+//                if(normalPosition >= 0 && normalPosition <= S.gels.get(i).getR()) {
+//                    if (plane < S.gels.get(i).R) {
+//                        double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
+//                        sliceGelAreaSum += Math.PI * (R * R);
+//                    }
+//                }
+//
+//                // Near side length
+//                else if(normalPosition >= S.side_length - S.gels.get(i).getR() && normalPosition <= S.side_length) {
+//
+//                    if (plane < S.gels.get(i).R) {
+//                        double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
+//                        sliceGelAreaSum += Math.PI * (R * R);
+//                    }
+//                }
             }
 
-            for(int i = 0; i < S.imageParticles.size(); i++) {
-                double plane = Math.abs(normalPosition - S.imageParticles.get(i).getZ());
+            averageAreaFraction += sliceGelAreaSum / (S.sideLength * S.sideLength);
 
-                if (plane < S.imageParticles.get(i).R) {
-                    double R = (Math.sqrt(S.imageParticles.get(i).R * S.imageParticles.get(i).R - plane * plane));
-                    sliceGelAreaSum += Math.PI * (R * R);
-                }
-            }
-
-            averageAreaFraction += sliceGelAreaSum / (S.side_length * S.side_length);
-
-            sliceDensityXY.add(sliceGelAreaSum / (S.side_length * S.side_length));
+            sliceDensityXY.add(sliceGelAreaSum / (S.sideLength * S.sideLength));
         }
 
-        return averageAreaFraction / (S.side_length);
+        return sliceDensityXY;
     }
 
-    double calculateAreaFractionDensityXZ() {
+    ArrayList<Double> calculateAreaFractionDensityXZ() {
+        ArrayList<Double> sliceDensityXZ = new ArrayList<>();
         double averageAreaFraction = 0.0;
 
         // Move across normal axis (Y), calculate density of all particles in XZ plane at 1 micron increments
-        for(int normalPosition = 1; normalPosition < S.side_length; normalPosition++) {
+        for(int normalPosition = 1; normalPosition < S.sideLength; normalPosition++) {
             double sliceGelAreaSum = 0.0;
 
             for(int i = 0; i < S.numGels; i++) {
@@ -77,92 +76,82 @@ class SliceDensityCalculator {
                     sliceGelAreaSum += Math.PI * (R * R);
                 }
 
-                /*for(int j = 0; j < S.gels.get(i).getImageParticles().length; j++) {
-
-                    if(S.gels.get(i).getImageParticles()[j] != null) {
-                        double planeImage = Math.abs(normalPosition - S.gels.get(i).getImageParticles()[j].getY());
-
-                        if (planeImage < S.gels.get(i).getImageParticles()[j].getR()) {
-                            double rImage = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - planeImage * planeImage));
-                            sliceGelAreaSum += Math.PI * (rImage * rImage);
-                        }
-                    }
-                }*/
+//                // "Images"
+//                plane = Math.abs(S.side_length - normalPosition - S.gels.get(i).getX());
+//
+//                // Near 0
+//                if(normalPosition >= 0 && normalPosition <= S.gels.get(i).getR()) {
+//
+//                    if (plane < S.gels.get(i).R) {
+//                        double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
+//                        sliceGelAreaSum += Math.PI * (R * R);
+//                    }
+//                }
+//
+//                // Near side length
+//                if(normalPosition >= S.side_length - S.gels.get(i).getR() && normalPosition <= S.side_length) {
+//
+//                    if (plane < S.gels.get(i).R) {
+//                        double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
+//                        sliceGelAreaSum += Math.PI * (R * R);
+//                    }
+//                }
 
             }
 
-            for(int i = 0; i < S.imageParticles.size(); i++) {
-                double plane = Math.abs(normalPosition - S.imageParticles.get(i).getY());
+            averageAreaFraction += sliceGelAreaSum / (S.sideLength * S.sideLength);
 
-                if (plane < S.imageParticles.get(i).R) {
-                    double R = (Math.sqrt(S.imageParticles.get(i).R * S.imageParticles.get(i).R - plane * plane));
-                    sliceGelAreaSum += Math.PI * (R * R);
-                }
-            }
-
-            averageAreaFraction += sliceGelAreaSum / (S.side_length * S.side_length);
-
-            sliceDensityXZ.add(sliceGelAreaSum / (S.side_length * S.side_length));
+            sliceDensityXZ.add(sliceGelAreaSum / (S.sideLength * S.sideLength));
         }
 
-        return averageAreaFraction / (S.side_length);
+        return sliceDensityXZ;
     }
 
-    double calculateAreaFractionDensityYZ() {
+    ArrayList<Double>calculateAreaFractionDensityYZ() {
+        ArrayList<Double> sliceDensityYZ = new ArrayList<>();
+
         double averageAreaFraction = 0.0;
 
         // Move across normal axis (X), calculate density of all particles in YZ plane at 1 micron increments
-        for (int normalPosition = 1; normalPosition < S.side_length; normalPosition++) {
+        for (int normalPosition = 1; normalPosition < S.sideLength; normalPosition++) {
             double sliceGelAreaSum = 0.0;
 
             for (int i = 0; i < S.numGels; i++) {
                 double plane = Math.abs(normalPosition - S.gels.get(i).getX());
+
 
                 if (plane < S.gels.get(i).R) {
                     double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
                     sliceGelAreaSum += Math.PI * (R * R);
                 }
 
-
-                /*for(int j = 0; j < S.gels.get(i).getImageParticles().length; j++) {
-
-                    if(S.gels.get(i).getImageParticles()[j] != null) {
-                        double planeImage = Math.abs(normalPosition - S.gels.get(i).getImageParticles()[j].getX());
-
-                        if (planeImage < S.gels.get(i).getImageParticles()[j].getR()) {
-                            double rImage = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - planeImage * planeImage));
-                            sliceGelAreaSum += Math.PI * (rImage * rImage);
-                        }
-                    }
-                }*/
+//                // "Images"
+//                plane = Math.abs(S.side_length - normalPosition - S.gels.get(i).getX());
+//
+//                // Near 0
+//                if(normalPosition >= 0 && normalPosition <= S.gels.get(i).getR()) {
+//
+//                    if (plane < S.gels.get(i).R) {
+//                        double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
+//                        sliceGelAreaSum += Math.PI * (R * R);
+//                    }
+//                }
+//
+//                // Near side length
+//                if(normalPosition >= S.side_length - S.gels.get(i).getR() && normalPosition <= S.side_length) {
+//
+//                    if (plane < S.gels.get(i).R) {
+//                        double R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - plane * plane));
+//                        sliceGelAreaSum += Math.PI * (R * R);
+//                    }
+//                }
             }
 
-            for(int i = 0; i < S.imageParticles.size(); i++) {
-                double plane = Math.abs(normalPosition - S.imageParticles.get(i).getX());
+            averageAreaFraction += sliceGelAreaSum / (S.sideLength * S.sideLength);
 
-                if (plane < S.imageParticles.get(i).R) {
-                    double R = (Math.sqrt(S.imageParticles.get(i).R * S.imageParticles.get(i).R - plane * plane));
-                    sliceGelAreaSum += Math.PI * (R * R);
-                }
-            }
-
-            averageAreaFraction += sliceGelAreaSum / (S.side_length * S.side_length);
-
-            sliceDensityYZ.add(sliceGelAreaSum / (S.side_length * S.side_length));
+            sliceDensityYZ.add(sliceGelAreaSum / (S.sideLength * S.sideLength));
         }
 
-        return averageAreaFraction / (S.side_length);
-    }
-
-    public ArrayList<Double> getSliceDensityXY() {
-        return sliceDensityXY;
-    }
-
-    public ArrayList<Double> getSliceDensityXZ() {
-        return sliceDensityXZ;
-    }
-
-    public ArrayList<Double> getSliceDensityYZ() {
         return sliceDensityYZ;
     }
 }

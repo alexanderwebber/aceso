@@ -1,7 +1,6 @@
 package com.company;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,14 +16,14 @@ public class DensityTester {
     DensityTester(Simulation s) throws IOException {
         this.s = s;
 
-        BufferedImage bimage = new BufferedImage((int)s.side_length, (int)s.side_length, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bimage = new BufferedImage((int)s.sideLength, (int)s.sideLength, BufferedImage.TYPE_INT_RGB);
 
         //picture stuff
         Graphics2D g = bimage.createGraphics();
 
         //math loop
-        double spacing = s.side_length / size;
-        double vox_length = (s.side_length / s.vox.voxels_per_side);
+        double spacing = s.sideLength / size;
+        double vox_length = (s.sideLength / s.vox.voxels_per_side);
 
         for (int i = 0; i < size; ++i) {
             double x = i * spacing;
@@ -51,7 +50,7 @@ public class DensityTester {
 
                     //System.out.println(sumSphereIntersections);
                     //System.out.println(s.side_length);
-                    double density = sumSphereIntersections / s.side_length;
+                    double density = sumSphereIntersections / s.sideLength;
 
                     if(density > 1) {
                         density = 1;
@@ -74,7 +73,7 @@ public class DensityTester {
 
 
     Voxel[] inVoxels(double x, double y) {
-        double vox_length = (s.side_length / s.vox.voxels_per_side);
+        double vox_length = (s.sideLength / s.vox.voxels_per_side);
 
         int i = (int) (x / vox_length);
         i = i >= 0 ? i < s.vox.voxels_per_side ? i : i - s.vox.voxels_per_side : i + s.vox.voxels_per_side;

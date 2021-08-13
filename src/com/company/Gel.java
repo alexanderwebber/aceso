@@ -72,6 +72,9 @@ class Gel extends Particle implements Drawable {
             //move();
         }
     }
+
+
+
     void settle() {
         v = Vector.random();
         if(imImage == false) {

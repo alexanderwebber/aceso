@@ -27,7 +27,8 @@ class Visualization extends JPanel {
     double cos_phi;
     double sin_phi;
 
-    Visualization() {
+    Visualization(Simulation S) {
+        this.S = S;
         setSize(1500, 1500);
         addKeyListener(k);
         addMouseListener(o);
@@ -40,6 +41,7 @@ class Visualization extends JPanel {
 
         g.setColor(Color.black);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
+
         if (box_view) {
             drawObjects = 0;
             cos_theta = Math.cos(o.theta);
@@ -73,10 +75,10 @@ class Visualization extends JPanel {
             g.drawString(String.format("z = %f", sl.getZ()), getWidth() - 100, getHeight() - 25);
             double scale = .5;
             if (see_box) {
-                int x0 = (int) (-S.side_length * scale / 2.0 + getWidth() / 2.0);
-                int y0 = (int) (-S.side_length * scale / 2.0 + getHeight() / 2.0);
-                int x1 = (int) (S.side_length * scale / 2.0 + getWidth() / 2.0);
-                int y1 = (int) (S.side_length * scale / 2.0 + getHeight() / 2.0);
+                int x0 = (int) (-S.sideLength * scale / 2.0 + getWidth() / 2.0);
+                int y0 = (int) (-S.sideLength * scale / 2.0 + getHeight() / 2.0);
+                int x1 = (int) (S.sideLength * scale / 2.0 + getWidth() / 2.0);
+                int y1 = (int) (S.sideLength * scale / 2.0 + getHeight() / 2.0);
                 g.setColor(Color.blue);
                 g.drawLine(x0, y0, x0, y1);
                 g.drawLine(x0, y0, x1, y0);
@@ -98,8 +100,8 @@ class Visualization extends JPanel {
                     double d = Math.abs(sl.getZ() - S.gels.get(i).z);
                     if (d < S.gels.get(i).R) {
                         temp.R = (Math.sqrt(S.gels.get(i).R * S.gels.get(i).R - d * d));
-                        temp.x = (S.gels.get(i).x - temp.R - S.side_length / 2);
-                        temp.y = (S.gels.get(i).y - temp.R - S.side_length / 2);
+                        temp.x = (S.gels.get(i).x - temp.R - S.sideLength / 2);
+                        temp.y = (S.gels.get(i).y - temp.R - S.sideLength / 2);
                         temp.x *= scale;
                         temp.y *= scale;
                         temp.R *= scale;
@@ -110,25 +112,36 @@ class Visualization extends JPanel {
                         temp.draw(g);
 
                         // TODO: Don't forget this for image drawing
-                        if (S.gels.get(i).R + S.gels.get(i).x > S.side_length) {
-                            temp.x -= S.side_length / 2;
+                        if (S.gels.get(i).R + S.gels.get(i).x > S.sideLength) {
+                            temp.x -= S.sideLength / 2;
                             temp.drawImage(g);
-                            temp.x += S.side_length / 2;
+                            temp.x += S.sideLength / 2;
                         }
-                        if (S.gels.get(i).R + S.gels.get(i).y > S.side_length) {
-                            temp.y -= S.side_length / 2;
+                        if (S.gels.get(i).R + S.gels.get(i).y > S.sideLength) {
+                            temp.y -= S.sideLength / 2;
                             temp.drawImage(g);
-                            temp.y += S.side_length / 2;
+                            temp.y += S.sideLength / 2;
                         }
+                        
                         if (S.gels.get(i).x - S.gels.get(i).R < 0) {
-                            temp.x += S.side_length / 2;
+                            temp.x += S.sideLength / 2;
                             temp.drawImage(g);
-                            temp.x -= S.side_length / 2;
+                            temp.x -= S.sideLength / 2;
                         }
                         if (S.gels.get(i).y - S.gels.get(i).R < 0) {
-                            temp.y += S.side_length / 2;
+                            temp.y += S.sideLength / 2;
                             temp.drawImage(g);
-                            temp.y -= S.side_length / 2;
+                            temp.y -= S.sideLength / 2;
+                        }
+                        
+                        if (S.gels.get(i).y - S.gels.get(i).R < 0 && S.gels.get(i).x - S.gels.get(i).R < 0) {
+                            temp.y += S.sideLength / 2;
+                            temp.x += S.sideLength / 2;
+                            
+                            temp.drawImage(g);
+                            
+                            temp.y -= S.sideLength / 2;
+                            temp.x -= S.sideLength / 2;
                         }
                     }
                 }
@@ -139,11 +152,11 @@ class Visualization extends JPanel {
             if (see_tcell) {
                 for (int i = 0; i < S.numParticles; ++i) {
                     TCell temp = new TCell();
-                    double d = Math.abs(sl.getZ() - S.tcells[i].z);
-                    if (d < S.tcells[i].R) {
-                        temp.R = (Math.sqrt(S.tcells[i].R * S.tcells[i].R - d * d));
-                        temp.x = (S.tcells[i].x - temp.R - S.side_length / 2);
-                        temp.y = (S.tcells[i].y - temp.R - S.side_length / 2);
+                    double d = Math.abs(sl.getZ() - S.tCells[i].z);
+                    if (d < S.tCells[i].R) {
+                        temp.R = (Math.sqrt(S.tCells[i].R * S.tCells[i].R - d * d));
+                        temp.x = (S.tCells[i].x - temp.R - S.sideLength / 2);
+                        temp.y = (S.tCells[i].y - temp.R - S.sideLength / 2);
                         //scaaaaale
                         temp.x *= scale;
                         temp.y *= scale;
@@ -163,8 +176,8 @@ class Visualization extends JPanel {
                     double d = Math.abs(sl.getZ() - S.getTumoroids().get(i).getZ());
                     if (d < S.getTumoroids().get(i).R) {
                         temp.R = (Math.sqrt(S.getTumoroids().get(i).getR() * S.getTumoroids().get(i).getR() - d * d));
-                        temp.x = (S.getTumoroids().get(i).getX() - temp.R - S.side_length / 2);
-                        temp.y = (S.getTumoroids().get(i).getY() - temp.R - S.side_length / 2);
+                        temp.x = (S.getTumoroids().get(i).getX() - temp.R - S.sideLength / 2);
+                        temp.y = (S.getTumoroids().get(i).getY() - temp.R - S.sideLength / 2);
                         //scaaaaale
                         temp.x *= scale;
                         temp.y *= scale;
@@ -181,7 +194,7 @@ class Visualization extends JPanel {
 
     }
     private void addBox(Box B) {
-        double s = B.side_length / 2;
+        double s = B.sideLength / 2;
         double[][] corners =  new double[][] {
                 {-s, -s, -s},
                 {-s, -s, s},
@@ -229,28 +242,31 @@ class Visualization extends JPanel {
     private void addGels() {
         for (int i = 0; i < S.numGels - 1; i++) {
             Gel temp = new Gel();
+
             temp.R = S.gels.get(i).R;
-            double x = S.gels.get(i).x - S.side_length / 2;
-            double y = S.gels.get(i).y - S.side_length / 2;
-            double z = S.gels.get(i).z - S.side_length / 2;
+            double x = S.gels.get(i).x - S.sideLength / 2;
+            double y = S.gels.get(i).y - S.sideLength / 2;
+            double z = S.gels.get(i).z - S.sideLength / 2;
+
             //transform
             temp.x = x * cos_theta - y * sin_theta;
             temp.y = z * cos_phi + (x * sin_theta + y * cos_theta) * sin_phi;
             temp.z = z * sin_phi - (x * sin_theta + y * cos_theta) * cos_phi;
+
             //shift
             temp.x += k.offset_x;
             temp.y += k.offset_y;
+
             //scale
             temp.x *= o.r / 2000;
             temp.y *= o.r / 2000;
             temp.z *= o.r / 2000;
             temp.R *= o.r / 2000;
+
             //center
             temp.x +=  (double) (getWidth() / 2) - temp.R;
             temp.y +=  (double) (getHeight() / 2) - temp.R;
-            
-            
-            
+
             drawthis[drawObjects++] = temp;
         }
     }
@@ -259,11 +275,11 @@ class Visualization extends JPanel {
         for (int i = 0; i < S.numParticles; ++i) {
             TCell temp = new TCell();
             
-            temp.setStatus(S.tcells[i].getStatus());
-            temp.R = S.tcells[i].R;
-            double x = S.tcells[i].x - S.side_length / 2;
-            double y = S.tcells[i].y - S.side_length / 2;
-            double z = S.tcells[i].z - S.side_length / 2;
+            temp.setStatus(S.tCells[i].getStatus());
+            temp.R = S.tCells[i].R;
+            double x = S.tCells[i].x - S.sideLength / 2;
+            double y = S.tCells[i].y - S.sideLength / 2;
+            double z = S.tCells[i].z - S.sideLength / 2;
             
             //transform
             temp.x = x * cos_theta - y * sin_theta;
@@ -302,9 +318,9 @@ class Visualization extends JPanel {
                 temp.setStatus("dead");
             }
 
-            double x = S.getTumoroids().get(i).getX() - S.side_length / 2;
-            double y = S.getTumoroids().get(i).getY() - S.side_length / 2;
-            double z = S.getTumoroids().get(i).getZ() - S.side_length / 2;
+            double x = S.getTumoroids().get(i).getX() - S.sideLength / 2;
+            double y = S.getTumoroids().get(i).getY() - S.sideLength / 2;
+            double z = S.getTumoroids().get(i).getZ() - S.sideLength / 2;
 
             //transfooooooooorm
             temp.x = x * cos_theta - y * sin_theta;
@@ -334,8 +350,8 @@ class Visualization extends JPanel {
         public void mouseWheelMoved(MouseWheelEvent e) {
             super.mouseWheelMoved(e);
             if (e.getPreciseWheelRotation() > 0) {
-                if (z >= S.side_length - 2) {
-                    z = S.side_length;
+                if (z >= S.sideLength - 2) {
+                    z = S.sideLength;
                 }
                 else {
                     z += scroll_amount;
@@ -406,12 +422,7 @@ class Visualization extends JPanel {
     }
 }
 
-class FillVisualization extends Visualization {
-    FillVisualization() throws IOException {
-        S = new Simulation();
-        add(new FillSettingsViz(this));
-    }
-}
+
 
 /*
 class SimulationVisualization extends Visualization {

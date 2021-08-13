@@ -1,5 +1,8 @@
 package com.company;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.apache.commons.math3.distribution.LogNormalDistribution;
+
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,6 +17,8 @@ public class TCell extends Particle implements Drawable {
     private int idNum;
 
     private boolean isAttacking;
+
+    private int lifeTime = 0;
 
     private boolean reachedMaxKills;
 
@@ -37,7 +42,7 @@ public class TCell extends Particle implements Drawable {
     int[] randArray = new int[3];
 
     // Assign random velocity value
-    double velocity = 3.0;
+    double velocity = 3.5;
     
     static double velocityX;
     static double velocityY;
@@ -47,12 +52,12 @@ public class TCell extends Particle implements Drawable {
 
     }
 
-
-    TCell(double x, double y, double z, double R,  int idNum, Simulation S, Random random) {
+    TCell(double x, double y, double z, double R, int idNum, Simulation S, Random random, LogNormalDistribution logNormal) {
         super(x, y, z, R, S);
         type = "TCell";
         this.S = S;
         numKills = 0;
+        velocity = 3.5;
         
         this.random = random;
 
@@ -60,6 +65,7 @@ public class TCell extends Particle implements Drawable {
         
         this.status = 1;
 
+        //this.velocity = logNormal.sample();
         
         //v = new Vector(velocityX, velocityY, velocityZ);
         xyzFileName = "xyz" + "_" + "id" + idNum + ".csv";
@@ -162,19 +168,35 @@ public class TCell extends Particle implements Drawable {
         return R;
     }
 
+    public void incrementLifeTime() {
+        lifeTime++;
+    }
+
+    public int getLifeTime() {
+        return lifeTime;
+    }
+
+    public void setLifeTime(int lifeTime) {
+        this.lifeTime = lifeTime;
+    }
+
     void cellMove() throws IOException {
     	
         previousNearTumor = nearTumor;
-
-        if(isAttacking == false) {
-        	randomLeftRight(velocity, random);
-        	//this.updateCollision();
-        	
-        	this.move();
-        	
+        
+        this.v = Vector.random3(velocity, random);
+        
+        while (checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
+        	this.v = Vector.random3(velocity, random);
         }
         
+    	move();
         
+
+        if(isAttacking == false) {
+        	
+        }
+
         //double[] tempArray = {this.getX(), this.getY(), this.getZ()};
         //xyzOutput.add(tempArray);
 
@@ -197,7 +219,7 @@ public class TCell extends Particle implements Drawable {
                     setIsAttacking(false);
                     this.setStatus(3);
                     timeAttacking = 0;
-                    //this.velocity = 4 * Math.exp(-0.01 * R) + 0.7;
+                    this.velocity = 3.5;
                 }
                 else {
                     timeAttacking++;
@@ -223,6 +245,11 @@ public class TCell extends Particle implements Drawable {
                     double distanceZ = Math.abs(S.getTumoroids().get(i).getZ() - this.getZ());
 
                     double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
+
+                    if(distanceVector < 500) {
+                        incrementLifeTime();
+
+                    }
 
                     if(distanceVector < radius_sum_squared) {
                         this.velocity = 0.0;
@@ -274,110 +301,18 @@ public class TCell extends Particle implements Drawable {
     	
     }
     
-    @Override
-    public void updateCollision() {
-
-        //nearby = getNearby();
-
-        // Reset overlappedCounter before every loop
-        overlappedCounter = 0;
-        overlaps.clear();
-
-        for (Particle other : S.gels) {
-            try {
-                if (other != null) {
-                	
-                    double radiusSum = R + other.R;
-                    double dx, dy, dz;
-                    dx = x + velocityX - other.x;
-                    dy = y + velocityY - other.y;
-                    dz = z + velocityZ - other.z;
-                    
-                    ///x bound
-                    //if other particle big x you small x bring their x here
-                    if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                        dx -= S.side_length;
-                    }
-                    //if you big x other particle small x move x there to check
-                    else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                        dx += S.side_length;
-                    }
-                    //y bound
-                    if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                        dy -= S.side_length;
-                    } else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                        dy += S.side_length;
-                    }
-                    //z bound
-                    if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                        dz -= S.side_length;
-                    } else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                        dz += S.side_length;
-                    }
-                    
-                    
-                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
-                        Vector diff = new Vector(dx, dy, dz);
-                        double d = diff.magnitude() - radiusSum;
-                        if (d < 0) { //overlap
-                            v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
-                            other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
-                            overlappedCounter++;
-                            overlaps.add(diff.magnitude() / radiusSum);
-                        }
-
-                    }
-                    
-					/*
-					 * if(this.type.equals("TCell")) { for(int i = 0; i <
-					 * other.getImageParticles().length; i++) { if(other.getImageParticles()[i] !=
-					 * null) { double radiusSumImage = R + other.R; double dxImage, dyImage,
-					 * dzImage;
-					 * 
-					 * dxImage = x + v.x() - other.getImageParticles()[i].x; dyImage = y + v.y() -
-					 * other.getImageParticles()[i].y; dzImage = z + v.z() -
-					 * other.getImageParticles()[i].z;
-					 * 
-					 * if (Math.abs(dxImage) < radiusSum && Math.abs(dyImage) < radiusSum &&
-					 * Math.abs(dzImage) < radiusSumImage) {//check box Vector diff = new
-					 * Vector(dxImage, dyImage, dzImage); double d = diff.magnitude() -
-					 * radiusSumImage; if (d < 0) { //overlap v = v.add(diff.unitVector().scale(-d *
-					 * other.getImageParticles()[i].R / radiusSumImage)); overlappedCounter++;
-					 * overlaps.add(diff.magnitude() / radiusSum); }
-					 * 
-					 * } } } }
-					 */
-
-                    else {
-                    }
-
-                }
-            }
-
-            catch(NullPointerException e) {
-                System.out.println(e);
-            }
-
-        }
-
-
-        if(imImage != true) {
-            this.move();
-        }
-    }
-    
-    @Override
-    protected void move() {
-        if(imImage == false) {
-        	
-            setXYZ(mod(x + velocityX, S.side_length), mod(y + velocityY, S.side_length), mod(z + velocityZ, S.side_length));
-
-            xPrime += velocityX;
-            yPrime += velocityY;
-            zPrime += velocityZ;
-
-        }
-    }
+//    @Override
+//    protected void move() {
+//        if(imImage == false) {
+//        	
+//            setXYZ(mod(x + velocityX, S.side_length), mod(y + velocityY, S.side_length), mod(z + velocityZ, S.side_length));
+//
+//            xPrime += velocityX;
+//            yPrime += velocityY;
+//            zPrime += velocityZ;
+//
+//        }
+//    }
     
     
     public void draw(Graphics g) {
