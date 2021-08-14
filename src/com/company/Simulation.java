@@ -959,7 +959,7 @@ public class Simulation extends Box {
 
                     if(tumor) {
                 		tumorGarbageCollector();
-                        //tumorGrow();
+                        tumorGrow();
                         checkTumors();
                 	}
 

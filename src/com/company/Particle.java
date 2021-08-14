@@ -406,7 +406,12 @@ public class Particle {
         overlappedCounter = 0;
         overlaps.clear();
 
-        for (Particle other : S.gels) {
+        ArrayList<Particle> combinedList = new ArrayList<>();
+
+        combinedList.addAll(S.gels);
+        combinedList.addAll(S.tumoroids);
+
+        for (Particle other : combinedList) {
             try {
                 if (other != null) {
                 	
