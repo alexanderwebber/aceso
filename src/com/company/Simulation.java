@@ -663,7 +663,13 @@ public class Simulation extends Box {
     void scaleSpheres(double percentage) {
 
         for (int i = 0; i < numGels; i++) {
-            gels.get(i).setR(gels.get(i).getR() * percentage);
+            if(gels.get(i).equals(tumorGel) && gels.get(i).getR() > 100.0) {
+                continue;
+            }
+
+            else {
+                gels.get(i).setR(gels.get(i).getR() * percentage);
+            }
         }
 
     }
@@ -861,11 +867,11 @@ public class Simulation extends Box {
                         double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                         thisline = builder2.readLine();
                         int comma = thisline.indexOf(',');
-                        double x = (tumorGel.getX() - sideLength / 2) + Double.parseDouble(thisline.substring(0, comma));
+                        double x = (tumorGel.getX() - sideLength / 2) + Double.parseDouble(thisline.substring(0, comma)) - 50;
                         int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
-                        double y = (tumorGel.getY() - sideLength / 2) + Double.parseDouble(thisline.substring(comma + 1, comma2));
+                        double y = (tumorGel.getY() - sideLength / 2) + Double.parseDouble(thisline.substring(comma + 1, comma2)) - 50;
                         comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
-                        double z = (tumorGel.getZ() - sideLength / 2) + Double.parseDouble(thisline.substring(comma2 + 1, comma));
+                        double z = (tumorGel.getZ() - sideLength / 2) + Double.parseDouble(thisline.substring(comma2 + 1, comma)) - 50;
                         double R = randomRadius;
                         this.addTumor(x, y, z, R, i);
                     }
