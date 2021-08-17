@@ -26,6 +26,9 @@ class Visualization extends JPanel {
     double sin_theta;
     double cos_phi;
     double sin_phi;
+    JLabel timeLabel = new JLabel("0.0h");
+    GridBagConstraints gc = new GridBagConstraints();
+
 
     Visualization(Simulation S) {
         this.S = S;
@@ -35,9 +38,24 @@ class Visualization extends JPanel {
         addMouseMotionListener(o);
         addMouseWheelListener(o);
         addMouseWheelListener(sl);
+        gc.gridx = 0;
+        gc.gridy = 0;
+        gc.anchor = GridBagConstraints.NORTHWEST;
+        gc.insets = new Insets(2, 0, 0, 2);
+        this.add(timeLabel, gc);
+
     }
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        String timeValue = String.format("%.1f", S.sim_time * (20.0 / 3600.0));
+
+
+        timeLabel.setText(timeValue + "h");
+        timeLabel.setFont(new Font("Serif", Font.BOLD, 28));
+        timeLabel.setForeground(Color.WHITE);
+
+
 
         g.setColor(Color.black);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());

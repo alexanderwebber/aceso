@@ -608,6 +608,9 @@ public class Simulation extends Box {
                  * 2.0, this, "TumorGel"); addGel(tumorGel);
                  */
 
+                double minRadius = 0.0;
+                double maxRadius = 0.0;
+
                 for (int i = 0; i < numTumor; i++) {
                     double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                     thisline = builder2.readLine();
@@ -629,33 +632,41 @@ public class Simulation extends Box {
                     }
                     else {
                         if(x < minX) {
-                            minX = x - randomRadius;
+                            minX = x;
+                            minRadius = randomRadius;
                         }
                         else if(x > maxX) {
-                            maxX = x + randomRadius;
+                            maxX = x;
+                            maxRadius = randomRadius;
                         }
                         if(y < minY) {
-                            minY = y - randomRadius;
+                            minY = y;
+                            minRadius = randomRadius;
                         }
                         else if(y > maxY) {
-                            maxY = y + randomRadius;
+                            maxY = y;
+                            maxRadius = randomRadius;
                         }
                         if(z < minZ) {
-                            minZ = z - randomRadius;
+                            minZ = z;
+                            minRadius = randomRadius;
                         }
                         else if(z > maxZ) {
-                            maxZ = z + randomRadius;
+                            maxZ = z;
+                            maxRadius = randomRadius;
                         }
                     }
                 }
 
-            }
-            double xDiff = maxX - minX;
-            double yDiff = maxY - minY;
-            double zDiff = maxZ - minZ;
+                double xDiff = (maxX + maxRadius) - (minX - minRadius);
+                double yDiff = (maxY + maxRadius) - (minY - minRadius);
+                double zDiff = (maxZ + maxRadius) - (minZ - minRadius);
 
-            double firstMax = Math.max(xDiff, yDiff);
-            radius = Math.max(firstMax, zDiff);
+                double firstMax = Math.max(xDiff, yDiff);
+                radius = Math.max(firstMax, zDiff);
+
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -822,7 +833,12 @@ public class Simulation extends Box {
     }
 
     public static boolean checkGelCollision(double x, double y, double z, double radius, Simulation sim) {
-        for (Gel other : sim.gels) {
+        ArrayList<Particle> combinedList = new ArrayList<>();
+
+        combinedList.addAll(sim.gels);
+        combinedList.addAll(sim.tumoroids);
+
+        for (Particle other : combinedList) {
             if (other != null) {
                 double radiusSum = radius + other.getR();
 
@@ -1341,6 +1357,27 @@ public class Simulation extends Box {
     }
 
     void addTCell(int idNum) {
+        double R = 8;
+
+        //TODO: Change back to global positioning
+
+        double x = R + rand.nextDouble() * (sideLength - 2 * R);
+        double y = R + rand.nextDouble() * (sideLength - 2 * R);
+        double z = R + rand.nextDouble() * (sideLength - 2 * R);
+
+        // Change this to creating class after checking for collision
+
+
+        if (checkGelCollision(x, y, z, R, this) == false) {
+            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal);
+            vox.add(c);
+            tCells[numParticles++] = c;
+            sum_sphere_volume += c.volume();
+            //System.out.println(c.getIdNum());
+        }
+    }
+
+    void addTCell(Gel tumorGel, int idNum) {
         double R = 8;
 
         //TODO: Change back to global positioning

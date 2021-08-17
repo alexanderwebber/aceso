@@ -37,8 +37,6 @@ public class Tumoroid extends Particle implements Drawable {
 
         timeSinceDead = 0;
 
-        R = 6.0;
-
         volume = (4.0  / 3) * Math.PI * (Math.pow(R, 3));
 
 
@@ -50,6 +48,8 @@ public class Tumoroid extends Particle implements Drawable {
         this.y = y;
         this.z = z;
         this.R = R;
+
+        type = "tumor";
 
         this.idNum = idNum;
 
@@ -113,12 +113,6 @@ public class Tumoroid extends Particle implements Drawable {
     public void setNumNeighbors(int numNeighbors) { this.numNeighbors = numNeighbors; }
 
     public void setStatus(String status) { this.status = status; }
-
-    public void setForceArray(double forceX, double forceY, double forceZ) {
-        forceArray[0] = forceX;
-        forceArray[1] = forceY;
-        forceArray[2] = forceZ;
-    }
 
     void checkSetStatus() {
 

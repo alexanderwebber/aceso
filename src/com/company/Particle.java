@@ -342,8 +342,12 @@ public class Particle {
 
     boolean checkCollision(double x, double y, double z, double R) {
         nearby = getNearby();
+        ArrayList<Particle> combinedList = new ArrayList<>();
 
-        for (Particle other : S.gels) {
+        combinedList.addAll(S.gels);
+        combinedList.addAll(S.tumoroids);
+
+        for (Particle other : combinedList) {
             if (other != null) {
                 double radiusSum = R + other.R;
 
@@ -455,7 +459,7 @@ public class Particle {
 				    double d = diff.magnitude() - radiusSum;
 				    if (d < 0) { //overlap
 				        v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
-				        other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
+				        //other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
 				        overlappedCounter++;
 				        overlaps.add(diff.magnitude() / radiusSum);
 				

@@ -181,16 +181,20 @@ public class TCell extends Particle implements Drawable {
     }
 
     void cellMove() throws IOException {
+        boolean lifeIncremented = false;
     	
         previousNearTumor = nearTumor;
         
         this.v = Vector.random3(velocity, random);
         
-        while (checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
-        	this.v = Vector.random3(velocity, random);
+        if (checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
+
+        }
+        else {
+            move();
         }
         
-    	move();
+
         
 
         if(isAttacking == false) {
@@ -228,7 +232,7 @@ public class TCell extends Particle implements Drawable {
 
             // check tumor cells
             if(isActivated == true) {
-                boolean lifeIncremented = false;
+
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
                     if(isActivated == false) {
@@ -239,7 +243,7 @@ public class TCell extends Particle implements Drawable {
                         continue;
                     }
 
-                    double radius_sum_squared = Math.pow((this.getR() * 1.3) + S.getTumoroids().get(i).getR(), 2);
+                    double radius_sum_squared = Math.pow((this.getR()) + S.getTumoroids().get(i).getR(), 2);
 
                     double distanceX = Math.abs(S.getTumoroids().get(i).getX() - this.getX());
                     double distanceY = Math.abs(S.getTumoroids().get(i).getY() - this.getY());
@@ -247,9 +251,10 @@ public class TCell extends Particle implements Drawable {
 
                     double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
 
-                    if(distanceVector < 250 && lifeIncremented == false) {
+                    if(distanceVector < 500) {
                         incrementLifeTime();
                         lifeIncremented = true;
+                        System.out.println(lifeTime);
                     }
 
                     if(distanceVector < radius_sum_squared) {
