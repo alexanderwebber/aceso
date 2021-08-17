@@ -228,6 +228,7 @@ public class TCell extends Particle implements Drawable {
 
             // check tumor cells
             if(isActivated == true) {
+                boolean lifeIncremented = false;
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
                     if(isActivated == false) {
@@ -246,9 +247,9 @@ public class TCell extends Particle implements Drawable {
 
                     double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
 
-                    if(distanceVector < 750) {
+                    if(distanceVector < 250 && lifeIncremented == false) {
                         incrementLifeTime();
-
+                        lifeIncremented = true;
                     }
 
                     if(distanceVector < radius_sum_squared) {
@@ -317,17 +318,17 @@ public class TCell extends Particle implements Drawable {
     
     public void draw(Graphics g) {
 
-        g.setColor(new Color(200, 0, 0, 192)); //outline
+        g.setColor(new Color(0, 255, 0, 192)); //outline
         g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
-        g.setColor(new Color(200, 0, 0, 90)); //fill
+        g.setColor(new Color(0, 255, 0, 90)); //fill
         g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
         if(this.getStatus() == 1) {
-            g.setColor(new Color(200, 0, 0, 192)); //outline
+            g.setColor(new Color(0, 255, 0, 192)); //outline
             g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
-            g.setColor(new Color(200, 0, 0, 90)); //fill
+            g.setColor(new Color(0, 255, 0, 90)); //fill
             g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
         }
 

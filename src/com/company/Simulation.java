@@ -44,9 +44,7 @@ class Box {
         return tumoroids.size();
     }
 
-    public void addTumor(double x, double y, double z, double R, int idNum) {
-        tumoroids.add(new Tumoroid(x, y , z, R, idNum));
-    }
+
 
 }
 
@@ -61,7 +59,6 @@ public class Simulation extends Box {
     int numParticles = 0;
     double numTCells = 100;
     double averageDisplacementPanel;
-
 
     boolean tumor = true;
     Gel tumorGel;
@@ -370,86 +367,6 @@ public class Simulation extends Box {
         fallThread.start();
     }
 
-    void runSim() throws InterruptedException {
-    	fillThread = new Thread(() -> {
-            double startTime = System.nanoTime();
-
-            setSide(sideLength);
-            volume_ratio = .66;
-            if (settleThread.isAlive()) {
-                settleThread.interrupt();
-            }
-
-            // Scale down average radius and std dev
-            int numGelsToSet = (int) ((0.67) * (Math.floor((sideLength * sideLength * sideLength) / ((4 / 3) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI))));
-
-
-            rAverageRadius = rAverageRadius * 0.01;
-
-            //rangeOverAverageR = rangeOverAverageR * 0.01;
-
-            vox = new BoxVoxels(this);
-
-            // Add tumor replacement gel
-            if(tumor) {
-                tumorGel = new Gel(sideLength / 2, sideLength / 2, sideLength / 2, 2.0, this, "TumorGel");
-                addGel(tumorGel);
-            }
-
-
-            for (int i = 0; i < numGelsToSet; i++) {
-                addGel();
-
-            }
-
-            while (sumSphereVolumes() / volume < volume_ratio) {
-                scaleSpheres(1.01);
-
-
-            }
-
-            System.out.println(rangeOverAverageR);
-
-            settle();
-
-            double endTime = System.nanoTime();
-
-            double timeDiff = endTime - startTime;
-
-            System.out.println("Time to fill: " + timeDiff / 1e9);
-        });
-
-    	fillThread.start();
-    	fillThread.join();
-
-
-    	fallThread = new Thread(() -> {
-
-            long startTime = System.nanoTime();
-
-            while (fallTimeIterator < fall_time_limit) {
-                for (int j = 0; j < numGels; j++) {
-                    gels.get(j).fall();
-                }
-
-                fallTimeIterator++;
-
-            }
-
-            double endTime = System.nanoTime();
-
-            double timeDiff = endTime - startTime;
-
-            System.out.println("Time to fall: " + timeDiff / 1e9);
-
-        });
-
-        fallThread.start();
-        fallThread.join();
-
-
-    }
-
     void fillUnthreaded() {
 
         double startTime = System.nanoTime();
@@ -545,7 +462,6 @@ public class Simulation extends Box {
     // TODO: Fix null pointer issue. I think it has to do with the Voxels
     void fallUnthreaded() {
 
-
         long startTime = System.nanoTime();
 
         while (fallTimeIterator < fall_time_limit) {
@@ -577,7 +493,7 @@ public class Simulation extends Box {
                 if(this.getTumoroids().get(i).getR() < 12.0) {
                 	//TODO: Make growth rate variable
                     this.getTumoroids().get(i).setR(this.getTumoroids().get(i).getR() + 0.00015);
-                    this.getTumoroids().get(i).move(i, this);
+                    this.getTumoroids().get(i).move();
                 }
                 else {
                     this.getTumoroids().get(i).setR(6.0);
@@ -585,7 +501,7 @@ public class Simulation extends Box {
                     double y = this.getTumoroids().get(i).getY();
                     double z = this.getTumoroids().get(i).getZ();
                     this.addTumor(x, y, z, 6.0, this.getNumTumor());
-                    this.getTumoroids().get(i).move(i, this);
+                    this.getTumoroids().get(i).move();
                 }
             }
         }
@@ -606,6 +522,89 @@ public class Simulation extends Box {
                 this.addTCell(x, y, z, R);
             }
         }
+    }
+
+    // Calculate the max radius of tumor for use in generating tumor gel.
+    double calculateTumorGelRadius() {
+        BufferedReader builder2;
+
+        double radius = 0.0;
+        double minX = 0.0;
+        double minY = 0.0;
+        double minZ = 0.0;
+        double maxX = 0.0;
+        double maxY = 0.0;
+        double maxZ = 0.0;
+
+        try {
+            builder2 = new BufferedReader(new FileReader("tumor.csv"));
+
+            String thisline;
+            Random r = new Random();
+
+            int numTumor = 559;
+
+            // Add tumor replacement gel
+            if(tumor) {
+                /*
+                 * Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2,
+                 * 2.0, this, "TumorGel"); addGel(tumorGel);
+                 */
+
+                for (int i = 0; i < numTumor; i++) {
+                    double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
+                    thisline = builder2.readLine();
+                    int comma = thisline.indexOf(',');
+                    double x = Double.parseDouble(thisline.substring(0, comma)) - 50;
+                    int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
+                    double y = Double.parseDouble(thisline.substring(comma + 1, comma2)) - 50;
+                    comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
+                    double z = Double.parseDouble(thisline.substring(comma2 + 1, comma)) - 50;
+                    double R = randomRadius;
+
+                    if(i == 0) {
+                        minX = x;
+                        maxX = x;
+                        minY = y;
+                        maxY = y;
+                        minZ = z;
+                        maxZ = z;
+                    }
+                    else {
+                        if(x < minX) {
+                            minX = x - randomRadius;
+                        }
+                        else if(x > maxX) {
+                            maxX = x + randomRadius;
+                        }
+                        if(y < minY) {
+                            minY = y - randomRadius;
+                        }
+                        else if(y > maxY) {
+                            maxY = y + randomRadius;
+                        }
+                        if(z < minZ) {
+                            minZ = z - randomRadius;
+                        }
+                        else if(z > maxZ) {
+                            maxZ = z + randomRadius;
+                        }
+                    }
+                }
+
+            }
+            double xDiff = maxX - minX;
+            double yDiff = maxY - minY;
+            double zDiff = maxZ - minZ;
+
+            double firstMax = Math.max(xDiff, yDiff);
+            radius = Math.max(firstMax, zDiff);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return radius;
     }
 
     public void tumorGarbageCollector() {
@@ -663,7 +662,7 @@ public class Simulation extends Box {
     void scaleSpheres(double percentage) {
 
         for (int i = 0; i < numGels; i++) {
-            if(gels.get(i).equals(tumorGel) && gels.get(i).getR() > 100.0) {
+            if(gels.get(i).equals(tumorGel) && gels.get(i).getR() > calculateTumorGelRadius()) {
                 continue;
             }
 
@@ -841,7 +840,6 @@ public class Simulation extends Box {
                 System.out.println("Space finding takes: " + (finalSpaceTime / 1e9) + " seconds");
             }
 
-
     		//addTCellsFromList(spaces);
 
     		addTCells();
@@ -862,7 +860,6 @@ public class Simulation extends Box {
                      * 2.0, this, "TumorGel"); addGel(tumorGel);
                      */
 
-
                     for (int i = 0; i < numTumor; i++) {
                         double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                         thisline = builder2.readLine();
@@ -875,7 +872,7 @@ public class Simulation extends Box {
                         double R = randomRadius;
                         this.addTumor(x, y, z, R, i);
                     }
-                    System.out.println("tumor runs");
+
                     vox.remove(tumorGel);
                     gels.remove(tumorGel);
                     numGels--;
@@ -1239,6 +1236,13 @@ public class Simulation extends Box {
         long finalSpaceTime = System.nanoTime() - spaceTime;
 
         System.out.println("Time to fill t-cells: " + (finalSpaceTime / 1e9));
+    }
+
+    public void addTumor(double x, double y, double z, double R, int idNum) {
+        Tumoroid tumoroid = new Tumoroid(x, y , z, R, idNum, this);
+        vox.add(tumoroid);
+        tumoroids.add(tumoroid);
+
     }
 
     void addTCells() {

@@ -488,14 +488,12 @@ public class Particle {
 
     protected void move() {
         if(imImage == false) {
-        	    	
-        	
+
             setXYZ(mod(x + v.x(), S.sideLength), mod(y + v.y(), S.sideLength), mod(z + v.z(), S.sideLength));
 
             xPrime += v.x();
             yPrime += v.y();
             zPrime += v.z();
-
         }
     }
     

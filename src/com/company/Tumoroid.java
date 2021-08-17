@@ -70,12 +70,14 @@ public class Tumoroid extends Particle implements Drawable {
 
     }
 
-    Tumoroid(double x, double y, double z, double R, int idNum) {
+    Tumoroid(double x, double y, double z, double R, int idNum, Simulation S) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.R = R;
         this.idNum = idNum;
+
+        super.S = S;
 
         volume = (4.0 / 3) * Math.PI * (Math.pow(R, 3));
 
@@ -144,113 +146,98 @@ public class Tumoroid extends Particle implements Drawable {
 
     // First check within PBC:
     // Positive faces
-    void move(int index, Simulation s) {
-        /*double x = Math.abs(this.getX() - 500);
-        double y = Math.abs(this.getY() - 500);
-        double z = Math.abs(this.getZ() - 500);
-        double distanceVector = Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2);
-        if(distanceVector > 10000) {
-            if(this.getX() < 500) {
-                this.setX(this.getX() + 200);
-                this.setY(this.getY() + 200);
-                this.setZ(this.getZ() + 200);
-            }
-            else {
-                this.setX(this.getX() - 200);
-                this.setY(this.getY() - 200);
-                this.setZ(this.getZ() - 200);
-            }
-        }*/
-
-    	if (this.x > 600) {
-            setX(getX() - 200);
-        }
-        if (this.y > 600) {
-            setY(getY() - 200);
-
-        }
-        if (this.z > 600) {
-            setZ(getZ() - 200);
-        }
-
-        // Negative faces
-        if (this.x < 400) {
-            setX(getX() + 200);
-        }
-        if (this.y < 400) {
-            setY(getY() + 200);
-        }
-        if (this.z < 400) {
-            setZ(getZ() + 200);
-        }
-
-        int localNumNeighbors = 0;
-        
-        //check other tumor cells
-        for (int i = 0; i < s.getNumTumor(); i++) {
-            if (i != index) {
-	            try {
-	                if (s.getTumoroids().get(i) != null) {
-	                	
-	                    double radiusSum = R + s.getTumoroids().get(i).R;
-	                    double dx, dy, dz;
-	                    dx = x + v.x() - s.getTumoroids().get(i).x;
-	                    dy = y + v.y() - s.getTumoroids().get(i).y;
-	                    dz = z + v.z() - s.getTumoroids().get(i).z;
-	                    
-	                    
-	                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
-	                        Vector diff = new Vector(dx, dy, dz);
-	                        double d = diff.magnitude() - radiusSum;
-	                        
-	                        if(d < 0.5) {
-	                        	localNumNeighbors++;
-	                            setNumNeighbors(localNumNeighbors);
-	                        }
-	                        
-	                        if (d < 0) { //overlap
-	                        	if(-d * s.getTumoroids().get(i).R / radiusSum > 0.00015) {
-	                        		this.v = v.add(diff.unitVector().scale(-0.00015));
-	                        		s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(diff.unitVector().scale(0.00015));
-	                        	}
-	                        	
-	                        	else {
-	                        		this.v = v.add(diff.unitVector().scale(-d * s.getTumoroids().get(i).R / radiusSum));
-	                        		s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(diff.unitVector().scale(d * R / radiusSum));
-	                        	}
-	                        	
-	                        	this.setX(this.getX() + this.v.x());
-	    	                    this.setY(this.getY() + this.v.y());
-	    	                    this.setZ(this.getZ() + this.v.z());
-	                        	
-	                        }
-	                        
-	                        else if (d > 0) {
-	                        	this.v = v.add(0, 0, 0);
-	                        	s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(0, 0, 0);
-	                        	
-	                        	this.setX(this.getX());
-	    	                    this.setY(this.getY());
-	    	                    this.setZ(this.getZ());
-	                        	
-		                    }
-		
-	
-	                    }
-	                    
-	                    
-	                }
-	            }
-	
-	            catch(NullPointerException e) {
-	                System.out.println(e);
-	            }
-
-            }
-        }
-        
-
-    }
+//    void move(int index, Simulation s) {
+//
+//
+//    	if (this.x > 600) {
+//            setX(getX() - 200);
+//        }
+//        if (this.y > 600) {
+//            setY(getY() - 200);
+//
+//        }
+//        if (this.z > 600) {
+//            setZ(getZ() - 200);
+//        }
+//
+//        // Negative faces
+//        if (this.x < 400) {
+//            setX(getX() + 200);
+//        }
+//        if (this.y < 400) {
+//            setY(getY() + 200);
+//        }
+//        if (this.z < 400) {
+//            setZ(getZ() + 200);
+//        }
+//
+//        int localNumNeighbors = 0;
+//
+//        //check other tumor cells
+//        for (int i = 0; i < s.getNumTumor(); i++) {
+//            if (i != index) {
+//	            try {
+//	                if (s.getTumoroids().get(i) != null) {
+//
+//	                    double radiusSum = R + s.getTumoroids().get(i).R;
+//	                    double dx, dy, dz;
+//	                    dx = x + v.x() - s.getTumoroids().get(i).x;
+//	                    dy = y + v.y() - s.getTumoroids().get(i).y;
+//	                    dz = z + v.z() - s.getTumoroids().get(i).z;
+//
+//
+//	                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
+//	                        Vector diff = new Vector(dx, dy, dz);
+//	                        double d = diff.magnitude() - radiusSum;
+//
+//	                        if(d < 0.5) {
+//	                        	localNumNeighbors++;
+//	                            setNumNeighbors(localNumNeighbors);
+//	                        }
+//
+//	                        if (d < 0) { //overlap
+//	                        	if(-d * s.getTumoroids().get(i).R / radiusSum > 0.00015) {
+//	                        		this.v = v.add(diff.unitVector().scale(-0.00015));
+//	                        		s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(diff.unitVector().scale(0.00015));
+//	                        	}
+//
+//	                        	else {
+//	                        		this.v = v.add(diff.unitVector().scale(-d * s.getTumoroids().get(i).R / radiusSum));
+//	                        		s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(diff.unitVector().scale(d * R / radiusSum));
+//	                        	}
+//
+//	                        	this.setX(this.getX() + this.v.x());
+//	    	                    this.setY(this.getY() + this.v.y());
+//	    	                    this.setZ(this.getZ() + this.v.z());
+//
+//	                        }
+//
+//	                        else if (d > 0) {
+//	                        	this.v = v.add(0, 0, 0);
+//	                        	s.getTumoroids().get(i).v = s.getTumoroids().get(i).v.add(0, 0, 0);
+//
+//	                        	this.setX(this.getX());
+//	    	                    this.setY(this.getY());
+//	    	                    this.setZ(this.getZ());
+//
+//		                    }
+//
+//
+//	                    }
+//
+//
+//	                }
+//	            }
+//
+//	            catch(NullPointerException e) {
+//	                System.out.println(e);
+//	            }
+//
+//            }
+//        }
+//
+//
+//    }
 
     boolean checkCollision(double x, double y, double z, double R, int index, Simulation s) {
     	
@@ -399,17 +386,17 @@ public class Tumoroid extends Particle implements Drawable {
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(new Color(0, 255, 0, 192)); //outline
+        g.setColor(new Color(200, 0, 0, 192)); //outline
         g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
-        g.setColor(new Color(0, 255, 0, 90)); //fill
+        g.setColor(new Color(200, 0, 0, 90)); //fill
         g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
         if(this.getStatus().equals("alive")) {
-            g.setColor(new Color(0, 255, 0, 192)); //outline
+            g.setColor(new Color(200, 0, 0, 192)); //outline
             g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
-            g.setColor(new Color(0, 255, 0, 90)); //fill
+            g.setColor(new Color(200, 0, 0, 90)); //fill
             g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
         }
 
