@@ -1,5 +1,6 @@
 package com.company;
 
+import com.sun.org.apache.bcel.internal.classfile.LineNumber;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.LogNormalDistribution;
 import java.io.*;
@@ -367,6 +368,56 @@ public class Simulation extends Box {
         fallThread.start();
     }
 
+    void fillGelsByCSV() throws IOException {
+        BufferedReader gelBuilder;
+
+        setSide(sideLength);
+
+        vox = new BoxVoxels(this);
+
+        double sideLengthByNumGels = Math.cbrt((1000.0 * ((4.0 / 3.0) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / volume_ratio);
+        setSideLength(sideLengthByNumGels);
+        setVolume(sideLength * sideLength * sideLength);
+
+        try {
+            gelBuilder = new BufferedReader(new FileReader("test_gel_with_tumorGel.csv"));
+
+
+            String thisLine;
+
+            for (int i = 0; i < 938; i++) {
+                thisLine = gelBuilder.readLine();
+                int comma = thisLine.indexOf(',');
+                double x = Double.parseDouble(thisLine.substring(0, comma));
+                int comma2 = comma + 1 + thisLine.substring(comma + 1).indexOf(',');
+                double y = Double.parseDouble(thisLine.substring(comma + 1, comma2));
+                comma = comma2 + 1 + thisLine.substring(comma2 + 1).indexOf(',');
+                double z = Double.parseDouble(thisLine.substring(comma2 + 1, comma));
+                int commaR = comma + 1 + thisLine.substring(comma2 + 1).indexOf(',');
+                double R = Double.parseDouble(thisLine.substring(comma + 1, commaR - 1));
+
+                if(i == 0) {
+                    tumorGel = new Gel(x, y, z, R, this);
+                    vox.add(tumorGel);
+                    gels.add(numGels++, tumorGel);
+                    sum_sphere_volume += tumorGel.volume();
+                }
+                else {
+                    Gel g = new Gel(x, y, z, R, this);
+                    vox.add(g);
+                    gels.add(numGels++, g);
+                    sum_sphere_volume += g.volume();
+                }
+
+
+
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     void fillUnthreaded() {
 
         double startTime = System.nanoTime();
@@ -460,7 +511,7 @@ public class Simulation extends Box {
 
 
     // TODO: Fix null pointer issue. I think it has to do with the Voxels
-    void fallUnthreaded() {
+    void fallUnthreaded() throws IOException {
 
         long startTime = System.nanoTime();
 
@@ -479,6 +530,11 @@ public class Simulation extends Box {
 
         System.out.println("Time to fall: " + timeDiff / 1e9);
 
+        //print out gel:
+        FileWriter gelWriter = new FileWriter("test_gel_with_tumorGel.csv");
+        for(Gel gel: gels) {
+            gelWriter.append(String.format("%f,%f,%f,%f,\n", gel.x, gel.y, gel.z, gel.R));
+        }
     }
 
     private void checkTumors() {
@@ -493,7 +549,6 @@ public class Simulation extends Box {
                 if(this.getTumoroids().get(i).getR() < 12.0) {
                 	//TODO: Make growth rate variable
                     this.getTumoroids().get(i).setR(this.getTumoroids().get(i).getR() + 0.00015);
-                    this.getTumoroids().get(i).move();
                 }
                 else {
                     this.getTumoroids().get(i).setR(6.0);
@@ -501,9 +556,11 @@ public class Simulation extends Box {
                     double y = this.getTumoroids().get(i).getY();
                     double z = this.getTumoroids().get(i).getZ();
                     this.addTumor(x, y, z, 6.0, this.getNumTumor());
-                    this.getTumoroids().get(i).move();
+
                 }
+
             }
+            this.getTumoroids().get(i).updateCollision();
         }
     }
 
@@ -555,11 +612,11 @@ public class Simulation extends Box {
                     double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                     thisline = builder2.readLine();
                     int comma = thisline.indexOf(',');
-                    double x = Double.parseDouble(thisline.substring(0, comma)) - 50;
+                    double x = Double.parseDouble(thisline.substring(0, comma));
                     int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
-                    double y = Double.parseDouble(thisline.substring(comma + 1, comma2)) - 50;
+                    double y = Double.parseDouble(thisline.substring(comma + 1, comma2));
                     comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
-                    double z = Double.parseDouble(thisline.substring(comma2 + 1, comma)) - 50;
+                    double z = Double.parseDouble(thisline.substring(comma2 + 1, comma));
                     double R = randomRadius;
 
                     if(i == 0) {
@@ -842,7 +899,7 @@ public class Simulation extends Box {
 
     		//addTCellsFromList(spaces);
 
-    		addTCells();
+
 
             int numTumor = 559;
 
@@ -864,11 +921,11 @@ public class Simulation extends Box {
                         double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                         thisline = builder2.readLine();
                         int comma = thisline.indexOf(',');
-                        double x = (tumorGel.getX() - sideLength / 2) + Double.parseDouble(thisline.substring(0, comma)) - 50;
+                        double x = (tumorGel.getX() - sideLength / 2) + Double.parseDouble(thisline.substring(0, comma)) - (tumorGel.getR() / 2);
                         int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
-                        double y = (tumorGel.getY() - sideLength / 2) + Double.parseDouble(thisline.substring(comma + 1, comma2)) - 50;
+                        double y = (tumorGel.getY() - sideLength / 2) + Double.parseDouble(thisline.substring(comma + 1, comma2)) - (tumorGel.getR() / 2);
                         comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
-                        double z = (tumorGel.getZ() - sideLength / 2) + Double.parseDouble(thisline.substring(comma2 + 1, comma)) - 50;
+                        double z = (tumorGel.getZ() - sideLength / 2) + Double.parseDouble(thisline.substring(comma2 + 1, comma)) - (tumorGel.getR() / 2);
                         double R = randomRadius;
                         this.addTumor(x, y, z, R, i);
                     }
@@ -882,6 +939,8 @@ public class Simulation extends Box {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            addTCells();
 
             boolean breadcrumbs = false;
 
@@ -956,7 +1015,7 @@ public class Simulation extends Box {
 
                     if(tumor) {
                 		tumorGarbageCollector();
-                        tumorGrow();
+                		tumorGrow();
                         checkTumors();
                 	}
 
