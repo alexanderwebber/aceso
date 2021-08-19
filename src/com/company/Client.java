@@ -601,18 +601,18 @@ class SimulationViewPanel extends JPanel {
         FillRandomButton() {
             super("Fill Random");
             addActionListener(actionEvent -> {
-//                panel.S.fillUnthreaded();
-//                try {
-//                    panel.S.fallUnthreaded();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
+                panel.S.fillUnthreaded();
                 try {
-                    panel.S.fillGelsByCSV();
+                    panel.S.fallUnthreaded();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+//                try {
+//                    panel.S.fillGelsByCSV();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
 
             });
         }

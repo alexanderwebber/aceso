@@ -239,25 +239,24 @@ public class TCell extends Particle implements Drawable {
                         continue;
                     }
 
-                    if(S.getTumoroids().get(i).getStatus().equals("dead")) {
+                    if(S.getTumoroids().get(i).getStatus().equals("dead") || S.getTumoroids().get(i).getStatus().equals("being_attacked")) {
                         continue;
                     }
 
-                    double radius_sum_squared = Math.pow((this.getR()) + S.getTumoroids().get(i).getR(), 2);
+                    double radiusSum = this.getR() + S.getTumoroids().get(i).getR();
 
                     double distanceX = Math.abs(S.getTumoroids().get(i).getX() - this.getX());
                     double distanceY = Math.abs(S.getTumoroids().get(i).getY() - this.getY());
                     double distanceZ = Math.abs(S.getTumoroids().get(i).getZ() - this.getZ());
 
-                    double distanceVector = Math.pow(distanceX, 2) + Math.pow(distanceY, 2) + Math.pow(distanceZ, 2);
+                    double distanceToTumorCenterX = Math.abs(S.tumorGel.getX() - this.getX());
+                    double distanceToTumorCenterY = Math.abs(S.tumorGel.getY() - this.getY());
+                    double distanceToTumorCenterZ = Math.abs(S.tumorGel.getZ() - this.getZ());
 
-                    if(distanceVector < 500) {
-                        incrementLifeTime();
-                        lifeIncremented = true;
-                        System.out.println(lifeTime);
-                    }
+                    double distanceToTumorCell = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ));
+                    double distanceVector = Math.sqrt((distanceToTumorCenterX * distanceToTumorCenterX) + (distanceToTumorCenterY * distanceToTumorCenterY) + (distanceToTumorCenterZ * distanceToTumorCenterZ));
 
-                    if(distanceVector < radius_sum_squared) {
+                    if(distanceToTumorCell - radiusSum < 0) {
                         this.velocity = 0.0;
                         setActivated(false);
                         setIsAttacking(true);
@@ -265,8 +264,12 @@ public class TCell extends Particle implements Drawable {
                         S.getTumoroids().get(i).setStatus("being_attacked");
                         numKills++;
                     }
-                }
 
+                    if(distanceVector < 250 && lifeIncremented == false) {
+                        incrementLifeTime();
+                        lifeIncremented = true;
+                    }
+                }
             }
         }
 

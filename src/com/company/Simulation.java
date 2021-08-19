@@ -566,7 +566,7 @@ public class Simulation extends Box {
 
     void tCellProliferate() {
         for(int i = 0; i < this.numTCells; i++) {
-            if(this.tCells[i].getLifeTime() < 3) {
+            if(this.tCells[i].getLifeTime() < 1080) {
                     continue;
             }
 
@@ -672,7 +672,7 @@ public class Simulation extends Box {
             e.printStackTrace();
         }
 
-        return radius;
+        return radius + 12;
     }
 
     public void tumorGarbageCollector() {
@@ -937,11 +937,11 @@ public class Simulation extends Box {
                         double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
                         thisline = builder2.readLine();
                         int comma = thisline.indexOf(',');
-                        double x = (tumorGel.getX() - sideLength / 2) + Double.parseDouble(thisline.substring(0, comma)) - (tumorGel.getR() / 2);
+                        double x = (tumorGel.getX() - 500) + Double.parseDouble(thisline.substring(0, comma));
                         int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
-                        double y = (tumorGel.getY() - sideLength / 2) + Double.parseDouble(thisline.substring(comma + 1, comma2)) - (tumorGel.getR() / 2);
+                        double y = (tumorGel.getY() - 500) + Double.parseDouble(thisline.substring(comma + 1, comma2));
                         comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
-                        double z = (tumorGel.getZ() - sideLength / 2) + Double.parseDouble(thisline.substring(comma2 + 1, comma)) - (tumorGel.getR() / 2);
+                        double z = (tumorGel.getZ() - 500) + Double.parseDouble(thisline.substring(comma2 + 1, comma));
                         double R = randomRadius;
                         this.addTumor(x, y, z, R, i);
                     }
@@ -1326,7 +1326,7 @@ public class Simulation extends Box {
         long spaceTime = System.nanoTime();
 
         while (numParticles < getNumTCells()) {
-            addTCell(idNum);
+            addTCellsNearTumor(idNum);
 
             idNum++;
         }
@@ -1364,6 +1364,27 @@ public class Simulation extends Box {
         double x = R + rand.nextDouble() * (sideLength - 2 * R);
         double y = R + rand.nextDouble() * (sideLength - 2 * R);
         double z = R + rand.nextDouble() * (sideLength - 2 * R);
+
+        // Change this to creating class after checking for collision
+
+
+        if (checkGelCollision(x, y, z, R, this) == false) {
+            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal);
+            vox.add(c);
+            tCells[numParticles++] = c;
+            sum_sphere_volume += c.volume();
+            //System.out.println(c.getIdNum());
+        }
+    }
+
+    void addTCellsNearTumor(int idNum) {
+        double R = 8;
+
+        //TODO: Change back to global positioning
+
+        double x = (tumorGel.getX() - 250) + rand.nextDouble() * 500;
+        double y = (tumorGel.getY() - 250) + rand.nextDouble() * 500;
+        double z = (tumorGel.getZ() - 250) + rand.nextDouble() * 500;
 
         // Change this to creating class after checking for collision
 

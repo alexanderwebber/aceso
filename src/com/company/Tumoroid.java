@@ -10,13 +10,10 @@ public class Tumoroid extends Particle implements Drawable {
 
     //gel object variables
     double R, x, y, z;
-    double volume = (4.0 / 3) * Math.PI * (Math.pow(R, 3));
+    double volume;
     private int idNum;
     private int numNeighbors;
-
-    private double dt = 0.01;
     private ArrayList<Double> imageParticle = new ArrayList<>();
-    private double[] forceArray = {0, 0, 0};
 
     // Alive, being killed, dead, delete
     String status;
@@ -38,7 +35,6 @@ public class Tumoroid extends Particle implements Drawable {
         timeSinceDead = 0;
 
         volume = (4.0  / 3) * Math.PI * (Math.pow(R, 3));
-
 
     }
 

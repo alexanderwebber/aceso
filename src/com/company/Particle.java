@@ -365,29 +365,29 @@ public class Particle {
 
                 //x bound
                 //if other particle big x you small x bring their x here
-                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-                    dx -= S.sideLength;
-                }
-                //if you big x other particle small x move x there to check
-                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-                    dx += S.sideLength;
-                }
-                
-                //y bound
-                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-                    dy -= S.sideLength;
-                }
-                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-                    dy += S.sideLength;
-                }
-                
-                //z bound
-                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-                    dz -= S.sideLength;
-                }
-                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-                    dz += S.sideLength;
-                }
+//                if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+//                    dx -= S.sideLength;
+//                }
+//                //if you big x other particle small x move x there to check
+//                else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+//                    dx += S.sideLength;
+//                }
+//
+//                //y bound
+//                if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+//                    dy -= S.sideLength;
+//                }
+//                else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+//                    dy += S.sideLength;
+//                }
+//
+//                //z bound
+//                if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+//                    dz -= S.sideLength;
+//                }
+//                else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+//                    dz += S.sideLength;
+//                }
 
                 if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {
                     Vector diff = new Vector(dx, dy, dz);
@@ -430,45 +430,42 @@ public class Particle {
 //                    dy = dy - S.side_length * roundAwayFromZero(dy / S.side_length);
 //                    dz = dz - S.side_length * roundAwayFromZero(dz / S.side_length);
                  
-                //if you big x other particle small x move x there to check
-				if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
-				    dx -= S.sideLength;
-				}
-				else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
-				    dx += S.sideLength;
-				}
-				  
-				//y bound
-				if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
-				    dy -= S.sideLength;
-				}
-				else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
-				    dy += S.sideLength;
-				}
-				  
-				  //z bound
-				if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
-				    dz -= S.sideLength;
-				}
-				else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
-				    dz += S.sideLength;
-				}
-				                    
-				if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
-				    Vector diff = new Vector(dx, dy, dz);
-				    double d = diff.magnitude() - radiusSum;
-				    if (d < 0) { //overlap
-				        v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
-				        //other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
-				        overlappedCounter++;
-				        overlaps.add(diff.magnitude() / radiusSum);
-				
-				    }
-				
-				}
+                    //if you big x other particle small x move x there to check
+                    if (voxel.x == S.vox.voxels_per_side - 1 && other.voxel.x == 0) {
+                        dx -= S.sideLength;
+                    }
+                    else if (voxel.x == 0 && other.voxel.x == S.vox.voxels_per_side - 1) {
+                        dx += S.sideLength;
+                    }
 
-                else {
-                }
+                    //y bound
+                    if (voxel.y == S.vox.voxels_per_side - 1 && other.voxel.y == 0) {
+                        dy -= S.sideLength;
+                    }
+                    else if (voxel.y == 0 && other.voxel.y == S.vox.voxels_per_side - 1) {
+                        dy += S.sideLength;
+                    }
+
+                      //z bound
+                    if (voxel.z == S.vox.voxels_per_side - 1 && other.voxel.z == 0) {
+                        dz -= S.sideLength;
+                    }
+                    else if (voxel.z == 0 && other.voxel.z == S.vox.voxels_per_side - 1) {
+                        dz += S.sideLength;
+                    }
+
+                    if (Math.abs(dx) < radiusSum && Math.abs(dy) < radiusSum && Math.abs(dz) < radiusSum) {//check box
+                        Vector diff = new Vector(dx, dy, dz);
+                        double d = diff.magnitude() - radiusSum;
+                        if (d < 0) { //overlap
+                            v = v.add(diff.unitVector().scale(-d * other.R / radiusSum));
+                            other.v = other.v.add(diff.unitVector().scale(d * R / radiusSum));
+                            overlappedCounter++;
+                            overlaps.add(diff.magnitude() / radiusSum);
+
+                        }
+
+                    }
 
                 }
             }
@@ -480,7 +477,7 @@ public class Particle {
         }
 
 
-        if(imImage != true) {
+        if(imImage == false) {
             move();
         }
 
