@@ -139,7 +139,6 @@ public class Simulation extends Box {
 
             // Scale down average radius and std dev
             double sideLengthByNumGels = Math.cbrt((1000.0 * ((4.0 / 3.0) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / volume_ratio);
-            System.out.println(sideLengthByNumGels);
             setSideLength(sideLengthByNumGels);
             setVolume(sideLength * sideLength * sideLength);
 
@@ -291,7 +290,6 @@ public class Simulation extends Box {
 
 	        }
 	        //settle();
-	        System.out.println(sideLength);
 	    });
 	    fillLattice.start();
 	}
@@ -431,7 +429,6 @@ public class Simulation extends Box {
 
         // Scale down average radius and std dev
         double sideLengthByNumGels = Math.cbrt((1000.0 * ((4.0 / 3.0) * (rAverageRadius * rAverageRadius * rAverageRadius) * Math.PI)) / volume_ratio);
-        System.out.println(sideLengthByNumGels);
         setSideLength(sideLengthByNumGels);
         setVolume(sideLength * sideLength * sideLength);
 
@@ -485,15 +482,11 @@ public class Simulation extends Box {
 //                e.printStackTrace();
 //            }
 
-        System.out.println(sideLength);
-        System.out.println(volume);
-
         double endTime = System.nanoTime();
 
         double timeDiff = endTime - startTime;
 
         System.out.println("Time to fill: " + timeDiff / 1e9);
-
 
     }
 
@@ -978,7 +971,7 @@ public class Simulation extends Box {
 
             try {
 
-                FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_LLSwAvg" + calculateWeightedAvgRadius() + "_LLSdispersion" + outputRangeOverAverageR() + "_logNormal.csv");
+                //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_LLSwAvg" + calculateWeightedAvgRadius() + "_LLSdispersion" + outputRangeOverAverageR() + "_logNormal.csv");
 
 
             	//FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
@@ -1024,7 +1017,7 @@ public class Simulation extends Box {
 
                         if((int)sim_time % stepReduction == 0) {
                             //xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
-                            cellWriter.append(String.format("%f,%f,%f,", this.tCells[i].x, this.tCells[i].y, this.tCells[i].z));
+                            //cellWriter.append(String.format("%f,%f,%f,", this.tCells[i].x, this.tCells[i].y, this.tCells[i].z));
                         }
 
                     }
@@ -1057,7 +1050,7 @@ public class Simulation extends Box {
 
                     if((int)sim_time % stepReduction == 0) {
                         //xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
-                        cellWriter.append(String.format("\n"));
+                        //cellWriter.append(String.format("\n"));
                     }
 
                     t += dt;
@@ -1066,11 +1059,11 @@ public class Simulation extends Box {
                     sim_time++;
                 }
 
-                FileWriter avgWriter = new FileWriter(msdFileName);
-                avgWriter.append(String.format("%s,%s\n", "time","msd"));
+                //FileWriter avgWriter = new FileWriter(msdFileName);
+                //avgWriter.append(String.format("%s,%s\n", "time","msd"));
 
                 for(int i = 0; i < msdArray[1].length; i++) {
-                	avgWriter.append(String.format("%.3f,%.5f\n", msdArray[0][i], msdArray[1][i]));
+                	//avgWriter.append(String.format("%.3f,%.5f\n", msdArray[0][i], msdArray[1][i]));
 
                 }
 
@@ -1082,8 +1075,8 @@ public class Simulation extends Box {
 				 * for(int i = 0; i < numTCells; i++) { tcells[i].outputXYZCSV(); }
 				 */
 
-                cellWriter.flush();
-                avgWriter.flush();
+                //cellWriter.flush();
+                //avgWriter.flush();
                 //residenceWriter.flush();
                 //breadcrumbWriter.flush();
                 //breadcrumbWriterNoPBC.flush();
@@ -1097,8 +1090,8 @@ public class Simulation extends Box {
                 System.out.println("range / mu(r) = " + (returnGelRange() / calculateAvgRadius()));
                 System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
 
-                avgWriter.close();
-                cellWriter.close();
+                //avgWriter.close();
+                //cellWriter.close();
                 //breadcrumbWriter.close();
                 //breadcrumbWriterNoPBC.close();
                 //xyzWriter.close();

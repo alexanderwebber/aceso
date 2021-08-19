@@ -255,8 +255,6 @@ public class TCell extends Particle implements Drawable {
 
                     if(distanceVector < 250 && lifeIncremented == false) {
                         incrementLifeTime();
-                        System.out.println(lifeTime);
-                        System.out.println(S.sim_time);
                         lifeIncremented = true;
                     }
                 }

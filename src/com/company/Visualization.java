@@ -33,29 +33,33 @@ class Visualization extends JPanel {
     Visualization(Simulation S) {
         this.S = S;
         setSize(1500, 1500);
+        setLayout(new GridBagLayout());
         addKeyListener(k);
         addMouseListener(o);
         addMouseMotionListener(o);
         addMouseWheelListener(o);
         addMouseWheelListener(sl);
+
         gc.gridx = 0;
         gc.gridy = 0;
+        gc.weightx = 1;
+        gc.weighty = 1;
         gc.anchor = GridBagConstraints.NORTHWEST;
         gc.insets = new Insets(2, 0, 0, 2);
-        this.add(timeLabel, gc);
+
+        add(timeLabel, gc);
 
     }
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        String timeValue = String.format("%.1f", S.sim_time * (20.0 / 3600.0));
+        String timeValue = String.format("%.1f", (S.sim_time * (20.0 / 3600.0)));
 
-
-        timeLabel.setText(timeValue + "h");
-        timeLabel.setFont(new Font("Serif", Font.BOLD, 28));
-        timeLabel.setForeground(Color.WHITE);
-
-
+        if(S.sim_time * (20.0 / 3600.0) % 0.5 == 0) {
+            timeLabel.setText("    " + timeValue + "h");
+            timeLabel.setFont(new Font("Serif", Font.BOLD, 28));
+            timeLabel.setForeground(Color.WHITE);
+        }
 
         g.setColor(Color.black);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());

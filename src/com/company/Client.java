@@ -22,8 +22,10 @@ class Client extends JFrame implements Runnable {
         panel = new Visualization(S);
 
         this.setLayout(new BorderLayout());
+
         getContentPane().add(new SimulationViewPanel(panel), BorderLayout.NORTH);
         getContentPane().add(panel, BorderLayout.CENTER);
+
         //getContentPane().add(new FillSettingsNonViz(S));
         //getContentPane().add(new ACESO_label(), BorderLayout.BEFORE_FIRST_LINE);
 
