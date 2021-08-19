@@ -506,7 +506,6 @@ public class Particle {
 
         voxel = getVoxel();
         in_voxels = getVoxels();
-        nearby = getNearby();
         S.vox.add(this);
 
     }

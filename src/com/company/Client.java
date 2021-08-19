@@ -465,6 +465,7 @@ class SimulationViewPanel extends JPanel {
 
             add(new NumGelsLabel());
             add(new NumTCellsLabel());
+            add(new NumTumorCellsLabel());
             add(new Volumepercentage());
             add(new TimeStepPanel());
             add(new GelAvgSizeLabel());
@@ -511,6 +512,20 @@ class SimulationViewPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 setText("Number of T-Cells: " + panel.S.numParticles);
+            }
+        }
+
+        class NumTumorCellsLabel extends JLabel {
+            NumTumorCellsLabel() {
+                super();
+                setOpaque(false);
+                setForeground(Color.white);
+                setText("Number of Tumor Cells: " + panel.S.getNumTumor());
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setText("Number of Tumor Cells: " + panel.S.getNumTumor());
             }
         }
 

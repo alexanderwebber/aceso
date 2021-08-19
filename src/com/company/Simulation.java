@@ -58,7 +58,7 @@ public class Simulation extends Box {
     ArrayList<Particle> imageParticles = new ArrayList<>();
     ArrayList<Double> densityValues = new ArrayList<>();
     int numParticles = 0;
-    double numTCells = 100;
+    double numTCells = 150;
     double averageDisplacementPanel;
 
     boolean tumor = true;
@@ -70,8 +70,6 @@ public class Simulation extends Box {
     Thread fillLattice = new Thread();
     Thread fallThread = new Thread();
     Thread tCellThread = new Thread();
-    Thread fillHexThread = new Thread();
-    Thread fillFCCThread = new Thread();
 
     // Residence data stuff
     int timeLimitTCells = 1000000;
@@ -1385,6 +1383,13 @@ public class Simulation extends Box {
         double x = (tumorGel.getX() - 250) + rand.nextDouble() * 500;
         double y = (tumorGel.getY() - 250) + rand.nextDouble() * 500;
         double z = (tumorGel.getZ() - 250) + rand.nextDouble() * 500;
+
+        if(numParticles < 75) {
+            x = (tumorGel.getX() - 50) + rand.nextDouble() * 100;
+            y = (tumorGel.getY() - 50) + rand.nextDouble() * 100;
+            z = (tumorGel.getZ() - 50) + rand.nextDouble() * 100;
+        }
+
 
         // Change this to creating class after checking for collision
 
