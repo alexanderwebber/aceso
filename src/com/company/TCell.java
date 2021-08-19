@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class TCell extends Particle implements Drawable {
     Simulation S;
-    private boolean isActivated;
+    private boolean isActivated = true;
 
     private int idNum;
 
@@ -193,18 +193,6 @@ public class TCell extends Particle implements Drawable {
         else {
             move();
         }
-        
-
-        
-
-        if(isAttacking == false) {
-        	
-        }
-
-        //double[] tempArray = {this.getX(), this.getY(), this.getZ()};
-        //xyzOutput.add(tempArray);
-
-
 
         if(numKills < 20) {
             if(this.lastTimeKilled >= 360) {
@@ -267,6 +255,8 @@ public class TCell extends Particle implements Drawable {
 
                     if(distanceVector < 250 && lifeIncremented == false) {
                         incrementLifeTime();
+                        System.out.println(lifeTime);
+                        System.out.println(S.sim_time);
                         lifeIncremented = true;
                     }
                 }

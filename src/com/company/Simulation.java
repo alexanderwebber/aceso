@@ -72,7 +72,7 @@ public class Simulation extends Box {
     Thread tCellThread = new Thread();
 
     // Residence data stuff
-    int timeLimitTCells = 1000000;
+    int timeLimitTCells = 3600;
     static ArrayList<int[]> startValues = new ArrayList<>();
 
     ArrayList<Double> sliceDensityYZ = new ArrayList<>();
@@ -570,10 +570,12 @@ public class Simulation extends Box {
 
             else {
                 this.tCells[i].setLifeTime(0);
+
                 double x = this.tCells[i].getX();
                 double y = this.tCells[i].getY();
                 double z = this.tCells[i].getZ();
                 double R = 8.0;
+
                 this.addTCell(x, y, z, R);
             }
         }
