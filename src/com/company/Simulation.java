@@ -1,7 +1,5 @@
 package com.company;
 
-import com.sun.org.apache.bcel.internal.classfile.LineNumber;
-import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.LogNormalDistribution;
 import java.io.*;
 import java.math.BigDecimal;
@@ -54,6 +52,8 @@ public class Simulation extends Box {
     Vector[] movements = new Vector[1000000];
     ArrayList<Gel> gels = new ArrayList<>();
     int numGels = 0;
+    int numTumorInCSV = 559;
+    int numTumor = 0;
     TCell[] tCells = new TCell[1000000];
     ArrayList<Particle> imageParticles = new ArrayList<>();
     ArrayList<Double> densityValues = new ArrayList<>();
@@ -70,9 +70,10 @@ public class Simulation extends Box {
     Thread fillLattice = new Thread();
     Thread fallThread = new Thread();
     Thread tCellThread = new Thread();
+    Thread tumorThread = new Thread();
 
     // Residence data stuff
-    int timeLimitTCells = 3600;
+    int simulationTimeLimit = 3600;
     static ArrayList<int[]> startValues = new ArrayList<>();
 
     ArrayList<Double> sliceDensityYZ = new ArrayList<>();
@@ -894,6 +895,82 @@ public class Simulation extends Box {
         return roundedNumber;
     }
 
+    void buildTumorFromCSV() {
+
+        BufferedReader builder2;
+        try {
+            builder2 = new BufferedReader(new FileReader("tumor.csv"));
+
+            String thisline;
+            Random r = new Random();
+
+            // Add tumor replacement gel
+            if(tumor) {
+                /*
+                 * Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2,
+                 * 2.0, this, "TumorGel"); addGel(tumorGel);
+                 */
+
+                for (int i = 0; i < numTumorInCSV; i++) {
+                    double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
+                    thisline = builder2.readLine();
+                    int comma = thisline.indexOf(',');
+                    double x = (tumorGel.getX() - 500) + Double.parseDouble(thisline.substring(0, comma));
+                    int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
+                    double y = (tumorGel.getY() - 500) + Double.parseDouble(thisline.substring(comma + 1, comma2));
+                    comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
+                    double z = (tumorGel.getZ() - 500) + Double.parseDouble(thisline.substring(comma2 + 1, comma));
+                    double R = randomRadius;
+                    this.addTumor(x, y, z, R, i);
+                }
+
+                vox.remove(tumorGel);
+                gels.remove(tumorGel);
+                numGels--;
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    void runTumor() {
+        tumorThread = new Thread(() -> {
+            buildTumorFromCSV();
+
+            int[] numTumorCellsVsTime = new int[simulationTimeLimit];
+
+            while (sim_time < simulationTimeLimit) {
+                tumorGarbageCollector();
+                tumorGrow();
+                checkTumors();
+
+                numTumorCellsVsTime[(int)sim_time] = numTumor;
+
+                sim_time++;
+            }
+
+            numTumorVsTimeToCSV(numTumorCellsVsTime);
+
+        });
+
+        tumorThread.start();
+    }
+
+    void numTumorVsTimeToCSV(int[] numTumorCellsVsTime) {
+        try {
+            FileWriter residenceWriter = new FileWriter("tumorGrowthVsTime.csv");
+
+            for(int i = 0; i < numTumorCellsVsTime.length; i++) {
+                residenceWriter.append(String.format("%d\n", numTumorCellsVsTime[i]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     void runTCells() {
         tCellThread = new Thread(() -> {
         	vox = new BoxVoxels(this);
@@ -908,46 +985,7 @@ public class Simulation extends Box {
 
     		//addTCellsFromList(spaces);
 
-
-
-            int numTumor = 559;
-
-            BufferedReader builder2;
-            try {
-                builder2 = new BufferedReader(new FileReader("tumor.csv"));
-
-                String thisline;
-                Random r = new Random();
-
-                // Add tumor replacement gel
-                if(tumor) {
-                    /*
-                     * Gel tumorGel = new Gel(side_length / 2, side_length / 2, side_length / 2,
-                     * 2.0, this, "TumorGel"); addGel(tumorGel);
-                     */
-
-                    for (int i = 0; i < numTumor; i++) {
-                        double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
-                        thisline = builder2.readLine();
-                        int comma = thisline.indexOf(',');
-                        double x = (tumorGel.getX() - 500) + Double.parseDouble(thisline.substring(0, comma));
-                        int comma2 = comma + 1 + thisline.substring(comma + 1).indexOf(',');
-                        double y = (tumorGel.getY() - 500) + Double.parseDouble(thisline.substring(comma + 1, comma2));
-                        comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
-                        double z = (tumorGel.getZ() - 500) + Double.parseDouble(thisline.substring(comma2 + 1, comma));
-                        double R = randomRadius;
-                        this.addTumor(x, y, z, R, i);
-                    }
-
-                    vox.remove(tumorGel);
-                    gels.remove(tumorGel);
-                    numGels--;
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            buildTumorFromCSV();
 
             addTCells();
 
@@ -967,7 +1005,7 @@ public class Simulation extends Box {
 
             int stepReduction = 10;
 
-            double[][] msdArray = new double[2][timeLimitTCells / stepReduction];
+            double[][] msdArray = new double[2][simulationTimeLimit / stepReduction];
 
             try {
 
@@ -996,7 +1034,7 @@ public class Simulation extends Box {
 
                 int intTimer = 0;
 
-                while (sim_time < timeLimitTCells) {
+                while (sim_time < simulationTimeLimit) {
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
                 	averageDisplacement = 0.0;
@@ -1021,6 +1059,7 @@ public class Simulation extends Box {
                         }
 
                     }
+
 
                     if(tumor) {
                 		tumorGarbageCollector();
@@ -1149,7 +1188,7 @@ public class Simulation extends Box {
 
             double averageDisplacement;
 
-            double[][] msdArray = new double[2][timeLimitTCells/stepReduction];
+            double[][] msdArray = new double[2][simulationTimeLimit /stepReduction];
 
             try {
 
@@ -1178,7 +1217,7 @@ public class Simulation extends Box {
 
                 int intTimer = 0;
 
-                while (sim_time < timeLimitTCells) {
+                while (sim_time < simulationTimeLimit) {
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
                 	averageDisplacement = 0.0;
@@ -1310,6 +1349,8 @@ public class Simulation extends Box {
         Tumoroid tumoroid = new Tumoroid(x, y , z, R, idNum, this);
         vox.add(tumoroid);
         tumoroids.add(tumoroid);
+        numTumorInCSV++;
+        numTumor++;
 
     }
 
@@ -1439,6 +1480,8 @@ public class Simulation extends Box {
         //System.out.println(c.getIdNum());
 
     }
+
+
 
     void reset() {
         numGels = 0;

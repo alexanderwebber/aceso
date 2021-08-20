@@ -100,11 +100,12 @@ class SimulationViewPanel extends JPanel {
 
     class StartButtonsPanel extends JPanel {
         StartButtonsPanel() {
-            setLayout(new GridLayout(3, 1));
+            setLayout(new GridLayout(4, 1));
             add(new FillRandomButton());
             add(new FillFCCButton());
             //add(new FallButton());
             add(new RunTCellsButton());
+            add(new RunTumorButton());
 
         }
 
@@ -315,8 +316,8 @@ class SimulationViewPanel extends JPanel {
 
 
                 //time_limit spinner
-                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.timeLimitTCells, 0, 1000000000, 1000));
-                limit_spinner.addChangeListener(ChangeEvent -> panel.S.timeLimitTCells = (int) limit_spinner.getValue());
+                limit_spinner = new JSpinner(new SpinnerNumberModel(panel.S.simulationTimeLimit, 0, 1000000000, 1000));
+                limit_spinner.addChangeListener(ChangeEvent -> panel.S.simulationTimeLimit = (int) limit_spinner.getValue());
                 limit_spinner.setPreferredSize(new Dimension(100, 20));
                 time_panel.add(limit_spinner);
 
@@ -667,6 +668,27 @@ class SimulationViewPanel extends JPanel {
             }
             else {
                 setText("Run T Cells");
+            }
+        }
+    }
+
+    class RunTumorButton extends JButton {
+        RunTumorButton() {
+            super("Run Tumor");
+            addActionListener(actionEvent -> {
+                panel.S.runTumor();
+            });
+
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if(panel.S.tumorThread.isAlive()) {
+                setText("Running Tumor");
+            }
+            else {
+                setText("Run Tumor");
             }
         }
     }
