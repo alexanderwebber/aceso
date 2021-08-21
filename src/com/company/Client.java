@@ -676,7 +676,7 @@ class SimulationViewPanel extends JPanel {
         RunTumorButton() {
             super("Run Tumor");
             addActionListener(actionEvent -> {
-                panel.S.runTumor();
+                panel.S.runTumorThread();
             });
 
         }

@@ -537,10 +537,10 @@ public class Simulation extends Box {
 
     void tumorGrow() {
         for(int i = 0; i < this.getNumTumor(); i++) {
-            if((!this.getTumoroids().get(i).getStatus().equals("dead") || !this.getTumoroids().get(i).getStatus().equals("being_attacked")) || this.getTumoroids().get(i).getNumNeighbors() > 4){
+            if(this.getTumoroids().get(i).getStatus().equals("alive")) {
                 if(this.getTumoroids().get(i).getR() < 12.0) {
                 	//TODO: Make growth rate variable
-                    this.getTumoroids().get(i).setR(this.getTumoroids().get(i).getR() + 0.00015);
+                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + 0.0001543;
                 }
                 else {
                     this.getTumoroids().get(i).setR(6.0);
@@ -912,7 +912,7 @@ public class Simulation extends Box {
                  */
 
                 for (int i = 0; i < numTumorInCSV; i++) {
-                    double randomRadius = 6.0 + (11.9 - 6.0) * r.nextDouble();
+                    double R = 6.0 + (11.9 - 6.0) * r.nextDouble();
                     thisline = builder2.readLine();
                     int comma = thisline.indexOf(',');
                     double x = (tumorGel.getX() - 500) + Double.parseDouble(thisline.substring(0, comma));
@@ -920,7 +920,6 @@ public class Simulation extends Box {
                     double y = (tumorGel.getY() - 500) + Double.parseDouble(thisline.substring(comma + 1, comma2));
                     comma = comma2 + 1 + thisline.substring(comma2 + 1).indexOf(',');
                     double z = (tumorGel.getZ() - 500) + Double.parseDouble(thisline.substring(comma2 + 1, comma));
-                    double R = randomRadius;
                     this.addTumor(x, y, z, R, i);
                 }
 
@@ -936,23 +935,26 @@ public class Simulation extends Box {
     }
 
     void runTumor() {
+        buildTumorFromCSV();
+
+        int[] numTumorCellsVsTime = new int[simulationTimeLimit];
+
+        while (sim_time < simulationTimeLimit) {
+            tumorGarbageCollector();
+            tumorGrow();
+            checkTumors();
+
+            numTumorCellsVsTime[(int)sim_time] = numTumor;
+
+            sim_time++;
+        }
+
+        numTumorVsTimeToCSV(numTumorCellsVsTime);
+    }
+
+    void runTumorThread() {
         tumorThread = new Thread(() -> {
-            buildTumorFromCSV();
-
-            int[] numTumorCellsVsTime = new int[simulationTimeLimit];
-
-            while (sim_time < simulationTimeLimit) {
-                tumorGarbageCollector();
-                tumorGrow();
-                checkTumors();
-
-                numTumorCellsVsTime[(int)sim_time] = numTumor;
-
-                sim_time++;
-            }
-
-            numTumorVsTimeToCSV(numTumorCellsVsTime);
-
+            runTumor();
         });
 
         tumorThread.start();
@@ -960,15 +962,16 @@ public class Simulation extends Box {
 
     void numTumorVsTimeToCSV(int[] numTumorCellsVsTime) {
         try {
-            FileWriter residenceWriter = new FileWriter("tumorGrowthVsTime.csv");
+            FileWriter tumorCellsVsTimeWriter = new FileWriter("tumorGrowthVsTime.csv");
 
-            for(int i = 0; i < numTumorCellsVsTime.length; i++) {
-                residenceWriter.append(String.format("%d\n", numTumorCellsVsTime[i]));
+            for(int i = 0; i < simulationTimeLimit; i++) {
+                tumorCellsVsTimeWriter.append(numTumorCellsVsTime[i] + "\n");
             }
+
+            tumorCellsVsTimeWriter.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     void runTCells() {
@@ -1044,22 +1047,13 @@ public class Simulation extends Box {
                     for (int i = 0; i < numParticles; i++) {
                     	tCells[i].cellMove();
 
-                    	//xTotal += Math.abs(this.tcells[i].velocityX);
-                    	//yTotal += Math.abs(this.tcells[i].velocityY);
-                    	//zTotal += Math.abs(this.tcells[i].velocityZ);
-
-                        //breadcrumbWriter.append(String.format("%f,%f,%f,", this.tcells[i].x, this.tcells[i].y, this.tcells[i].z));
-                        //breadcrumbWriterNoPBC.append(String.format("%f,%f,%f,", this.tcells[i].xPrime, this.tcells[i].yPrime, this.tcells[i].zPrime));
-
                         averageDisplacement += this.tCells[i].displacement() * this.tCells[i].displacement();
 
                         if((int)sim_time % stepReduction == 0) {
                             //xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
                             //cellWriter.append(String.format("%f,%f,%f,", this.tCells[i].x, this.tCells[i].y, this.tCells[i].z));
                         }
-
                     }
-
 
                     if(tumor) {
                 		tumorGarbageCollector();
@@ -1349,7 +1343,6 @@ public class Simulation extends Box {
         Tumoroid tumoroid = new Tumoroid(x, y , z, R, idNum, this);
         vox.add(tumoroid);
         tumoroids.add(tumoroid);
-        numTumorInCSV++;
         numTumor++;
 
     }
