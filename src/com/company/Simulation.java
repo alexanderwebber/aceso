@@ -540,7 +540,7 @@ public class Simulation extends Box {
             if(this.getTumoroids().get(i).getStatus().equals("alive")) {
                 if(this.getTumoroids().get(i).getR() < 12.0) {
                 	//TODO: Make growth rate variable
-                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + 0.0001543;
+                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + 0.0009259;
                 }
                 else {
                     this.getTumoroids().get(i).setR(6.0);
@@ -964,8 +964,8 @@ public class Simulation extends Box {
         try {
             FileWriter tumorCellsVsTimeWriter = new FileWriter("tumorGrowthVsTime.csv");
 
-            for(int i = 0; i < simulationTimeLimit; i++) {
-                tumorCellsVsTimeWriter.append(numTumorCellsVsTime[i] + "\n");
+            for(int i = 0; i < numTumorCellsVsTime.length; i++) {
+                tumorCellsVsTimeWriter.append(String.format("%.1f,%d\n",numTumorCellsVsTime[i]);
             }
 
             tumorCellsVsTimeWriter.flush();
@@ -1037,6 +1037,8 @@ public class Simulation extends Box {
 
                 int intTimer = 0;
 
+                int[] numTumorCellsVsTime = new int[simulationTimeLimit];
+
                 while (sim_time < simulationTimeLimit) {
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
@@ -1056,6 +1058,8 @@ public class Simulation extends Box {
                     }
 
                     if(tumor) {
+                        numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
+
                 		tumorGarbageCollector();
                 		tumorGrow();
                         checkTumors();
@@ -1090,6 +1094,10 @@ public class Simulation extends Box {
 
                     //System.out.println(sim_time);
                     sim_time++;
+                }
+
+                if(tumor) {
+                    numTumorVsTimeToCSV(numTumorCellsVsTime);
                 }
 
                 //FileWriter avgWriter = new FileWriter(msdFileName);
@@ -1409,15 +1417,15 @@ public class Simulation extends Box {
 
         //TODO: Change back to global positioning
 
-        double x = (tumorGel.getX() - 250) + rand.nextDouble() * 500;
-        double y = (tumorGel.getY() - 250) + rand.nextDouble() * 500;
-        double z = (tumorGel.getZ() - 250) + rand.nextDouble() * 500;
+        double x = (tumorGel.getX() - (tumorGel.getR() / 2)) + rand.nextDouble() * tumorGel.getR();
+        double y = (tumorGel.getY() - (tumorGel.getR() / 2)) + rand.nextDouble() * tumorGel.getR();
+        double z = (tumorGel.getZ() - (tumorGel.getR() / 2)) + rand.nextDouble() * tumorGel.getR();
 
-        if(numParticles < 75) {
-            x = (tumorGel.getX() - 50) + rand.nextDouble() * 100;
-            y = (tumorGel.getY() - 50) + rand.nextDouble() * 100;
-            z = (tumorGel.getZ() - 50) + rand.nextDouble() * 100;
-        }
+//        if(numParticles < 75) {
+//            x = (tumorGel.getX() - 50) + rand.nextDouble() * 100;
+//            y = (tumorGel.getY() - 50) + rand.nextDouble() * 100;
+//            z = (tumorGel.getZ() - 50) + rand.nextDouble() * 100;
+//        }
 
 
         // Change this to creating class after checking for collision

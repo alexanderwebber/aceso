@@ -186,12 +186,16 @@ public class TCell extends Particle implements Drawable {
         previousNearTumor = nearTumor;
         
         this.v = Vector.random3(velocity, random);
+
+        incrementLifeTime();
+        lifeIncremented = true;
         
         if (checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
 
         }
         else {
             move();
+
         }
 
         if(numKills < 20) {
@@ -253,9 +257,10 @@ public class TCell extends Particle implements Drawable {
                         numKills++;
                     }
 
+
                     if(distanceVector < 250 && lifeIncremented == false) {
-                        incrementLifeTime();
-                        lifeIncremented = true;
+//                        incrementLifeTime();
+//                        lifeIncremented = true;
                     }
                 }
             }

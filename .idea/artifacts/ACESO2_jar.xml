@@ -2,7 +2,7 @@
   <artifact type="jar" name="ACESO2:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/ACESO2_jar</output-path>
     <root id="archive" name="ACESO2.jar">
-      <element id="module-output" name="ACESO2" />
+      <element id="module-output" name="ACESO" />
     </root>
   </artifact>
 </component>

@@ -115,6 +115,7 @@ public class Tumoroid extends Particle implements Drawable {
 
         if(this.getStatus().equals("being_attacked")) {
 
+
             if(timeSinceAttacked >= 60) {
                 this.setStatus("dead");
             }
