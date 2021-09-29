@@ -949,7 +949,7 @@ public class Simulation extends Box {
             sim_time++;
         }
 
-        numTumorVsTimeToCSV(numTumorCellsVsTime);
+        //numTumorVsTimeToCSV(numTumorCellsVsTime);
     }
 
     void runTumorThread() {
@@ -960,12 +960,12 @@ public class Simulation extends Box {
         tumorThread.start();
     }
 
-    void numTumorVsTimeToCSV(int[] numTumorCellsVsTime) {
+    void numTumorVsTimeToCSV(int[] numTumorCellsVsTime, double[] tumorTime) {
         try {
             FileWriter tumorCellsVsTimeWriter = new FileWriter("tumorGrowthVsTime.csv");
 
             for(int i = 0; i < numTumorCellsVsTime.length; i++) {
-                tumorCellsVsTimeWriter.append(String.format("%.1f,%d\n",numTumorCellsVsTime[i]);
+                tumorCellsVsTimeWriter.append(String.format("%.1f,%d\n", tumorTime[i], numTumorCellsVsTime[i]));
             }
 
             tumorCellsVsTimeWriter.flush();
@@ -1038,6 +1038,7 @@ public class Simulation extends Box {
                 int intTimer = 0;
 
                 int[] numTumorCellsVsTime = new int[simulationTimeLimit];
+                double[] tumorTime = new double[simulationTimeLimit];
 
                 while (sim_time < simulationTimeLimit) {
 
@@ -1059,7 +1060,7 @@ public class Simulation extends Box {
 
                     if(tumor) {
                         numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
-
+                        tumorTime[(int)sim_time] = sim_time / 180;
                 		tumorGarbageCollector();
                 		tumorGrow();
                         checkTumors();
@@ -1097,7 +1098,7 @@ public class Simulation extends Box {
                 }
 
                 if(tumor) {
-                    numTumorVsTimeToCSV(numTumorCellsVsTime);
+                    numTumorVsTimeToCSV(numTumorCellsVsTime, tumorTime);
                 }
 
                 //FileWriter avgWriter = new FileWriter(msdFileName);
