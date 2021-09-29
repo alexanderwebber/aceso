@@ -70,6 +70,18 @@ public class TCell extends Particle implements Drawable {
         //v = new Vector(velocityX, velocityY, velocityZ);
         xyzFileName = "xyz" + "_" + "id" + idNum + ".csv";
 
+        lastTimeKilled = 360 - (int)(360 * random.nextDouble());
+
+        lifeTime = 1080 - (int)(1080 * random.nextDouble());
+
+        if (lastTimeKilled == 0) {
+            isActivated = true;
+        }
+
+        else {
+            isActivated = false;
+        }
+
     }
 
     double distanceTraveled() {

@@ -974,6 +974,9 @@ public class Simulation extends Box {
         }
     }
 
+    // TODO: Start t-cells in distribution of refractory times
+    // TODO: Start around, not within
+    // TODO: For t-cell entry, add t-cells randomly around tumor at rate in analytic model
     void runTCells() {
         tCellThread = new Thread(() -> {
         	vox = new BoxVoxels(this);
@@ -1386,7 +1389,9 @@ public class Simulation extends Box {
 
     void addTCell(double x, double y, double z, double R) {
         TCell c = new TCell(x, y, z, R, 0, this, rand, logNormal);
-
+        c.setLifeTime(0);
+        c.setLastTimeKilled(0);
+        c.setActivated(true);
         vox.add(c);
         tCells[numParticles++] = c;
         sum_sphere_volume += c.volume();
@@ -1437,6 +1442,7 @@ public class Simulation extends Box {
             vox.add(c);
             tCells[numParticles++] = c;
             sum_sphere_volume += c.volume();
+
             //System.out.println(c.getIdNum());
         }
     }
