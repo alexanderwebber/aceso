@@ -6,6 +6,7 @@ import org.apache.commons.math3.distribution.LogNormalDistribution;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,9 +27,12 @@ public class TCell extends Particle implements Drawable {
     boolean nearTumor;
     int arrayListPosition;
     ArrayList<double[]> xyzOutput = new ArrayList<>();
+    int timeBetweenKill = 0;
     String xyzFileName;
 
     private int numKills;
+
+    ArrayList<Integer> individualAverageTimeBetweenKills = new ArrayList<>();
 
     // Killing, not killing
     private int status;
@@ -207,10 +211,10 @@ public class TCell extends Particle implements Drawable {
         }
         else {
             move();
-
         }
 
-        if(numKills < 20) {
+        // TODO: Change back to normal amount of kills
+        if(numKills < 2000) {
             if(this.lastTimeKilled >= 360) {
                 setActivated(true);
                 this.setStatus(1);
@@ -264,6 +268,7 @@ public class TCell extends Particle implements Drawable {
                         this.velocity = 0.0;
                         setActivated(false);
                         setIsAttacking(true);
+                        individualAverageTimeBetweenKills.add(timeBetweenKill);
                         this.setStatus(2);
                         S.getTumoroids().get(i).setStatus("being_attacked");
                         numKills++;
@@ -274,6 +279,9 @@ public class TCell extends Particle implements Drawable {
 //                        incrementLifeTime();
 //                        lifeIncremented = true;
                     }
+                }
+                if(!isActivated) {
+                    timeBetweenKill++;
                 }
             }
         }

@@ -58,7 +58,7 @@ public class Simulation extends Box {
     ArrayList<Particle> imageParticles = new ArrayList<>();
     ArrayList<Double> densityValues = new ArrayList<>();
     int numParticles = 0;
-    double numTCells = 150;
+    double numTCells = 100;
     double averageDisplacementPanel;
 
     boolean tumor = true;
@@ -557,7 +557,7 @@ public class Simulation extends Box {
     }
 
     void tCellProliferate() {
-        for(int i = 0; i < this.numTCells; i++) {
+        for(int i = 0; i < this.numParticles; i++) {
             if(this.tCells[i].getLifeTime() < 1080) {
                     continue;
             }
@@ -666,7 +666,7 @@ public class Simulation extends Box {
             e.printStackTrace();
         }
 
-        return radius + 12;
+        return radius / 2;
     }
 
     public void tumorGarbageCollector() {
@@ -912,7 +912,7 @@ public class Simulation extends Box {
                  */
 
                 for (int i = 0; i < numTumorInCSV; i++) {
-                    double R = 6.0 + (11.9 - 6.0) * r.nextDouble();
+                    double R = 6.0 + (12.0 - 6.0) * r.nextDouble();
                     thisline = builder2.readLine();
                     int comma = thisline.indexOf(',');
                     double x = (tumorGel.getX() - 500) + Double.parseDouble(thisline.substring(0, comma));
@@ -969,6 +969,20 @@ public class Simulation extends Box {
             }
 
             tumorCellsVsTimeWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void numTCellsVsTimeToCSV(int[] numTumorCellsVsTime, double[] tumorTime) {
+        try {
+            FileWriter tCellsVsTimeWriter = new FileWriter("tCellProliferationVsTime.csv");
+
+            for(int i = 0; i < numTumorCellsVsTime.length; i++) {
+                tCellsVsTimeWriter.append(String.format("%.1f,%d\n", tumorTime[i], numTumorCellsVsTime[i]));
+            }
+
+            tCellsVsTimeWriter.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1043,12 +1057,14 @@ public class Simulation extends Box {
                 int[] numTumorCellsVsTime = new int[simulationTimeLimit];
                 double[] tumorTime = new double[simulationTimeLimit];
 
+                int[] numTCellsVsTime = new int[simulationTimeLimit];
+
                 while (sim_time < simulationTimeLimit) {
 
                     //cellWriter.append(String.format("%.3f,", sim_time));
                 	averageDisplacement = 0.0;
 
-                	tCellProliferate();
+                    tCellProliferate();
 
                     for (int i = 0; i < numParticles; i++) {
                     	tCells[i].cellMove();
@@ -1063,6 +1079,7 @@ public class Simulation extends Box {
 
                     if(tumor) {
                         numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
+                        numTCellsVsTime[(int)sim_time] = numParticles;
                         tumorTime[(int)sim_time] = sim_time / 180;
                 		tumorGarbageCollector();
                 		tumorGrow();
@@ -1100,8 +1117,17 @@ public class Simulation extends Box {
                     sim_time++;
                 }
 
+                // TODO: Calculate average time between kills
+                for(int i = 0; i < numParticles; i++) {
+                    double individualSum = 0;
+                    for(int j = 0; j < tCells[i].individualAverageTimeBetweenKills.size(); j++) {
+
+                    }
+                }
+
                 if(tumor) {
                     numTumorVsTimeToCSV(numTumorCellsVsTime, tumorTime);
+                    numTCellsVsTimeToCSV(numTCellsVsTime, tumorTime);
                 }
 
                 //FileWriter avgWriter = new FileWriter(msdFileName);
@@ -1419,13 +1445,31 @@ public class Simulation extends Box {
     }
 
     void addTCellsNearTumor(int idNum) {
+//        int[] randArray = new int[3];
+//
+//        randArray[0] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
+//        randArray[1] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
+//        randArray[2] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
+//
+//        System.out.println(randArray[0]);
+//        System.out.println(randArray[1]);
+//        System.out.println(randArray[2]);
+
         double R = 8;
 
-        //TODO: Change back to global positioning
+        double tumorRadius = calculateTumorGelRadius();
 
-        double x = (tumorGel.getX() - (tumorGel.getR() / 2)) + rand.nextDouble() * tumorGel.getR();
-        double y = (tumorGel.getY() - (tumorGel.getR() / 2)) + rand.nextDouble() * tumorGel.getR();
-        double z = (tumorGel.getZ() - (tumorGel.getR() / 2)) + rand.nextDouble() * tumorGel.getR();
+        //TODO: Figure out why t-cells so far from tumor (probably not aligned to shifting tumorGel)
+        // Maybe because tumor gel is deleted!
+
+//        double x = (tumorGel.getX()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[0];
+//        double y = (tumorGel.getY()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[1];
+//        double z = (tumorGel.getZ()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[2];
+
+        double x = (tumorGel.getX() - tumorRadius) + rand.nextDouble() * (tumorRadius * 2);
+        double y = (tumorGel.getY() - tumorRadius) + rand.nextDouble() * (tumorRadius * 2);
+        double z = (tumorGel.getZ() - tumorRadius) + rand.nextDouble() * (tumorRadius * 2);
+
 
 //        if(numParticles < 75) {
 //            x = (tumorGel.getX() - 50) + rand.nextDouble() * 100;
