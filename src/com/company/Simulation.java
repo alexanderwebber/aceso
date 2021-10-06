@@ -1064,7 +1064,7 @@ public class Simulation extends Box {
                     //cellWriter.append(String.format("%.3f,", sim_time));
                 	averageDisplacement = 0.0;
 
-                    tCellProliferate();
+                    //tCellProliferate();
 
                     for (int i = 0; i < numParticles; i++) {
                     	tCells[i].cellMove();
@@ -1118,12 +1118,21 @@ public class Simulation extends Box {
                 }
 
                 // TODO: Calculate average time between kills
+                double overallSum = 0;
                 for(int i = 0; i < numParticles; i++) {
                     double individualSum = 0;
                     for(int j = 0; j < tCells[i].individualAverageTimeBetweenKills.size(); j++) {
-
+                        individualSum += tCells[i].individualAverageTimeBetweenKills.get(j);
                     }
+                    if(tCells[i].individualAverageTimeBetweenKills.size() != 0) {
+                        overallSum += individualSum / tCells[i].individualAverageTimeBetweenKills.size();
+                    }
+
                 }
+
+                double overallAvg = overallSum / numParticles;
+
+                System.out.println("overall avg: " + overallAvg);
 
                 if(tumor) {
                     numTumorVsTimeToCSV(numTumorCellsVsTime, tumorTime);
