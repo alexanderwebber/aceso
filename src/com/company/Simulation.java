@@ -73,7 +73,8 @@ public class Simulation extends Box {
     Thread tumorThread = new Thread();
 
     // Residence data stuff
-    int simulationTimeLimit = 3600;
+    int simulationTimeLimit = 7200;
+
     static ArrayList<int[]> startValues = new ArrayList<>();
 
     ArrayList<Double> sliceDensityYZ = new ArrayList<>();
@@ -234,10 +235,6 @@ public class Simulation extends Box {
 //								// TODO Auto-generated catch block
 //								e.printStackTrace();
 //							}
-
-
-
-
 
                     }
                 }
@@ -962,7 +959,7 @@ public class Simulation extends Box {
 
     void numTumorVsTimeToCSV(int[] numTumorCellsVsTime, double[] tumorTime) {
         try {
-            FileWriter tumorCellsVsTimeWriter = new FileWriter("tumorGrowthVsTime.csv");
+            FileWriter tumorCellsVsTimeWriter = new FileWriter("tumorGrowthVsTime" + numTCells + ".csv");
 
             for(int i = 0; i < numTumorCellsVsTime.length; i++) {
                 tumorCellsVsTimeWriter.append(String.format("%.1f,%d\n", tumorTime[i], numTumorCellsVsTime[i]));
@@ -1064,7 +1061,9 @@ public class Simulation extends Box {
                     //cellWriter.append(String.format("%.3f,", sim_time));
                 	averageDisplacement = 0.0;
 
-                    //tCellProliferate();
+                    if(this.getTumoroids().size() > 0) {
+                        tCellProliferate();
+                    }
 
                     for (int i = 0; i < numParticles; i++) {
                     	tCells[i].cellMove();
