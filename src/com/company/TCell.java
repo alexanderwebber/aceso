@@ -74,16 +74,18 @@ public class TCell extends Particle implements Drawable {
         //v = new Vector(velocityX, velocityY, velocityZ);
         xyzFileName = "xyz" + "_" + "id" + idNum + ".csv";
 
-        lastTimeKilled = 360 - (int)(360 * random.nextDouble());
+        lastTimeKilled = random.nextInt(360);
 
-        lifeTime = 1080 - (int)(1080 * random.nextDouble());
+        lifeTime = random.nextInt(1080);
 
         if (lastTimeKilled == 0) {
             isActivated = true;
+            this.setStatus(1);
         }
 
         else {
             isActivated = false;
+            this.setStatus(2);
         }
 
     }
@@ -112,6 +114,10 @@ public class TCell extends Particle implements Drawable {
 		 */
         //TODO Adjust to consider jumps across PBC
         return Vector.magnitude(this.getxPrime() - x0, this.getyPrime() - y0, this.getzPrime() - z0);
+    }
+
+    public int getNumKills() {
+        return numKills;
     }
 
     public double getZ() {
@@ -200,11 +206,10 @@ public class TCell extends Particle implements Drawable {
         boolean lifeIncremented = false;
     	
         previousNearTumor = nearTumor;
-        
-        this.v = Vector.random3(velocity, random);
-
         incrementLifeTime();
         lifeIncremented = true;
+        
+        this.v = Vector.random3(velocity, random);
         
         if (checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
 
@@ -221,7 +226,7 @@ public class TCell extends Particle implements Drawable {
                 lastTimeKilled = 0;
             }
 
-            if(isActivated == false && reachedMaxKills == false) {
+            if(isActivated == false) {
                 this.lastTimeKilled++;
             }
 
@@ -240,6 +245,7 @@ public class TCell extends Particle implements Drawable {
 
             // check tumor cells
             if(isActivated == true) {
+
 
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
@@ -270,8 +276,9 @@ public class TCell extends Particle implements Drawable {
                         setIsAttacking(true);
                         individualAverageTimeBetweenKills.add(timeBetweenKill);
                         this.setStatus(2);
-                        S.getTumoroids().get(i).setStatus("being_attacked");
+                        S.getTumoroids().get(i).setStatus("delete");
                         numKills++;
+                        break;
                     }
 
 

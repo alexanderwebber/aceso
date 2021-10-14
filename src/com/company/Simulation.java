@@ -1028,6 +1028,9 @@ public class Simulation extends Box {
 
                 //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_LLSwAvg" + calculateWeightedAvgRadius() + "_LLSdispersion" + outputRangeOverAverageR() + "_logNormal.csv");
 
+                FileWriter refractoryWriter = new FileWriter("refractory.csv");
+                FileWriter killWriter = new FileWriter("killsvstime.csv");
+
 
             	//FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
                 //FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
@@ -1054,7 +1057,14 @@ public class Simulation extends Box {
                 int[] numTumorCellsVsTime = new int[simulationTimeLimit];
                 double[] tumorTime = new double[simulationTimeLimit];
 
+                int[][] refractoryTime = new int[numParticles][720];
+
+                int[] numKillsVsTime = new int[simulationTimeLimit];
+                int[] numDeathsVsTime = new int[simulationTimeLimit];
+
                 int[] numTCellsVsTime = new int[simulationTimeLimit];
+
+                int numDeaths = 0;
 
                 while (sim_time < simulationTimeLimit) {
 
@@ -1064,6 +1074,22 @@ public class Simulation extends Box {
                     if(this.getTumoroids().size() > 0) {
                         tCellProliferate();
                     }
+
+                    if((int)sim_time < 360) {
+                        for(int i = 0; i < numTCells; i++) {
+                            refractoryTime[i][(int)sim_time] = tCells[i].getLastTimeKilled();
+                        }
+                    }
+
+                    int numKills = 0;
+
+                    for(int i = 0; i < numParticles; i++) {
+                        numKills += tCells[i].getNumKills();
+                    }
+
+                    numKillsVsTime[(int)sim_time] = numKills;
+
+
 
                     for (int i = 0; i < numParticles; i++) {
                     	tCells[i].cellMove();
@@ -1075,6 +1101,14 @@ public class Simulation extends Box {
                             //cellWriter.append(String.format("%f,%f,%f,", this.tCells[i].x, this.tCells[i].y, this.tCells[i].z));
                         }
                     }
+
+                    for(int i = 0; i < getTumoroids().size(); i++) {
+                        if(getTumoroids().get(i).getStatus().equals("delete")) {
+                            numDeaths++;
+                            System.out.println(numDeaths);
+                        }
+                    }
+                    numDeathsVsTime[(int)sim_time] = numDeaths;
 
                     if(tumor) {
                         numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
@@ -1146,6 +1180,17 @@ public class Simulation extends Box {
 
                 }
 
+                for(int i = 0; i < 360; i++) {
+                    for(int j = 0; j < numTCells; j++) {
+                        refractoryWriter.append(String.format("%d,", refractoryTime[j][i]));
+                    }
+                    refractoryWriter.append("\n");
+                }
+
+                for(int i = 0; i < numKillsVsTime.length; i++) {
+                    killWriter.append(String.format("%d,%d\n", numKillsVsTime[i], numDeathsVsTime[i]));
+                }
+
 //                for(int i = 0; i < startValues.size(); i++) {
 //                    residenceWriter.append(String.format("%d,%d,%d\n", startValues.get(i)[0], startValues.get(i)[1], startValues.get(i)[2]));
 //                }
@@ -1170,6 +1215,8 @@ public class Simulation extends Box {
                 System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
 
                 //avgWriter.close();
+                refractoryWriter.close();
+                killWriter.close();
                 //cellWriter.close();
                 //breadcrumbWriter.close();
                 //breadcrumbWriterNoPBC.close();
@@ -1423,9 +1470,9 @@ public class Simulation extends Box {
 
     void addTCell(double x, double y, double z, double R) {
         TCell c = new TCell(x, y, z, R, 0, this, rand, logNormal);
-        c.setLifeTime(0);
-        c.setLastTimeKilled(0);
-        c.setActivated(true);
+//        c.setLifeTime(0);
+//        c.setLastTimeKilled(0);
+//        c.setActivated(true);
         vox.add(c);
         tCells[numParticles++] = c;
         sum_sphere_volume += c.volume();
@@ -1474,9 +1521,9 @@ public class Simulation extends Box {
 //        double y = (tumorGel.getY()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[1];
 //        double z = (tumorGel.getZ()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[2];
 
-        double x = (tumorGel.getX() - tumorRadius) + rand.nextDouble() * (tumorRadius * 2);
-        double y = (tumorGel.getY() - tumorRadius) + rand.nextDouble() * (tumorRadius * 2);
-        double z = (tumorGel.getZ() - tumorRadius) + rand.nextDouble() * (tumorRadius * 2);
+        double x = (tumorGel.getX() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
+        double y = (tumorGel.getY() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
+        double z = (tumorGel.getZ() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
 
 
 //        if(numParticles < 75) {
