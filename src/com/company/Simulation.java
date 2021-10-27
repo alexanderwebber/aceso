@@ -25,6 +25,24 @@ class Box {
     double volume_ratio;              //Desired volume ratio
     BoxVoxels vox;       //Voxel memory for the particles
     ArrayList<Tumoroid> tumoroids = new ArrayList<>();
+    int tumorDoublingTime;
+    int tCellDoublingTime;
+
+    public int getTumorDoublingTime() {
+        return tumorDoublingTime;
+    }
+
+    public void setTumorDoublingTime(int tumorDoublingTime) {
+        this.tumorDoublingTime = tumorDoublingTime;
+    }
+
+    public int gettCellDoublingTime() {
+        return tCellDoublingTime;
+    }
+
+    public void settCellDoublingTime(int tCellDoublingTime) {
+        this.tCellDoublingTime = tCellDoublingTime;
+    }
 
     Box() {
 
@@ -60,6 +78,15 @@ public class Simulation extends Box {
     int numParticles = 0;
     double numTCells = 100;
     double averageDisplacementPanel;
+    double tCellRefractoryPeriod;
+
+    public double gettCellRefractoryPeriod() {
+        return tCellRefractoryPeriod;
+    }
+
+    public void settCellRefractoryPeriod(double tCellRefractoryPeriod) {
+        this.tCellRefractoryPeriod = tCellRefractoryPeriod;
+    }
 
     boolean tumor = true;
     Gel tumorGel;
@@ -71,6 +98,14 @@ public class Simulation extends Box {
     Thread fallThread = new Thread();
     Thread tCellThread = new Thread();
     Thread tumorThread = new Thread();
+
+    public int getNumParticles() {
+        return numParticles;
+    }
+
+    public void setNumParticles(int numParticles) {
+        this.numParticles = numParticles;
+    }
 
     // Residence data stuff
     int simulationTimeLimit = 7200;
@@ -537,7 +572,7 @@ public class Simulation extends Box {
             if(this.getTumoroids().get(i).getStatus().equals("alive")) {
                 if(this.getTumoroids().get(i).getR() < 12.0) {
                 	//TODO: Make growth rate variable
-                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + 0.0009259;
+                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + (1 / tumorDoublingTime) * 0.033;
                 }
                 else {
                     this.getTumoroids().get(i).setR(6.0);
@@ -555,7 +590,7 @@ public class Simulation extends Box {
 
     void tCellProliferate() {
         for(int i = 0; i < this.numParticles; i++) {
-            if(this.tCells[i].getLifeTime() < 1080) {
+            if(this.tCells[i].getLifeTime() < tCellDoublingTime) {
                     continue;
             }
 
@@ -1459,7 +1494,7 @@ public class Simulation extends Box {
     void addTestTCells() {
         int idNum = 0;
         while (numParticles < getNumTCells()) {
-            TCell c = new TCell(500, 500, 500, 8, idNum, this, rand, logNormal);
+            TCell c = new TCell(500, 500, 500, 8, idNum, this, rand, logNormal, tCellDoublingTime);
             vox.add(c);
             tCells[numParticles++] = c;
             sum_sphere_volume += c.volume();
@@ -1469,7 +1504,7 @@ public class Simulation extends Box {
     }
 
     void addTCell(double x, double y, double z, double R) {
-        TCell c = new TCell(x, y, z, R, 0, this, rand, logNormal);
+        TCell c = new TCell(x, y, z, R, 0, this, rand, logNormal, tCellDoublingTime);
 //        c.setLifeTime(0);
 //        c.setLastTimeKilled(0);
 //        c.setActivated(true);
@@ -1491,7 +1526,7 @@ public class Simulation extends Box {
 
 
         if (checkGelCollision(x, y, z, R, this) == false) {
-            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal);
+            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal, tCellDoublingTime);
             vox.add(c);
             tCells[numParticles++] = c;
             sum_sphere_volume += c.volume();
@@ -1537,7 +1572,7 @@ public class Simulation extends Box {
 
 
         if (checkGelCollision(x, y, z, R, this) == false) {
-            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal);
+            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal, tCellDoublingTime);
             vox.add(c);
             tCells[numParticles++] = c;
             sum_sphere_volume += c.volume();
@@ -1559,7 +1594,7 @@ public class Simulation extends Box {
 
 
         if (checkGelCollision(x, y, z, R, this) == false) {
-            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal);
+            TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal, tCellDoublingTime);
             vox.add(c);
             tCells[numParticles++] = c;
             sum_sphere_volume += c.volume();
@@ -1578,7 +1613,7 @@ public class Simulation extends Box {
         double y = position[1];
         double z = position[2];
 
-        TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal);
+        TCell c = new TCell(x, y, z, R, idNum, this, rand, logNormal, tCellDoublingTime);
 
         vox.add(c);
         tCells[numParticles++] = c;

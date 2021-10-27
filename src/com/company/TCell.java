@@ -39,6 +39,8 @@ public class TCell extends Particle implements Drawable {
 
     private int timeAttacking;
 
+    private int refractoryPeriod;
+
     private int lastTimeKilled;
 
     // Random number gen:
@@ -56,7 +58,7 @@ public class TCell extends Particle implements Drawable {
 
     }
 
-    TCell(double x, double y, double z, double R, int idNum, Simulation S, Random random, LogNormalDistribution logNormal) {
+    TCell(double x, double y, double z, double R, int idNum, Simulation S, Random random, LogNormalDistribution logNormal, int doublingTime) {
         super(x, y, z, R, S);
         type = "TCell";
         this.S = S;
@@ -74,9 +76,9 @@ public class TCell extends Particle implements Drawable {
         //v = new Vector(velocityX, velocityY, velocityZ);
         xyzFileName = "xyz" + "_" + "id" + idNum + ".csv";
 
-        lastTimeKilled = random.nextInt(360);
+        lastTimeKilled = random.nextInt(refractoryPeriod);
 
-        lifeTime = random.nextInt(1080);
+        lifeTime = random.nextInt(doublingTime);
 
         if (lastTimeKilled == 0) {
             isActivated = true;
@@ -220,7 +222,7 @@ public class TCell extends Particle implements Drawable {
 
         // TODO: Change back to normal amount of kills
         if(numKills < 2000) {
-            if(this.lastTimeKilled >= 360) {
+            if(this.lastTimeKilled >= refractoryPeriod) {
                 setActivated(true);
                 this.setStatus(1);
                 lastTimeKilled = 0;
