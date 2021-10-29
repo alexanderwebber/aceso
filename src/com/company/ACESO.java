@@ -45,12 +45,12 @@ public class ACESO {
 
 			int tCellRefractoryPeriod = Integer.parseInt(args[5]);
 
-			sim.numParticles = numTCells;
+			//updatesim.numTumor = numTumorCells;
 
-			sim.numTCells = numTumorCells;
+			sim.setNumTCells(numTCells);
 
-			sim.setNumParticles(numTCells);
-s
+			sim.settCellRefractoryPeriod(tCellRefractoryPeriod);
+
 			sim.setTumorDoublingTime(tumorDoublingTime);
 
 			sim.settCellDoublingTime(tCellDoublingTime);

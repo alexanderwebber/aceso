@@ -58,7 +58,7 @@ public class TCell extends Particle implements Drawable {
 
     }
 
-    TCell(double x, double y, double z, double R, int idNum, Simulation S, Random random, LogNormalDistribution logNormal, int doublingTime) {
+    TCell(double x, double y, double z, double R, int idNum, Simulation S, Random random, LogNormalDistribution logNormal, int doublingTime, int refractoryPeriod) {
         super(x, y, z, R, S);
         type = "TCell";
         this.S = S;
