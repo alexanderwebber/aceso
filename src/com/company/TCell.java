@@ -206,9 +206,10 @@ public class TCell extends Particle implements Drawable {
 
     void cellMove() throws IOException {
         boolean lifeIncremented = false;
+
+        incrementLifeTime();
     	
         previousNearTumor = nearTumor;
-        incrementLifeTime();
         lifeIncremented = true;
         
         this.v = Vector.random3(velocity, random);
@@ -247,7 +248,6 @@ public class TCell extends Particle implements Drawable {
 
             // check tumor cells
             if(isActivated == true) {
-
 
                 for(int i = 0; i < S.getNumTumor(); i++) {
 

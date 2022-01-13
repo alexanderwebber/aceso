@@ -25,8 +25,9 @@ class Box {
     double volume_ratio;              //Desired volume ratio
     BoxVoxels vox;       //Voxel memory for the particles
     ArrayList<Tumoroid> tumoroids = new ArrayList<>();
-    int tumorDoublingTime;
-    int tCellDoublingTime;
+    int tumorDoublingTime = 2;
+    int tCellDoublingTime = 2160;
+    int startingNumTumor = 0;
 
     public int getTumorDoublingTime() {
         return tumorDoublingTime;
@@ -40,9 +41,11 @@ class Box {
         return tCellDoublingTime;
     }
 
-    public void settCellDoublingTime(int tCellDoublingTime) {
+    public void setTCellDoublingTime(int tCellDoublingTime) {
         this.tCellDoublingTime = tCellDoublingTime;
     }
+
+    public void setStartingTumorCells(int numTumor) { this.startingNumTumor = numTumor; }
 
     Box() {
 
@@ -78,13 +81,13 @@ public class Simulation extends Box {
     int numParticles = 0;
     double numTCells = 100;
     double averageDisplacementPanel;
-    int tCellRefractoryPeriod;
+    int tCellRefractoryPeriod = 1440;
 
     public double gettCellRefractoryPeriod() {
         return tCellRefractoryPeriod;
     }
 
-    public void settCellRefractoryPeriod(int tCellRefractoryPeriod) {
+    public void setTCellRefractoryPeriod(int tCellRefractoryPeriod) {
         this.tCellRefractoryPeriod = tCellRefractoryPeriod;
     }
 
@@ -555,10 +558,10 @@ public class Simulation extends Box {
         System.out.println("Time to fall: " + timeDiff / 1e9);
 
         //print out gel:
-        FileWriter gelWriter = new FileWriter("test_gel_with_tumorGel.csv");
-        for(Gel gel: gels) {
-            gelWriter.append(String.format("%f,%f,%f,%f,\n", gel.x, gel.y, gel.z, gel.R));
-        }
+//        FileWriter gelWriter = new FileWriter("test_gel_with_tumorGel.csv");
+//        for(Gel gel: gels) {
+//            gelWriter.append(String.format("%f,%f,%f,%f,\n", gel.x, gel.y, gel.z, gel.R));
+//        }
     }
 
     private void checkTumors() {
@@ -572,7 +575,7 @@ public class Simulation extends Box {
             if(this.getTumoroids().get(i).getStatus().equals("alive")) {
                 if(this.getTumoroids().get(i).getR() < 12.0) {
                 	//TODO: Make growth rate variable
-                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + (1 / tumorDoublingTime) * 0.0333333333;
+                    this.getTumoroids().get(i).R = this.getTumoroids().get(i).getR() + (1.0 / tumorDoublingTime) * 0.0333333333;
                 }
                 else {
                     this.getTumoroids().get(i).setR(6.0);
@@ -992,12 +995,91 @@ public class Simulation extends Box {
         tumorThread.start();
     }
 
+    double calculateTMaxForTumors(int[] numTumorCellsVsTime) {
+        int tMax = 0;
+        int tumorMax = 0;
+
+        for(int i = 0; i < numTumorCellsVsTime.length; i++) {
+            if(numTumorCellsVsTime[i] > tumorMax) {
+                tumorMax = numTumorCellsVsTime[i];
+                tMax = i;
+            }
+        }
+
+        return tMax / 180.0;
+    }
+
+    double calculateTExtinctionForTumors(int[] numTumorCellsVsTime) {
+        int tExtinction = 0;
+
+        for(int i = 0; i < numTumorCellsVsTime.length; i++) {
+            if(numTumorCellsVsTime[i] == 0) {
+                tExtinction = i;
+                break;
+            }
+        }
+
+        return tExtinction / 180.0;
+    }
+
     void numTumorVsTimeToCSV(int[] numTumorCellsVsTime, double[] tumorTime, int runNum) {
+        double tMax = calculateTMaxForTumors(numTumorCellsVsTime);
+        double tExtinction = calculateTExtinctionForTumors(numTumorCellsVsTime);
+
         try {
-            FileWriter tumorCellsVsTimeWriter = new FileWriter("tumorGrowthVsTime" + numTCells + "_runNum" + runNum + ".csv");
+            String numTCellsString = String.format("%.0f", numTCells);
+            String numTumorsString = String.format("%d", startingNumTumor);
+            String tCellGrowthInHoursString = String.format("%.0f", tCellDoublingTime / 180.0);
+            String tumorGrowthInHoursString = String.format("%d", tumorDoublingTime);
+            String tCellRefractoryPeriodInTimeHoursString = String.format("%.1f", tCellRefractoryPeriod / 180.0);
+            String tMaxString = String.format("%.2f", tMax);
+            String tExtinctionString = String.format("%.2f", tExtinction);
+
+            LocalDate currentDate = LocalDate.now();
+            String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("ddMMMyyyy"));
+
+            String tumorVsTimeOutputString = formattedDate
+                    + "_runNum" + runNum
+                    + "_numTCellsStarting" + numTCellsString
+                    + "_numTumorsStarting" + numTumorsString
+                    + "_tCellDoublingTimeInHours" + tCellGrowthInHoursString
+                    + "_tumorDoublingTimeInHours" + tumorGrowthInHoursString
+                    + "_tCellRefractoryPeriodInSteps" + tCellRefractoryPeriodInTimeHoursString
+                    + "_tMax" + tMaxString
+                    + "_tExtinction" + tExtinctionString
+                    + ".csv";
+
+
+            FileWriter tumorCellsVsTimeWriter = new FileWriter(tumorVsTimeOutputString);
+
+            tumorCellsVsTimeWriter.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                    "runNum",
+                    "numTCellsStarting",
+                    "numTumorsStarting",
+                    "tCellDoublingTimeInHours",
+                    "tumorDoublingTimeInHours",
+                    "tCellRefractoryPeriodInSteps",
+                    "tMax",
+                    "tExtinction",
+                    "time",
+                    "currentNumTumor"));
+
+            tumorCellsVsTimeWriter.append(String.format("%d,%s,%s,%s,%s,%s,%s,%s,",
+                    runNum,
+                    numTCellsString,
+                    numTumorsString,
+                    tCellGrowthInHoursString,
+                    tumorGrowthInHoursString,
+                    tCellRefractoryPeriodInTimeHoursString,
+                    tMaxString,
+                    tExtinctionString));
 
             for(int i = 0; i < numTumorCellsVsTime.length; i++) {
-                tumorCellsVsTimeWriter.append(String.format("%.1f,%d\n", tumorTime[i], numTumorCellsVsTime[i]));
+                if(i == 0) {
+                    tumorCellsVsTimeWriter.append(String.format("%.1f,%d\n", tumorTime[i], numTumorCellsVsTime[i]));
+                }
+
+                tumorCellsVsTimeWriter.append(String.format(",,,,,,,,%.1f,%d\n", tumorTime[i], numTumorCellsVsTime[i]));
             }
 
             tumorCellsVsTimeWriter.flush();
@@ -1315,8 +1397,8 @@ public class Simulation extends Box {
 
             //FileWriter cellWriter = new FileWriter("cell_displacements_individual" + "_LLSwAvg" + calculateWeightedAvgRadius() + "_LLSdispersion" + outputRangeOverAverageR() + "_logNormal.csv");
 
-            FileWriter refractoryWriter = new FileWriter("refractory_runNum" + runNum + ".csv");
-            FileWriter killWriter = new FileWriter("killsvstime_runNum" + runNum + ".csv");
+            //FileWriter refractoryWriter = new FileWriter("refractory_runNum" + runNum + ".csv");
+            //FileWriter killWriter = new FileWriter("killsvstime_runNum" + runNum + ".csv");
 
 
             //FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
@@ -1354,6 +1436,15 @@ public class Simulation extends Box {
             int numDeaths = 0;
 
             while (sim_time < simulationTimeLimit) {
+                if((sim_time / simulationTimeLimit) % 0.05 == 0) {
+                    String percentageComplete = String.format("%.1f", 100 * sim_time / simulationTimeLimit);
+                    System.out.println(percentageComplete + "% Complete");
+
+                    System.out.println("Number of T-Cells: " + numParticles);
+                    System.out.println("Number of Tumor Cells: " + this.getTumoroids().size());
+                }
+
+
 
                 //cellWriter.append(String.format("%.3f,", sim_time));
                 averageDisplacement = 0.0;
@@ -1455,7 +1546,7 @@ public class Simulation extends Box {
 
             if(tumor) {
                 numTumorVsTimeToCSV(numTumorCellsVsTime, tumorTime, runNum);
-                numTCellsVsTimeToCSV(numTCellsVsTime, tumorTime, runNum);
+                //numTCellsVsTimeToCSV(numTCellsVsTime, tumorTime, runNum);
             }
 
             //FileWriter avgWriter = new FileWriter(msdFileName);
@@ -1468,13 +1559,13 @@ public class Simulation extends Box {
 
             for(int i = 0; i < 360; i++) {
                 for(int j = 0; j < numTCells; j++) {
-                    refractoryWriter.append(String.format("%d,", refractoryTime[j][i]));
+                    //refractoryWriter.append(String.format("%d,", refractoryTime[j][i]));
                 }
-                refractoryWriter.append("\n");
+                //refractoryWriter.append("\n");
             }
 
             for(int i = 0; i < numDeathsVsTime.length; i++) {
-                killWriter.append(String.format("%d\n", numTumorCellsVsTime[i]));
+                //killWriter.append(String.format("%d\n", numTumorCellsVsTime[i]));
             }
 
 //                for(int i = 0; i < startValues.size(); i++) {
@@ -1501,8 +1592,8 @@ public class Simulation extends Box {
             System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
 
             //avgWriter.close();
-            refractoryWriter.close();
-            killWriter.close();
+            //refractoryWriter.close();
+            //killWriter.close();
             //cellWriter.close();
             //breadcrumbWriter.close();
             //breadcrumbWriterNoPBC.close();
@@ -1612,11 +1703,11 @@ public class Simulation extends Box {
     }
 
     void addTCellsNearTumor(int idNum) {
-//        int[] randArray = new int[3];
-//
-//        randArray[0] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
-//        randArray[1] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
-//        randArray[2] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
+        int[] randArray = new int[3];
+
+        randArray[0] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
+        randArray[1] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
+        randArray[2] = (rand.nextInt(1) + 1) * (rand.nextBoolean() ? -1 : 1);
 //
 //        System.out.println(randArray[0]);
 //        System.out.println(randArray[1]);
@@ -1628,14 +1719,19 @@ public class Simulation extends Box {
 
         //TODO: Figure out why t-cells so far from tumor (probably not aligned to shifting tumorGel)
         // Maybe because tumor gel is deleted!
+//        double shiftAmount = Math.sqrt(2) * tumorRadius;
+//
+//        double x = (tumorGel.getX()) + shiftAmount * randArray[0];
+//        double y = (tumorGel.getY()) - shiftAmount * randArray[1];
+//        //double z = (tumorGel.getZ()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[2];
 
-//        double x = (tumorGel.getX()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[0];
-//        double y = (tumorGel.getY()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[1];
-//        double z = (tumorGel.getZ()) + tumorRadius *  (0.50 + (0.25 * rand.nextDouble())) * randArray[2];
+        double x = (tumorGel.getX()) + tumorRadius *  (0.50 + (0.20 * rand.nextDouble())) * randArray[0];
+        double y = (tumorGel.getY()) + tumorRadius *  (0.50 + (0.20 * rand.nextDouble())) * randArray[1];
+        double z = (tumorGel.getZ()) + tumorRadius *  (0.50 + (0.20 * rand.nextDouble())) * randArray[2];
 
-        double x = (tumorGel.getX() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
-        double y = (tumorGel.getY() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
-        double z = (tumorGel.getZ() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
+//        double x = (tumorGel.getX() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
+//        double y = (tumorGel.getY() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
+//        double z = (tumorGel.getZ() - calculateTumorGelRadius()) + rand.nextDouble() * (calculateTumorGelRadius() * 2);
 
 
 //        if(numParticles < 75) {

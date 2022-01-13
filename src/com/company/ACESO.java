@@ -7,7 +7,7 @@ public class ACESO {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		//javax.swing.SwingUtilities.invokeLater(new Client());
 
-		Simulation sim = new Simulation();
+
 //
 //		sim.fillFCC();
 //
@@ -31,7 +31,9 @@ public class ACESO {
 //			sim.fillFCC();
 //			sim.runTCellsIterable(0);
 //		}
-		
+
+
+		Simulation sim = new Simulation();
 		if(args.length > 0) {
 			int runNum = Integer.parseInt(args[0]);
 
@@ -49,11 +51,13 @@ public class ACESO {
 
 			sim.setNumTCells(numTCells);
 
-			sim.settCellRefractoryPeriod(tCellRefractoryPeriod);
+			sim.setStartingTumorCells(numTumorCells);
+
+			sim.setTCellRefractoryPeriod(tCellRefractoryPeriod);
 
 			sim.setTumorDoublingTime(tumorDoublingTime);
 
-			sim.settCellDoublingTime(tCellDoublingTime);
+			sim.setTCellDoublingTime(tCellDoublingTime);
 
 			sim.fillUnthreaded();
 
@@ -62,13 +66,13 @@ public class ACESO {
 			sim.runTCellsIterable(runNum);
 
 		}
-//
-//		else {
-//			sim.fillUnthreaded();
-//
-//			sim.fallUnthreaded();
-//
-//			sim.runTCellsIterable(1);
-//		}
+
+		else {
+			sim.fillUnthreaded();
+
+			sim.fallUnthreaded();
+
+			sim.runTCellsIterable(1);
+		}
 	}
 }
