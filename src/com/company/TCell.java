@@ -206,6 +206,8 @@ public class TCell extends Particle implements Drawable {
 
     void cellMove() throws IOException {
         boolean lifeIncremented = false;
+
+        incrementLifeTime();
     	
         previousNearTumor = nearTumor;
         lifeIncremented = true;
