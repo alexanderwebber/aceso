@@ -208,7 +208,6 @@ public class TCell extends Particle implements Drawable {
         boolean lifeIncremented = false;
     	
         previousNearTumor = nearTumor;
-        incrementLifeTime();
         lifeIncremented = true;
         
         this.v = Vector.random3(velocity, random);
@@ -247,7 +246,6 @@ public class TCell extends Particle implements Drawable {
 
             // check tumor cells
             if(isActivated == true) {
-
 
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
@@ -289,6 +287,9 @@ public class TCell extends Particle implements Drawable {
 //                        lifeIncremented = true;
                     }
                 }
+
+                incrementLifeTime();
+
                 if(!isActivated) {
                     timeBetweenKill++;
                 }

@@ -5,9 +5,15 @@ import java.io.IOException;
 public class ACESO {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		//javax.swing.SwingUtilities.invokeLater(new Client());
 
-		Simulation sim = new Simulation();
+		boolean GUI = Boolean.parseBoolean(args[7]);
+
+		if(GUI) {
+			javax.swing.SwingUtilities.invokeLater(new Client());
+		}
+
+
+
 //
 //		sim.fillFCC();
 //
@@ -31,44 +37,54 @@ public class ACESO {
 //			sim.fillFCC();
 //			sim.runTCellsIterable(0);
 //		}
-		
-		if(args.length > 0) {
-			int runNum = Integer.parseInt(args[0]);
 
-			int numTCells = Integer.parseInt(args[1]);
+		else {
+			Simulation sim = new Simulation();
+			if(args.length > 0) {
+				int runNum = Integer.parseInt(args[0]);
 
-			int numTumorCells = Integer.parseInt(args[2]);
+				int numTCellRatio = Integer.parseInt(args[1]);
 
-			int tCellDoublingTime = Integer.parseInt(args[3]);
+				int numTumorCells = Integer.parseInt(args[2]);
 
-			int tumorDoublingTime = Integer.parseInt(args[4]);
+				int tCellDoublingTime = Integer.parseInt(args[3]);
 
-			int tCellRefractoryPeriod = Integer.parseInt(args[5]);
+				int tumorDoublingTime = Integer.parseInt(args[4]);
 
-			//updatesim.numTumor = numTumorCells;
+				int tCellRefractoryPeriod = Integer.parseInt(args[5]);
 
-			sim.setNumTCells(numTCells);
+				double tumorGelNoGelRadius = Double.parseDouble(args[6]);
 
-			sim.settCellRefractoryPeriod(tCellRefractoryPeriod);
+				//updatesim.numTumor = numTumorCells;
 
-			sim.setTumorDoublingTime(tumorDoublingTime);
+				sim.setNumTCellRatio(numTCellRatio);
 
-			sim.settCellDoublingTime(tCellDoublingTime);
+				sim.setStartingTumorCells(numTumorCells);
 
-			sim.fillUnthreaded();
+				sim.setTCellRefractoryPeriod(tCellRefractoryPeriod);
 
-			sim.fallUnthreaded();
+				sim.setTumorDoublingTime(tumorDoublingTime);
 
-			sim.runTCellsIterable(runNum);
+				sim.setTCellDoublingTime(tCellDoublingTime);
 
-		}
-//
-//		else {
+				sim.setTumorGelNoGelRadius(tumorGelNoGelRadius);
+
 //			sim.fillUnthreaded();
 //
 //			sim.fallUnthreaded();
-//
-//			sim.runTCellsIterable(1);
-//		}
+
+				sim.runTCellsIterable(runNum);
+
+			}
+
+			else {
+				sim.fillUnthreaded();
+
+				sim.fallUnthreaded();
+
+				sim.runTCellsIterable(1);
+			}
+		}
+
 	}
 }
