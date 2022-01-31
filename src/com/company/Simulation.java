@@ -801,7 +801,13 @@ public class Simulation extends Box {
 
     double outputRangeOverAverageR() {
 
-        double rangeOverAverageR = returnGelRange() / (2 * calculateWeightedAvgRadius());
+        if(gels.size() != 0) {
+            double rangeOverAverageR = returnGelRange() / (2 * calculateWeightedAvgRadius());
+        }
+
+        else {
+            rangeOverAverageR = 0.0;
+        }
 
         return rangeOverAverageR;
     }
@@ -1233,6 +1239,8 @@ public class Simulation extends Box {
 
     		//addTCellsFromList(spaces);
 
+            tumorGel = new Gel(sideLength / 2, sideLength / 2, sideLength / 2, tumorGelNoGelRadius, this, "TumorGel");
+
             generateTumor(tumorGel);
 
             //buildTumorFromCSV();
@@ -1244,10 +1252,10 @@ public class Simulation extends Box {
             //ArrayList<double[]> xyzOutput = new ArrayList<>();
 
             String avgString = String.format("%07.3f", this.calculateWeightedAvgRadius());
-            String stdevString = String.format("%05.3f", this.returnGelRange() / this.calculateWeightedAvgRadius());
+            //String stdevString = String.format("%05.3f", this.returnGelRange() / this.calculateWeightedAvgRadius());
             LocalDate currentDate = LocalDate.now();
             String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("ddMMMyyyy"));
-            String msdFileName = formattedDate + "_MSDvsTime_LLS-radius" + avgString + "_LLS-dispersion" + stdevString + ".csv";
+            //String msdFileName = formattedDate + "_MSDvsTime_LLS-radius" + avgString + "_LLS-dispersion" + stdevString + ".csv";
             //String residenceFileName = "residence" + "_" + calculateAvgRadius() + "_" + timeLimitTCells + "_" + (returnGelRange() / calculateAvgRadius()) + ".csv";
             int abridgedTimer = 0;
 
@@ -1441,10 +1449,10 @@ public class Simulation extends Box {
                 long finishTime = System.nanoTime() - startTime;
                 System.out.println("T Cell Running Time: " + finishTime / 1e9 + " seconds");
                 //System.out.println("Average collisions with tumorGel: " + );
-                System.out.println(returnGelRange());
-                System.out.println(calculateAvgRadius());
-                System.out.println("range / mu(r) = " + (returnGelRange() / calculateAvgRadius()));
-                System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
+                //System.out.println(returnGelRange());
+                //System.out.println(calculateAvgRadius());
+                //System.out.println("range / mu(r) = " + (returnGelRange() / calculateAvgRadius()));
+                //System.out.println("mu(r) / r* = " + (calculateAvgRadius() / 8));
 
                 //avgWriter.close();
                 //refractoryWriter.close();

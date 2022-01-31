@@ -345,7 +345,7 @@ public class Particle {
         ArrayList<Particle> combinedList = new ArrayList<>();
 
         combinedList.addAll(S.gels);
-        combinedList.addAll(S.tumoroids);
+        //combinedList.addAll(S.tumoroids);
 
         for (Particle other : combinedList) {
             if (other != null) {

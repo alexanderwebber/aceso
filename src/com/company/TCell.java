@@ -206,9 +206,6 @@ public class TCell extends Particle implements Drawable {
 
     void cellMove() throws IOException {
         boolean lifeIncremented = false;
-
-        incrementLifeTime();
-    	
         previousNearTumor = nearTumor;
         lifeIncremented = true;
         
@@ -222,11 +219,11 @@ public class TCell extends Particle implements Drawable {
         }
 
         // TODO: Change back to normal amount of kills
-        if(numKills < 2000) {
+        if(numKills < 1000000) {
             if(this.lastTimeKilled >= refractoryPeriod) {
                 setActivated(true);
                 this.setStatus(1);
-                lastTimeKilled = 0;
+                setLastTimeKilled(0);
             }
 
             if(isActivated == false) {
@@ -252,7 +249,7 @@ public class TCell extends Particle implements Drawable {
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
                     if(isActivated == false) {
-                        continue;
+                        break;
                     }
 
                     if(S.getTumoroids().get(i).getStatus().equals("dead") || S.getTumoroids().get(i).getStatus().equals("being_attacked")) {
@@ -280,6 +277,7 @@ public class TCell extends Particle implements Drawable {
                         this.setStatus(2);
                         S.getTumoroids().get(i).setStatus("delete");
                         numKills++;
+                        setLastTimeKilled(0);
                         break;
                     }
 
