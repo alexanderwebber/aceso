@@ -1490,7 +1490,7 @@ public class Simulation extends Box {
 
         generateTumor(tumorGel);
 
-
+        startingNumTumor = numTumor;
 
         setNumTCells((int)(numTumor / getNumTCellRatio()));
 
