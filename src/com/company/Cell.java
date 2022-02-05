@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.Utilities.LinkedList;
+
 public class Cell
 {
     public LinkedList<Particle> particles;

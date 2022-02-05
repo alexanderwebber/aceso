@@ -1,9 +1,10 @@
 package com.company;
 
+import com.company.Utilities.QuickSort;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 
 class Visualization extends JPanel {
     Simulation S;

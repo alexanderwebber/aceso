@@ -1,4 +1,4 @@
-package com.company;
+package com.company.Utilities;
 
 public class Node<E> {
     public E element;

@@ -12,8 +12,6 @@ public class ACESO {
 			javax.swing.SwingUtilities.invokeLater(new Client());
 		}
 
-
-
 //
 //		sim.fillFCC();
 //
@@ -45,6 +43,8 @@ public class ACESO {
 
 				int numTCellRatio = Integer.parseInt(args[1]);
 
+				//int numTCells = Integer.parseInt((args[1]));
+
 				int numTumorCells = Integer.parseInt(args[2]);
 
 				int tCellDoublingTime = Integer.parseInt(args[3]);
@@ -58,6 +58,8 @@ public class ACESO {
 				//updatesim.numTumor = numTumorCells;
 
 				sim.setNumTCellRatio(numTCellRatio);
+
+				//sim.setNumTCells(numTCells);
 
 				sim.setStartingTumorCells(numTumorCells);
 
