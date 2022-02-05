@@ -127,7 +127,7 @@ public class Simulation extends Box {
     }
 
     // Residence data stuff
-    int simulationTimeLimit = 7200;
+    int simulationTimeLimit = 10800;
 
     static ArrayList<int[]> startValues = new ArrayList<>();
 
@@ -1261,7 +1261,7 @@ public class Simulation extends Box {
 
     		//addTCellsFromList(spaces);
 
-            tumorGelNoGelRadius = 70;
+            tumorGelNoGelRadius = 90;
 
             tumorGel = new Gel(sideLength / 2, sideLength / 2, sideLength / 2, tumorGelNoGelRadius, this, "TumorGel");
 

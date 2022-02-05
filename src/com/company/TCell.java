@@ -228,6 +228,7 @@ public class TCell extends Particle implements Drawable {
 
             if(isActivated == false) {
                 this.lastTimeKilled++;
+                timeBetweenKill++;
             }
 
             if(isAttacking == true) {
@@ -244,7 +245,7 @@ public class TCell extends Particle implements Drawable {
             }
 
             // check tumor cells
-            if(isActivated == true) {
+            else if(isActivated == true) {
 
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
@@ -280,19 +281,10 @@ public class TCell extends Particle implements Drawable {
                         setLastTimeKilled(0);
                         break;
                     }
-
-
-                    if(distanceVector < 250 && lifeIncremented == false) {
-//                        incrementLifeTime();
-//                        lifeIncremented = true;
-                    }
                 }
 
                 incrementLifeTime();
 
-                if(!isActivated) {
-                    timeBetweenKill++;
-                }
             }
         }
 
@@ -364,18 +356,19 @@ public class TCell extends Particle implements Drawable {
         }
 
         else if(this.getStatus() == 2) {
-            g.setColor(new Color(255, 255, 0, 192)); //outline
-            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
-            g.setColor(new Color(255, 255, 0, 90)); //fill
-            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-        }
-
-        else if(this.getStatus() == 3) {
             g.setColor(new Color(255, 165, 0, 192)); //outline
             g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
             g.setColor(new Color(255, 165, 0, 90)); //fill
+            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+        }
+
+        else if(this.getStatus() == 3) {
+            g.setColor(new Color(255, 255, 0, 192)); //outline
+            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+
+            g.setColor(new Color(255, 255, 0, 90)); //fill
             g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
         }
 
