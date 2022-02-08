@@ -35,7 +35,7 @@ public class TCell extends Particle implements Drawable {
     ArrayList<Integer> individualAverageTimeBetweenKills = new ArrayList<>();
 
     // Killing, not killing
-    private int status;
+    int status;
 
     private int timeAttacking;
 
@@ -68,27 +68,21 @@ public class TCell extends Particle implements Drawable {
         this.random = random;
 
         this.idNum = idNum;
-        
-        this.status = 1;
 
         //this.velocity = logNormal.sample();
         
         //v = new Vector(velocityX, velocityY, velocityZ);
         xyzFileName = "xyz" + "_" + "id" + idNum + ".csv";
 
-        lastTimeKilled = random.nextInt(refractoryPeriod);
+        this.refractoryPeriod = refractoryPeriod;
+
+        lastTimeKilled = 0;
 
         lifeTime = random.nextInt(doublingTime);
 
-        if (lastTimeKilled == 0) {
-            isActivated = true;
-            this.setStatus(1);
-        }
+        isActivated = true;
+        this.setStatus(1);
 
-        else {
-            isActivated = false;
-            this.setStatus(2);
-        }
 
     }
 
@@ -205,13 +199,13 @@ public class TCell extends Particle implements Drawable {
     }
 
     void cellMove() throws IOException {
-        boolean lifeIncremented = false;
+        incrementLifeTime();
+
         previousNearTumor = nearTumor;
-        lifeIncremented = true;
         
         this.v = Vector.random3(velocity, random);
         
-        if (checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
+        if(!isActivated && checkCollision(this.getX() + this.v.x(), this.getY() + this.v.y(), this.getZ() + this.v.z(), this.getR())) {
 
         }
         else {
@@ -220,32 +214,38 @@ public class TCell extends Particle implements Drawable {
 
         // TODO: Change back to normal amount of kills
         if(numKills < 1000000) {
-            if(this.lastTimeKilled >= refractoryPeriod) {
-                setActivated(true);
-                this.setStatus(1);
-                setLastTimeKilled(0);
-            }
+            if(!isActivated) {
+                if(isAttacking) {
 
-            if(isActivated == false) {
-                this.lastTimeKilled++;
-                timeBetweenKill++;
-            }
-
-            if(isAttacking == true) {
-            	
-                if(timeAttacking >= 60) {
-                    setIsAttacking(false);
-                    this.setStatus(3);
-                    timeAttacking = 0;
-                    this.velocity = 3.5;
+                    if(timeAttacking >= 360) {
+                        setIsAttacking(false);
+                        this.setStatus(3);
+                        timeAttacking = 0;
+                        this.velocity = 3.5;
+                    }
+                    else {
+                        timeAttacking++;
+                        this.lastTimeKilled++;
+                    }
                 }
                 else {
-                    timeAttacking++;
+                    if(this.lastTimeKilled >= refractoryPeriod) {
+                        setActivated(true);
+                        this.setStatus(1);
+                        setLastTimeKilled(0);
+                    }
+                    else {
+                        this.lastTimeKilled++;
+                        timeBetweenKill++;
+                    }
                 }
+
             }
 
+
+
             // check tumor cells
-            else if(isActivated == true) {
+            else {
 
                 for(int i = 0; i < S.getNumTumor(); i++) {
 
@@ -279,11 +279,8 @@ public class TCell extends Particle implements Drawable {
                         S.getTumoroids().get(i).setStatus("delete");
                         numKills++;
                         setLastTimeKilled(0);
-                        break;
                     }
                 }
-
-                incrementLifeTime();
 
             }
         }
@@ -341,11 +338,11 @@ public class TCell extends Particle implements Drawable {
     
     public void draw(Graphics g) {
 
-        g.setColor(new Color(0, 255, 0, 192)); //outline
-        g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-
-        g.setColor(new Color(0, 255, 0, 90)); //fill
-        g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//        g.setColor(new Color(0, 255, 0, 192)); //outline
+//        g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//
+//        g.setColor(new Color(0, 255, 0, 90)); //fill
+//        g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 
         if(this.getStatus() == 1) {
             g.setColor(new Color(0, 255, 0, 192)); //outline

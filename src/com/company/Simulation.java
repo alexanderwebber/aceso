@@ -1072,13 +1072,13 @@ public class Simulation extends Box {
         double[] returnArray = new double[2];
 
         for(int i = 0; i < numTumorCellsVsTime.length; i++) {
-            if(numTumorCellsVsTime[i] > numTumorMax) {
+            if(numTumorCellsVsTime[i] >= numTumorMax) {
                 numTumorMax = numTumorCellsVsTime[i];
                 tMax = i;
             }
         }
 
-        returnArray[0] = tMax / 180;
+        returnArray[0] = tMax / 180.0;
         returnArray[1] = numTumorMax;
 
         return returnArray;
@@ -1261,7 +1261,7 @@ public class Simulation extends Box {
 
     		//addTCellsFromList(spaces);
 
-            tumorGelNoGelRadius = 90;
+            tumorGelNoGelRadius = 70;
 
             tumorGel = new Gel(sideLength / 2, sideLength / 2, sideLength / 2, tumorGelNoGelRadius, this, "TumorGel");
 
@@ -1383,11 +1383,11 @@ public class Simulation extends Box {
                     numDeathsVsTime[(int)sim_time] = numDeaths;
 
                     if(tumor) {
-                        numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
-                        numTCellsVsTime[(int)sim_time] = numParticles;
-                        tumorTime[(int)sim_time] = sim_time / 180;
                 		tumorGarbageCollector();
                 		tumorGrow();
+                        numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
+                        numTCellsVsTime[(int)sim_time] = numParticles;
+                        tumorTime[(int)sim_time] = sim_time / 180.0;
                 	}
 
                     //setAverageDisplacement(averageDisplacement);
@@ -1413,6 +1413,10 @@ public class Simulation extends Box {
                     if((int)sim_time % stepReduction == 0) {
                         //xyzWriter.append(String.format("%f,%f,%f\n", xTotal, yTotal, zTotal));
                         //cellWriter.append(String.format("\n"));
+                    }
+
+                    if(this.getTumoroids().size() == 0) {
+                        break;
                     }
 
                     t += dt;
@@ -1593,27 +1597,31 @@ public class Simulation extends Box {
 
             int intTimer = 0;
 
-            int[] numTumorCellsVsTime = new int[simulationTimeLimit];
-            double[] tumorTime = new double[simulationTimeLimit];
+            int[] numTumorCellsVsTimeTemp = new int[simulationTimeLimit];
+            double[] tumorTimeTemp = new double[simulationTimeLimit];
+
+            int[] numTumorCellsVsTime = new int[0];
+            double[] tumorTime = new double[0];
 
             //int[][] refractoryTime = new int[numParticles][720];
 
-            int[] numKillsVsTime = new int[simulationTimeLimit];
-            int[] numDeathsVsTime = new int[simulationTimeLimit];
+            int[] numKillsVsTimeTemp = new int[simulationTimeLimit];
+            int[] numDeathsVsTimeTemp = new int[simulationTimeLimit];
 
-            int[] numTCellsVsTime = new int[simulationTimeLimit];
+            int[] numTCellsVsTimeTemp = new int[simulationTimeLimit];
 
             int numDeaths = 0;
 
             while (sim_time < simulationTimeLimit) {
-                System.out.println(sim_time);
-                if((sim_time / simulationTimeLimit) % 0.05 == 0) {
+                if((sim_time / simulationTimeLimit) % 0.1 == 0) {
                     String percentageComplete = String.format("%.1f", 100 * sim_time / simulationTimeLimit);
                     System.out.println(percentageComplete + "% Complete");
 
                     System.out.println("Number of T-Cells: " + numParticles);
                     System.out.println("Number of Tumor Cells: " + this.getTumoroids().size());
                 }
+
+
 
 
 
@@ -1636,7 +1644,7 @@ public class Simulation extends Box {
                     numKills += tCells[i].getNumKills();
                 }
 
-                numKillsVsTime[(int)sim_time] = numKills;
+                numKillsVsTimeTemp[(int)sim_time] = numKills;
 
 
 
@@ -1656,12 +1664,12 @@ public class Simulation extends Box {
                         numDeaths++;
                     }
                 }
-                numDeathsVsTime[(int)sim_time] = numDeaths;
+                numDeathsVsTimeTemp[(int)sim_time] = numDeaths;
 
                 if(tumor) {
-                    numTumorCellsVsTime[(int)sim_time] = this.getTumoroids().size();
-                    numTCellsVsTime[(int)sim_time] = numParticles;
-                    tumorTime[(int)sim_time] = sim_time / 180;
+                    numTumorCellsVsTimeTemp[(int)sim_time] = this.getTumoroids().size();
+                    numTCellsVsTimeTemp[(int)sim_time] = numParticles;
+                    tumorTimeTemp[(int)sim_time] = sim_time / 180;
                     tumorGarbageCollector();
                     tumorGrow();
                 }
@@ -1695,6 +1703,18 @@ public class Simulation extends Box {
 
                 //System.out.println(sim_time);
                 sim_time++;
+
+                if(this.getTumoroids().size() == 0) {
+                    numTumorCellsVsTime = new int[(int)sim_time];
+                    tumorTime = new double[(int)sim_time];
+
+                    for(int time = 0; time < (int)sim_time; time++) {
+                        numTumorCellsVsTime[time] = numTumorCellsVsTimeTemp[time];
+                        tumorTime[time] = tumorTimeTemp[time];
+                    }
+
+                    break;
+                }
             }
 
             // TODO: Calculate average time between kills
@@ -1734,7 +1754,7 @@ public class Simulation extends Box {
                 //refractoryWriter.append("\n");
             }
 
-            for(int i = 0; i < numDeathsVsTime.length; i++) {
+            for(int i = 0; i < numDeathsVsTimeTemp.length; i++) {
                 //killWriter.append(String.format("%d\n", numTumorCellsVsTime[i]));
             }
 
