@@ -1705,10 +1705,14 @@ public class Simulation extends Box {
                 sim_time++;
 
                 if(this.getTumoroids().size() == 0) {
-                    numTumorCellsVsTime = new int[(int)sim_time];
-                    tumorTime = new double[(int)sim_time];
+                    numTumorCellsVsTimeTemp[(int)sim_time] = this.getTumoroids().size();
+                    numTCellsVsTimeTemp[(int)sim_time] = numParticles;
+                    tumorTimeTemp[(int)sim_time] = sim_time / 180.0;
 
-                    for(int time = 0; time < (int)sim_time; time++) {
+                    numTumorCellsVsTime = new int[(int)sim_time + 1];
+                    tumorTime = new double[(int)sim_time + 1];
+
+                    for(int time = 0; time <= (int)sim_time; time++) {
                         numTumorCellsVsTime[time] = numTumorCellsVsTimeTemp[time];
                         tumorTime[time] = tumorTimeTemp[time];
                     }
@@ -1716,23 +1720,6 @@ public class Simulation extends Box {
                     break;
                 }
             }
-
-            // TODO: Calculate average time between kills
-            double overallSum = 0;
-            for(int i = 0; i < numParticles; i++) {
-                double individualSum = 0;
-                for(int j = 0; j < tCells[i].individualAverageTimeBetweenKills.size(); j++) {
-                    individualSum += tCells[i].individualAverageTimeBetweenKills.get(j);
-                }
-                if(tCells[i].individualAverageTimeBetweenKills.size() != 0) {
-                    overallSum += individualSum / tCells[i].individualAverageTimeBetweenKills.size();
-                }
-
-            }
-
-            double overallAvg = overallSum / numParticles;
-
-            System.out.println("overall avg: " + overallAvg);
 
             if(tumor) {
                 numTumorVsTimeToCSV(numTumorCellsVsTime, tumorTime, runNum);
