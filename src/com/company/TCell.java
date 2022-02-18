@@ -80,8 +80,17 @@ public class TCell extends Particle implements Drawable {
 
         lifeTime = random.nextInt(doublingTime);
 
-        isActivated = true;
-        this.setStatus(1);
+
+        timeAttacking = random.nextInt(360);
+
+        if(timeAttacking != 0) {
+            isActivated = false;
+            this.setStatus(2);
+        }
+        else {
+            isActivated = true;
+            this.setStatus(1);
+        }
 
 
     }

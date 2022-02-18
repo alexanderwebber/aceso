@@ -1704,6 +1704,7 @@ public class Simulation extends Box {
                 //System.out.println(sim_time);
                 sim_time++;
 
+                // Use this if you want to cuto off sim early (once tumor cells are killed off)
                 if(this.getTumoroids().size() == 0) {
                     numTumorCellsVsTimeTemp[(int)sim_time] = this.getTumoroids().size();
                     numTCellsVsTimeTemp[(int)sim_time] = numParticles;
