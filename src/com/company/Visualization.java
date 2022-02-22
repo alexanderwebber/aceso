@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.Utilities.QuickSort;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -395,12 +396,12 @@ class Visualization extends JPanel {
         }
     }
 
-    public canvas getC() {
-        return this.c;
+    public Visualization getC() {
+        return this;
     }
 
     public void printBMP(int simTime) {
-        BufferedImage image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(1500, 1500, BufferedImage.TYPE_INT_RGB);
 
         Graphics gBMP = image.getGraphics();
 
@@ -409,245 +410,10 @@ class Visualization extends JPanel {
         getC().paint(gBMP);
 
         try {
-            String numberAsString = String.format ("%04d", simTime / 50);
+            String numberAsString = String.format ("%04d", simTime / 90);
             ImageIO.write(image, "BMP", new File("BMPs/fifty_kill_" + numberAsString + ".bmp"));
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-    }
-
-    public class canvas extends JPanel
-    {
-        simulation simulation;
-        public void paintComponent(Graphics g)
-        {
-            int size = Box.numGels + Box.numParticles + Box.numTumor;
-            if (simulation != null) {
-                g.setColor(Color.white);
-                g.drawString(String.format("Number of particles: %d", Box.numParticles), 10, 25);
-                g.drawString(String.format("Number of tumor cells removed: %d", Box.numTumorRemoved), 10, 40);
-                g.drawString(String.format("Time: %.0f", simulation.getTime()),10,55);
-                g.drawString(String.format("Time elapsed: %.3f seconds", simulation.getReal_time()),10,70);
-            }
-            else {
-                g.drawString(String.format("Percent Filled: %.3f", Box.getFilled() * 100),10,25);
-                g.drawString(String.format("Num Gels: %d", Box.numGels),10,40);
-                g.drawString(String.format("Time elapsed: %.3f seconds", Box.getElapsed()),10,55);
-            }
-
-            double[][] corners = drawBox();
-
-            // For visualization and BMP printing, set either full box or only back wall
-            if(fullBox == true) {
-                g.setColor(Color.white);
-                g.drawLine((int)corners[0][0] + k.offset_x,(int)corners[0][1] + k.offset_y,(int)corners[1][0] + k.offset_x,(int)corners[1][1] + k.offset_y);
-                g.drawLine((int)corners[0][0] + k.offset_x,(int)corners[0][1] + k.offset_y,(int)corners[2][0] + k.offset_x,(int)corners[2][1] + k.offset_y);
-                g.drawLine((int)corners[0][0] + k.offset_x,(int)corners[0][1] + k.offset_y,(int)corners[4][0] + k.offset_x,(int)corners[4][1] + k.offset_y);
-                g.drawLine((int)corners[1][0] + k.offset_x,(int)corners[1][1] + k.offset_y,(int)corners[3][0] + k.offset_x,(int)corners[3][1] + k.offset_y);
-                g.drawLine((int)corners[1][0] + k.offset_x,(int)corners[1][1] + k.offset_y,(int)corners[5][0] + k.offset_x,(int)corners[5][1] + k.offset_y);
-                g.drawLine((int)corners[2][0] + k.offset_x,(int)corners[2][1] + k.offset_y,(int)corners[3][0] + k.offset_x,(int)corners[3][1] + k.offset_y);
-                g.drawLine((int)corners[2][0] + k.offset_x,(int)corners[2][1] + k.offset_y,(int)corners[6][0] + k.offset_x,(int)corners[6][1] + k.offset_y);
-                g.drawLine((int)corners[3][0] + k.offset_x,(int)corners[3][1] + k.offset_y,(int)corners[7][0] + k.offset_x,(int)corners[7][1] + k.offset_y);
-                g.drawLine((int)corners[4][0] + k.offset_x,(int)corners[4][1] + k.offset_y,(int)corners[5][0] + k.offset_x,(int)corners[5][1] + k.offset_y);
-                g.drawLine((int)corners[4][0] + k.offset_x,(int)corners[4][1] + k.offset_y,(int)corners[6][0] + k.offset_x,(int)corners[6][1] + k.offset_y);
-                g.drawLine((int)corners[5][0] + k.offset_x,(int)corners[5][1] + k.offset_y,(int)corners[7][0] + k.offset_x,(int)corners[7][1] + k.offset_y);
-                g.drawLine((int)corners[6][0] + k.offset_x,(int)corners[6][1] + k.offset_y,(int)corners[7][0] + k.offset_x,(int)corners[7][1] + k.offset_y);
-            }
-            else {
-                g.setColor(Color.BLACK);
-                g.drawLine((int)corners[0][0] + k.offset_x,(int)corners[0][1] + k.offset_y,(int)corners[1][0] + k.offset_x,(int)corners[1][1] + k.offset_y);
-                g.drawLine((int)corners[0][0] + k.offset_x,(int)corners[0][1] + k.offset_y,(int)corners[2][0] + k.offset_x,(int)corners[2][1] + k.offset_y);
-                g.drawLine((int)corners[0][0] + k.offset_x,(int)corners[0][1] + k.offset_y,(int)corners[4][0] + k.offset_x,(int)corners[4][1] + k.offset_y);
-                g.drawLine((int)corners[1][0] + k.offset_x,(int)corners[1][1] + k.offset_y,(int)corners[3][0] + k.offset_x,(int)corners[3][1] + k.offset_y);
-                g.drawLine((int)corners[1][0] + k.offset_x,(int)corners[1][1] + k.offset_y,(int)corners[5][0] + k.offset_x,(int)corners[5][1] + k.offset_y);
-                g.setColor(Color.white);
-                g.drawLine((int)corners[2][0] + k.offset_x,(int)corners[2][1] + k.offset_y,(int)corners[3][0] + k.offset_x,(int)corners[3][1] + k.offset_y);
-                g.drawLine((int)corners[2][0] + k.offset_x,(int)corners[2][1] + k.offset_y,(int)corners[6][0] + k.offset_x,(int)corners[6][1] + k.offset_y);
-                g.drawLine((int)corners[3][0] + k.offset_x,(int)corners[3][1] + k.offset_y,(int)corners[7][0] + k.offset_x,(int)corners[7][1] + k.offset_y);
-                g.setColor(Color.BLACK);
-                g.drawLine((int)corners[4][0] + k.offset_x,(int)corners[4][1] + k.offset_y,(int)corners[5][0] + k.offset_x,(int)corners[5][1] + k.offset_y);
-                g.drawLine((int)corners[4][0] + k.offset_x,(int)corners[4][1] + k.offset_y,(int)corners[6][0] + k.offset_x,(int)corners[6][1] + k.offset_y);
-                g.drawLine((int)corners[5][0] + k.offset_x,(int)corners[5][1] + k.offset_y,(int)corners[7][0] + k.offset_x,(int)corners[7][1] + k.offset_y);
-                g.setColor(Color.white);
-                g.drawLine((int)corners[6][0] + k.offset_x,(int)corners[6][1] + k.offset_y,(int)corners[7][0] + k.offset_x,(int)corners[7][1] + k.offset_y);
-            }
-
-            int num_gels = Box.numGels;
-            int num_part = Box.numParticles;
-            coordinate_transform(num_gels, num_part, Box.numTumor);
-
-            //Setup Variables for the Rendering
-            double actinRadius = 0.0;
-            double xActin = 0.0;
-            double yActin = 0.0;
-            double alphaFill = 0.0;
-            double alphaStroke = 0.0;
-
-            //Cell Rendering variables
-            double cellRadius = 0.0;
-            double nucRadius = 0.0;
-            double cellXo = 0.0;
-            double cellYo = 0.0;
-
-            //Drawing Checks
-            double checkRadius = 0.0;
-            double maxRadius = 0.0;
-
-            for (int i = 0; i < size; i++) { //loop through gels+particles
-                if (drawthis[i].type.equals("particle")) { //is a particle
-                    cellRadius = drawthis[i].R;
-                    cellXo = drawthis[i].x;
-                    cellYo = drawthis[i].y;
-
-                    //draw background for immune cell
-                    for (int frames = 0; frames < 20; ++frames) {
-                        boolean draw = true;
-                        while(draw) {
-                            actinRadius = 0.4 * cellRadius + Math.random() * cellRadius * 0.6;
-                            xActin = cellXo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius);
-                            yActin = cellYo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius);
-                            alphaFill = 0.1;
-
-                            g.setColor(new Color(0, 0, 0, (int)(alphaFill * 255)));
-                            checkRadius = (cellXo - xActin) * (cellXo - xActin) + (cellYo - yActin) * (cellYo - yActin);
-                            maxRadius = (cellRadius - actinRadius) * (cellRadius - actinRadius);
-                            if (checkRadius < maxRadius) {
-                                g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                draw = false;
-                            }
-                        }
-                    }
-                    //draw immune cell
-                    for (int frames = 0; frames < 50; ++frames) {
-                        boolean draw = true;
-                        while (draw) {
-                            actinRadius = 0.4 * cellRadius + Math.random() * cellRadius * 0.6;
-                            xActin = cellXo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius)* o.r/2000;
-                            yActin = cellYo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius)* o.r/2000;
-                            alphaFill = 0.04;
-                            alphaStroke = 0.1;
-
-                            checkRadius = (cellXo - xActin) * (cellXo - xActin) + (cellYo - yActin) * (cellYo - yActin);
-                            maxRadius = (cellRadius - actinRadius) * (cellRadius - actinRadius);
-                            if (checkRadius < maxRadius) {
-                                if(drawthis[i].getStatus() == "active") {
-                                    g.setColor(new Color(200, 0, 0, (int) (alphaFill * 255)));
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    g.setColor(new Color(200, 0, 0, (int) (alphaStroke * 255)));
-                                    g.drawOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-
-                                else if(drawthis[i].getStatus() == "attacking") {
-                                    g.setColor(new Color(255, 255, 0, (int) (alphaFill * 255)));
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    g.setColor(new Color(255, 255, 0, (int) (alphaStroke * 255)));
-                                    g.drawOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-
-                                else if(drawthis[i].getStatus() == "resting") {
-                                    g.setColor(new Color(255, 165, 0, (int) (alphaFill * 255)));
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    g.setColor(new Color(255, 165, 0, (int) (alphaStroke * 255)));
-                                    g.drawOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-
-                                else if(drawthis[i].getStatus() == "exhausted") {
-                                    g.setColor(new Color(220, 220, 220, (int) (alphaFill * 255)));
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    g.setColor(new Color(220, 220, 220, (int) (alphaStroke * 255)));
-                                    g.drawOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                else if (drawthis[i].type.equals("tumor")) {
-                    cellRadius = drawthis[i].R;
-                    cellXo = drawthis[i].x;
-                    cellYo = drawthis[i].y;
-
-                    //draw background for tumor cell
-                    for (int frames = 0; frames < 20; ++frames) {
-                        boolean draw = true;
-                        while(draw) {
-                            actinRadius = 0.4 * cellRadius + Math.random() * cellRadius * 0.6;
-                            xActin = cellXo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius);
-                            yActin = cellYo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius);
-                            alphaFill = 0.1;
-
-                            if(drawthis[i].getStatus() == "alive") {
-                                g.setColor(new Color(0, 0, 0, (int)(alphaFill * 255)));
-                                checkRadius = (cellXo - xActin) * (cellXo - xActin) + (cellYo - yActin) * (cellYo - yActin);
-                                maxRadius = (cellRadius - actinRadius) * (cellRadius - actinRadius);
-                                if (checkRadius < maxRadius) {
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-                            }
-
-                            else if(drawthis[i].getStatus() == "being_attacked") {
-                                g.setColor(new Color(0, 0, 0, (int)(alphaFill * 255)));
-                                checkRadius = (cellXo - xActin) * (cellXo - xActin) + (cellYo - yActin) * (cellYo - yActin);
-                                maxRadius = (cellRadius - actinRadius) * (cellRadius - actinRadius);
-                                if (checkRadius < maxRadius) {
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-                            }
-
-                            else if(drawthis[i].getStatus() == "dead") {
-                                g.setColor(new Color(255, 255, 255, (int)(alphaFill * 255)));
-                                checkRadius = (cellXo - xActin) * (cellXo - xActin) + (cellYo - yActin) * (cellYo - yActin);
-                                maxRadius = (cellRadius - actinRadius) * (cellRadius - actinRadius);
-                                if (checkRadius < maxRadius) {
-                                    g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                    draw = false;
-                                }
-                            }
-                        }
-                    }
-                    //draw tumor cell
-                    for (int frames = 0; frames < 50; ++frames) {
-                        boolean draw = true;
-                        while (draw) {
-                            actinRadius = 0.4 * cellRadius + Math.random() * cellRadius * 0.6;
-                            xActin = cellXo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius)* o.r/2000;
-                            yActin = cellYo + ((Math.random() - 0.5) * 2.0) * (cellRadius - actinRadius)* o.r/2000;
-                            alphaFill = 0.04;
-                            alphaStroke = 0.1;
-
-                            checkRadius = (cellXo - xActin) * (cellXo - xActin) + (cellYo - yActin) * (cellYo - yActin);
-                            maxRadius = (cellRadius - actinRadius) * (cellRadius - actinRadius);
-                            if (checkRadius < maxRadius) {
-                                g.setColor(new Color(0, 200, 0, (int) (alphaFill * 255)));
-                                g.fillOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                g.setColor(new Color(0, 200, 0, (int) (alphaStroke * 255)));
-                                g.drawOval((int)(xActin - actinRadius) + k.offset_x, (int)(yActin - actinRadius) + k.offset_y, (int)(2 * actinRadius), (int)(2 * actinRadius));
-                                draw = false;
-                            }
-                        }
-                    }
-                }
-                /*
-                    g.setColor(new Color(255, 62, 51, 181)); //outline
-                    g.drawOval((int) drawthis[i].x + k.offset_x - (int) (drawthis[i].R * o.r/2000), (int) drawthis[i].y + k.offset_y - (int) (drawthis[i].R * o.r/2000), (int) (drawthis[i].R * o.r/1000), (int) (drawthis[i].R * o.r/1000));
-                    g.setColor(new Color(175, 37, 37, 95));
-                    g.fillOval((int) drawthis[i].x + k.offset_x - (int) (drawthis[i].R * o.r/2000), (int) drawthis[i].y + k.offset_y - (int) (drawthis[i].R * o.r/2000), Math.max((int) (drawthis[i].R * o.r/1000), 1), Math.max((int) (drawthis[i].R * o.r/1000), 1));
-                }*/
-                else {
-                    g.setColor(new Color(54, 45, 255, 0)); //outline
-                    g.drawOval((int) drawthis[i].x + k.offset_x - (int) (drawthis[i].R), (int) drawthis[i].y + k.offset_y - (int) (drawthis[i].R), (int) (2*drawthis[i].R), (int) (2*drawthis[i].R));
-
-                    g.setColor(new Color(229, 237, 255, 0)); //fill
-                    g.fillOval((int) drawthis[i].x + k.offset_x - (int) (drawthis[i].R), (int) drawthis[i].y + k.offset_y - (int) (drawthis[i].R), (int) (2*drawthis[i].R), (int) (2*drawthis[i].R));
-                }
-            }
         }
     }
 

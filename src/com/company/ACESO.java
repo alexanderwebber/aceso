@@ -38,6 +38,13 @@ public class ACESO {
 
 		else {
 			Simulation sim = new Simulation();
+
+			Visualization panel = new Visualization(sim);
+
+			panel.see_box = true;
+
+			sim.setPanel(panel);
+
 			if(args.length > 0) {
 				int runNum = Integer.parseInt(args[0]);
 

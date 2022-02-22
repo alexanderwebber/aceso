@@ -1,6 +1,8 @@
 package com.company;
 
 import org.apache.commons.math3.distribution.LogNormalDistribution;
+import sun.awt.X11.Visual;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -144,12 +146,16 @@ public class Simulation extends Box {
     double dt = 1;
     boolean simulating = false;
     private Path savePath;
+    Visualization panel;
 
     // To be changed by panel settings
     double rAverageRadius = 50.0;
     double rangeOverAverageR = 0.0;
 
     //Constructors
+    // With GUI
+
+
     Simulation() {
         super();
         sideLength = 1000;
@@ -165,6 +171,10 @@ public class Simulation extends Box {
 
     void setVolume(double volume) {
     	this.volume = volume;
+    }
+
+    void setPanel(Visualization panel) {
+        this.panel = panel;
     }
 
     void settle() {
@@ -1419,6 +1429,10 @@ public class Simulation extends Box {
                         break;
                     }
 
+                    if((int)sim_time % 90 == 0) {
+                        panel.printBMP((int)sim_time);
+                    }
+
                     t += dt;
 
                     //System.out.println(sim_time);
@@ -1699,27 +1713,31 @@ public class Simulation extends Box {
                     //cellWriter.append(String.format("\n"));
                 }
 
+                if((int)sim_time % 90 == 0) {
+                    panel.printBMP((int)sim_time);
+                }
+
                 t += dt;
 
                 //System.out.println(sim_time);
                 sim_time++;
 
                 // Use this if you want to cuto off sim early (once tumor cells are killed off)
-                if(this.getTumoroids().size() == 0) {
-                    numTumorCellsVsTimeTemp[(int)sim_time] = this.getTumoroids().size();
-                    numTCellsVsTimeTemp[(int)sim_time] = numParticles;
-                    tumorTimeTemp[(int)sim_time] = sim_time / 180.0;
-
-                    numTumorCellsVsTime = new int[(int)sim_time + 1];
-                    tumorTime = new double[(int)sim_time + 1];
-
-                    for(int time = 0; time <= (int)sim_time; time++) {
-                        numTumorCellsVsTime[time] = numTumorCellsVsTimeTemp[time];
-                        tumorTime[time] = tumorTimeTemp[time];
-                    }
-
-                    break;
-                }
+//                if(this.getTumoroids().size() == 0) {
+//                    numTumorCellsVsTimeTemp[(int)sim_time] = this.getTumoroids().size();
+//                    numTCellsVsTimeTemp[(int)sim_time] = numParticles;
+//                    tumorTimeTemp[(int)sim_time] = sim_time / 180.0;
+//
+//                    numTumorCellsVsTime = new int[(int)sim_time + 1];
+//                    tumorTime = new double[(int)sim_time + 1];
+//
+//                    for(int time = 0; time <= (int)sim_time; time++) {
+//                        numTumorCellsVsTime[time] = numTumorCellsVsTimeTemp[time];
+//                        tumorTime[time] = tumorTimeTemp[time];
+//                    }
+//
+//                    break;
+//                }
             }
 
             if(tumor) {
