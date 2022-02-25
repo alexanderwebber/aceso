@@ -28,6 +28,7 @@ class Breadcrumbs extends JFrame {
         points = (int) (time / dt);
         data = new double[num_trails][points][3];
 
+
         try {
             if (num_trails < 0) {
                 throw new IllegalArgumentException("cannot have a negative number of particles");
@@ -139,6 +140,7 @@ class Breadcrumbs extends JFrame {
     }
 
     void loadParticles(int num_particles) {
+        System.out.println(num_particles);
         for (int trail = 0; trail < num_particles; trail++) {
             try {
                 BufferedReader csvReader = new BufferedReader(new FileReader(filename));

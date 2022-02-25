@@ -54,6 +54,10 @@ public class TCell extends Particle implements Drawable {
     static double velocityY;
     static double velocityZ;
 
+    Color tCellColorOutline = new Color(0, 255, 0, 192);
+
+    Color tCellColorBody = new Color(0, 255, 0, 90);
+
     TCell(){
 
     }
@@ -80,8 +84,7 @@ public class TCell extends Particle implements Drawable {
 
         lifeTime = random.nextInt(doublingTime);
 
-
-        timeAttacking = random.nextInt(360);
+        timeAttacking = random.nextInt(720);
 
         if(timeAttacking != 0) {
             isActivated = false;
@@ -93,6 +96,14 @@ public class TCell extends Particle implements Drawable {
         }
 
 
+    }
+
+    void settCellColorOutline(Color outlineColor) {
+        tCellColorOutline = outlineColor;
+    }
+
+    void settCellColorBody(Color bodyColor) {
+        tCellColorBody = bodyColor;
     }
 
     double distanceTraveled() {
@@ -226,7 +237,7 @@ public class TCell extends Particle implements Drawable {
             if(!isActivated) {
                 if(isAttacking) {
 
-                    if(timeAttacking >= 360) {
+                    if(timeAttacking >= 720) {
                         setIsAttacking(false);
                         this.setStatus(3);
                         timeAttacking = 0;
@@ -343,47 +354,48 @@ public class TCell extends Particle implements Drawable {
 //
 //        }
 //    }
-    
+
+
     
     public void draw(Graphics g) {
 
-//        g.setColor(new Color(0, 255, 0, 192)); //outline
-//        g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+        g.setColor(tCellColorOutline);
+        g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+
+        g.setColor(tCellColorBody); //fill
+        g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+
+//        if(this.getStatus() == 1) {
+//            g.setColor(new Color(0, 255, 0, 192)); //outline
+//            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
 //
-//        g.setColor(new Color(0, 255, 0, 90)); //fill
-//        g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-
-        if(this.getStatus() == 1) {
-            g.setColor(new Color(0, 255, 0, 192)); //outline
-            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-
-            g.setColor(new Color(0, 255, 0, 90)); //fill
-            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-        }
-
-        else if(this.getStatus() == 2) {
-
-            g.setColor(new Color(255, 165, 0, 192)); //outline
-            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-
-            g.setColor(new Color(255, 165, 0, 90)); //fill
-            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-        }
-
-        else if(this.getStatus() == 3) {
-            g.setColor(new Color(255, 255, 0, 192)); //outline
-            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-
-            g.setColor(new Color(255, 255, 0, 90)); //fill
-            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-        }
-
-        else if(this.getStatus() == 4) {
-            g.setColor(new Color(255, 0, 255, 192)); //outline
-            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-
-            g.setColor(new Color(255, 0, 255, 90)); //fill
-            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
-        }
+//            g.setColor(new Color(0, 255, 0, 90)); //fill
+//            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//        }
+//
+//        else if(this.getStatus() == 2) {
+//
+//            g.setColor(new Color(255, 165, 0, 192)); //outline
+//            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//
+//            g.setColor(new Color(255, 165, 0, 90)); //fill
+//            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//        }
+//
+//        else if(this.getStatus() == 3) {
+//            g.setColor(new Color(255, 255, 0, 192)); //outline
+//            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//
+//            g.setColor(new Color(255, 255, 0, 90)); //fill
+//            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//        }
+//
+//        else if(this.getStatus() == 4) {
+//            g.setColor(new Color(255, 0, 255, 192)); //outline
+//            g.drawOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//
+//            g.setColor(new Color(255, 0, 255, 90)); //fill
+//            g.fillOval((int) x, (int) y, (int) (2 * R), (int) (2 * R));
+//        }
     }
 }

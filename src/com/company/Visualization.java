@@ -35,7 +35,6 @@ class Visualization extends JPanel {
     JLabel timeLabel = new JLabel("0.0h");
     GridBagConstraints gc = new GridBagConstraints();
 
-
     Visualization(Simulation S) {
         this.S = S;
         setSize(1500, 1500);
@@ -400,8 +399,10 @@ class Visualization extends JPanel {
         return this;
     }
 
-    public void printBMP(int simTime) {
+    public void printBMP(int simTime, String inputFolder) {
         BufferedImage image = new BufferedImage(1500, 1500, BufferedImage.TYPE_INT_RGB);
+
+        String folder = inputFolder;
 
         Graphics gBMP = image.getGraphics();
 
@@ -411,7 +412,7 @@ class Visualization extends JPanel {
 
         try {
             String numberAsString = String.format ("%04d", simTime / 90);
-            ImageIO.write(image, "BMP", new File("BMPs/fifty_kill_" + numberAsString + ".bmp"));
+            ImageIO.write(image, "BMP", new File(folder + "/fifty_kill_" + numberAsString + ".bmp"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -420,7 +421,7 @@ class Visualization extends JPanel {
 
     class Rotator extends MouseAdapter {
         static final double PI = 3.14159265358979323846264338327950288419716939937511;
-        double r = 1000, theta = -.07, phi = -0.03;
+        double r = 1500, theta = -.07, phi = -0.03;
         int x0, y0;
 
         @Override
