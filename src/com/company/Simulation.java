@@ -1683,7 +1683,7 @@ public class Simulation extends Box {
             }
 
             if(tumor) {
-                numTumorVsTimeToCSV(numTumorCellsVsTimeTemp, tumorTime, runNum);
+                numTumorVsTimeToCSV(numTumorCellsVsTimeTemp, tumorTimeTemp, runNum);
                 //numTCellsVsTimeToCSV(numTCellsVsTime, tumorTime, runNum);
             }
 
