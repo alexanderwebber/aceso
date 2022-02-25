@@ -15,7 +15,7 @@ class Visualization extends JPanel {
     Simulation S;
     boolean box_view = true;
     boolean slicer_view = false;
-    boolean see_box = true;
+    boolean see_box = false;
     boolean see_gels = true;
     boolean see_tcell = true;
     boolean see_tumor = true;
@@ -58,14 +58,6 @@ class Visualization extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        String timeValue = String.format("%.1f", (S.sim_time * (20.0 / 3600.0)));
-
-        if(S.sim_time * (20.0 / 3600.0) % 0.5 == 0) {
-            timeLabel.setText("    " + timeValue + "h");
-            timeLabel.setFont(new Font("Serif", Font.BOLD, 28));
-            timeLabel.setForeground(Color.WHITE);
-        }
-
         g.setColor(Color.black);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
@@ -84,6 +76,8 @@ class Visualization extends JPanel {
             if (see_tumor) {
                 drawTumoroids();
             }
+
+            addTime(timeLabel);
 
             try {
                 new QuickSort(drawthis, 0, drawObjects);
@@ -252,18 +246,18 @@ class Visualization extends JPanel {
             corner[0] += this.getWidth() / 2;
             corner[1] += this.getHeight() / 2;
         }
-        drawthis[drawObjects++] = new LineSegment(corners[0][0], corners[0][1], corners[0][2], corners[1][0], corners[1][1], corners[1][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[0][0], corners[0][1], corners[0][2], corners[2][0], corners[2][1], corners[2][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[0][0], corners[0][1], corners[0][2], corners[4][0], corners[4][1], corners[4][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[1][0], corners[1][1], corners[1][2], corners[3][0], corners[3][1], corners[3][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[1][0], corners[1][1], corners[1][2], corners[5][0], corners[5][1], corners[5][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[2][0], corners[2][1], corners[2][2], corners[3][0], corners[3][1], corners[3][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[2][0], corners[2][1], corners[2][2], corners[6][0], corners[6][1], corners[6][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[3][0], corners[3][1], corners[3][2], corners[7][0], corners[7][1], corners[7][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[4][0], corners[4][1], corners[4][2], corners[5][0], corners[5][1], corners[5][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[4][0], corners[4][1], corners[4][2], corners[6][0], corners[6][1], corners[6][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[5][0], corners[5][1], corners[5][2], corners[7][0], corners[7][1], corners[7][2]);
-        drawthis[drawObjects++] = new LineSegment(corners[6][0], corners[6][1], corners[6][2], corners[7][0], corners[7][1], corners[7][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[0][0], corners[0][1], corners[0][2], corners[1][0], corners[1][1], corners[1][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[0][0], corners[0][1], corners[0][2], corners[2][0], corners[2][1], corners[2][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[0][0], corners[0][1], corners[0][2], corners[4][0], corners[4][1], corners[4][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[1][0], corners[1][1], corners[1][2], corners[3][0], corners[3][1], corners[3][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[1][0], corners[1][1], corners[1][2], corners[5][0], corners[5][1], corners[5][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[2][0], corners[2][1], corners[2][2], corners[3][0], corners[3][1], corners[3][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[2][0], corners[2][1], corners[2][2], corners[6][0], corners[6][1], corners[6][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[3][0], corners[3][1], corners[3][2], corners[7][0], corners[7][1], corners[7][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[4][0], corners[4][1], corners[4][2], corners[5][0], corners[5][1], corners[5][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[4][0], corners[4][1], corners[4][2], corners[6][0], corners[6][1], corners[6][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[5][0], corners[5][1], corners[5][2], corners[7][0], corners[7][1], corners[7][2]);
+//        drawthis[drawObjects++] = new LineSegment(corners[6][0], corners[6][1], corners[6][2], corners[7][0], corners[7][1], corners[7][2]);
     }
 
     private void addGels() {
@@ -296,6 +290,18 @@ class Visualization extends JPanel {
 
             drawthis[drawObjects++] = temp;
         }
+    }
+
+    private void addTime(JLabel timeLabel) {
+
+        String timeValue = String.format("%.1f", (S.sim_time * (20.0 / 3600.0)));
+
+        if(S.sim_time * (20.0 / 3600.0) % 0.5 == 0) {
+            timeLabel.setText("    " + timeValue + "h");
+            timeLabel.setFont(new Font("Serif", Font.BOLD, 28));
+            timeLabel.setForeground(Color.WHITE);
+        }
+
     }
 
     private void addParticles() {

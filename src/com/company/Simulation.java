@@ -7,6 +7,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Path;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -1578,8 +1579,8 @@ public class Simulation extends Box {
         double[][] msdArray = new double[2][simulationTimeLimit / stepReduction];
 
         try {
-            FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
-            FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
+//            FileWriter breadcrumbWriter = new FileWriter("breadcrumbs.csv");
+//            FileWriter breadcrumbWriterNoPBC = new FileWriter("breadcrumbs_no_pbc.csv");
 
             long startTime = System.nanoTime();
 
@@ -1657,7 +1658,7 @@ public class Simulation extends Box {
                 }
 
                 if((int)sim_time % 90 == 0) {
-                    panel.printBMP((int)sim_time, "with_tCells_visible");
+                    panel.printBMP((int)sim_time, "BMPs");
                 }
 
                 t += dt;
@@ -1683,8 +1684,9 @@ public class Simulation extends Box {
             }
 
             if(tumor) {
+                System.out.println("Final Number of Tumor Cells:" + getTumoroids().size());
                 numTumorVsTimeToCSV(numTumorCellsVsTimeTemp, tumorTimeTemp, runNum);
-                //numTCellsVsTimeToCSV(numTCellsVsTime, tumorTime, runNum);
+                numTCellsVsTimeToCSV(numTCellsVsTimeTemp, tumorTimeTemp, runNum);
             }
 
             //FileWriter avgWriter = new FileWriter(msdFileName);
@@ -1706,8 +1708,8 @@ public class Simulation extends Box {
             //cellWriter.flush();
             //avgWriter.flush();
             //residenceWriter.flush();
-            breadcrumbWriter.flush();
-            breadcrumbWriterNoPBC.flush();
+//            breadcrumbWriter.flush();
+//            breadcrumbWriterNoPBC.flush();
             //xyzWriter.flush();
 
             long finishTime = System.nanoTime() - startTime;
@@ -1722,8 +1724,8 @@ public class Simulation extends Box {
             //refractoryWriter.close();
             //killWriter.close();
             //cellWriter.close();
-            breadcrumbWriter.close();
-            breadcrumbWriterNoPBC.close();
+//            breadcrumbWriter.close();
+//            breadcrumbWriterNoPBC.close();
             //xyzWriter.close();
 
 
